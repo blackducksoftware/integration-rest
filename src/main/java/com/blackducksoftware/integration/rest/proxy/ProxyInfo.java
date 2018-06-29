@@ -41,7 +41,9 @@ import com.blackducksoftware.integration.util.proxy.ProxyUtil;
 
 public class ProxyInfo extends Stringable implements Serializable {
     public final static ProxyInfo NO_PROXY_INFO = new NoProxyInfo();
+
     private static final long serialVersionUID = -7476704373593358472L;
+
     private final String host;
     private final int port;
     private final Credentials proxyCredentials;
@@ -134,12 +136,6 @@ public class ProxyInfo extends Stringable implements Serializable {
         return ignoredProxyHosts;
     }
 
-    private Credentials getProxyCredentials() {
-        return proxyCredentials;
-    }
-
-    ;
-
     public String getNtlmDomain() {
         return ntlmDomain;
     }
@@ -150,6 +146,10 @@ public class ProxyInfo extends Stringable implements Serializable {
 
     public boolean hasAuthenticatedProxySettings() {
         return proxyCredentials != null && StringUtils.isNotBlank(proxyCredentials.getUsername()) && StringUtils.isNotBlank(proxyCredentials.getEncryptedPassword());
+    }
+
+    private Credentials getProxyCredentials() {
+        return proxyCredentials;
     }
 
     private final static class NoProxyInfo extends ProxyInfo {

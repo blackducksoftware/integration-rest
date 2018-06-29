@@ -69,10 +69,10 @@ import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 
 public class CertificateHandler {
     public static final String PEER_CERTIFICATES = "PEER_CERTIFICATES";
-    public final IntLogger logger;
 
-    public int timeout = 120;
-    public ProxyInfo proxyInfo = ProxyInfo.NO_PROXY_INFO;
+    private final IntLogger logger;
+    private final int timeout = 120;
+    private final ProxyInfo proxyInfo = ProxyInfo.NO_PROXY_INFO;
 
     private File javaHomeOverride;
 
@@ -259,14 +259,6 @@ public class CertificateHandler {
         return keyStore;
     }
 
-    private String getTrustStoreType() {
-        return System.getProperty("javax.net.ssl.trustStoreType", KeyStore.getDefaultType());
-    }
-
-    private char[] getKeyStorePassword() {
-        return System.getProperty("javax.net.ssl.trustStorePassword", "changeit").toCharArray();
-    }
-
     public File getTrustStore() {
         File trustStore;
         if (javaHomeOverride != null) {
@@ -280,6 +272,14 @@ public class CertificateHandler {
         }
 
         return trustStore;
+    }
+
+    private String getTrustStoreType() {
+        return System.getProperty("javax.net.ssl.trustStoreType", KeyStore.getDefaultType());
+    }
+
+    private char[] getKeyStorePassword() {
+        return System.getProperty("javax.net.ssl.trustStorePassword", "changeit").toCharArray();
     }
 
     private File resolveTrustStoreFile(final File javaHome) {

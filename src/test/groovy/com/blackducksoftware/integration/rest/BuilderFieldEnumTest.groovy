@@ -22,13 +22,13 @@
  * under the License.*/
 package com.blackducksoftware.integration.rest
 
+import org.junit.Test
+
 import com.blackducksoftware.integration.rest.connection.RestConnectionField
 import com.blackducksoftware.integration.rest.credentials.CredentialsField
 import com.blackducksoftware.integration.rest.proxy.ProxyInfoField
-import org.junit.Test
 
 class BuilderFieldEnumTest {
-
     @Test
     public void testRestConnectionFieldEnum() {
         assert "restConnectionUrl" == RestConnectionField.URL.getKey()
@@ -51,5 +51,4 @@ class BuilderFieldEnumTest {
         assert "proxyPassword" == ProxyInfoField.PROXYPASSWORD.getKey();
         assert "noProxyHosts" == ProxyInfoField.NOPROXYHOSTS.getKey();
     }
-
 }

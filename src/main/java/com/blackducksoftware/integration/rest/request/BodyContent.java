@@ -38,8 +38,6 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.google.gson.Gson;
-
 /**
  * Only one of the body content fields should be set at any one time.
  */
@@ -47,34 +45,23 @@ public class BodyContent {
     private final File bodyContentFile;
     private final Map<String, String> bodyContentMap;
     private final String bodyContent;
-    private final Object bodyContentObject;
 
     public BodyContent(final File bodyContentFile) {
         this.bodyContentFile = bodyContentFile;
         this.bodyContentMap = null;
         this.bodyContent = null;
-        this.bodyContentObject = null;
     }
 
     public BodyContent(final Map<String, String> bodyContentMap) {
         this.bodyContentFile = null;
         this.bodyContentMap = bodyContentMap;
         this.bodyContent = null;
-        this.bodyContentObject = null;
     }
 
     public BodyContent(final String bodyContent) {
         this.bodyContentFile = null;
         this.bodyContentMap = null;
         this.bodyContent = bodyContent;
-        this.bodyContentObject = null;
-    }
-
-    public BodyContent(final Object bodyContentObject) {
-        this.bodyContentFile = null;
-        this.bodyContentMap = null;
-        this.bodyContent = null;
-        this.bodyContentObject = bodyContentObject;
     }
 
     public BodyContentType getBodyContentType() {
@@ -84,14 +71,12 @@ public class BodyContent {
             return BodyContentType.MAP;
         } else if (StringUtils.isNotBlank(bodyContent)) {
             return BodyContentType.STRING;
-        } else if (bodyContentObject != null) {
-            return BodyContentType.OBJECT;
         } else {
             return null;
         }
     }
 
-    public HttpEntity createEntity(final Request request, final Gson gson) {
+    public HttpEntity createEntity(final Request request) {
         final BodyContentType bodyContentType = getBodyContentType();
 
         if (BodyContentType.FILE == bodyContentType) {
@@ -105,8 +90,6 @@ public class BodyContent {
             return new UrlEncodedFormEntity(parameters, request.getBodyEncoding());
         } else if (BodyContentType.STRING == bodyContentType) {
             return new StringEntity(getBodyContent(), ContentType.create(request.getMimeType(), request.getBodyEncoding()));
-        } else if (BodyContentType.OBJECT == bodyContentType) {
-            return new StringEntity(gson.toJson(getBodyContentObject()), ContentType.create(request.getMimeType(), request.getBodyEncoding()));
         }
 
         return null;
@@ -124,15 +107,10 @@ public class BodyContent {
         return bodyContent;
     }
 
-    public Object getBodyContentObject() {
-        return bodyContentObject;
-    }
-
     public static enum BodyContentType {
         FILE,
         MAP,
         STRING,
-        OBJECT;
     }
 
 }

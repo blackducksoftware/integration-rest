@@ -33,7 +33,6 @@ import org.apache.http.entity.ContentType;
 
 import com.blackducksoftware.integration.rest.HttpMethod;
 import com.blackducksoftware.integration.util.Stringable;
-import com.google.gson.Gson;
 
 public class Request extends Stringable {
     private final String uri;
@@ -64,11 +63,11 @@ public class Request extends Stringable {
         this.bodyContent = bodyContent;
     }
 
-    public HttpEntity createHttpEntity(final Gson gson) {
+    public HttpEntity createHttpEntity() {
         if (bodyContent == null) {
             return null;
         }
-        return bodyContent.createEntity(this, gson);
+        return bodyContent.createEntity(this);
     }
 
     public String getUri() {
@@ -209,7 +208,6 @@ public class Request extends Stringable {
         public BodyContent getBodyContent() {
             return bodyContent;
         }
-
     }
 
 }
