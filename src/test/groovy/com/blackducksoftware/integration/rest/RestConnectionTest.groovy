@@ -22,18 +22,6 @@
  * under the License.*/
 package com.blackducksoftware.integration.rest
 
-import java.nio.charset.Charset
-
-import org.apache.commons.codec.Charsets
-import org.apache.http.HttpHeaders
-import org.apache.http.client.methods.HttpRequestBase
-import org.apache.http.client.methods.HttpUriRequest
-import org.apache.http.client.methods.RequestBuilder
-import org.apache.http.entity.ContentType
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-
 import com.blackducksoftware.integration.exception.IntegrationException
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
@@ -45,11 +33,21 @@ import com.blackducksoftware.integration.rest.exception.IntegrationRestException
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo
 import com.blackducksoftware.integration.rest.proxy.ProxyInfoBuilder
 import com.blackducksoftware.integration.rest.request.Request
-
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import org.apache.commons.codec.Charsets
+import org.apache.http.HttpHeaders
+import org.apache.http.client.methods.HttpRequestBase
+import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.entity.ContentType
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+
+import java.nio.charset.Charset
 
 class RestConnectionTest {
     public static final int CONNECTION_TIMEOUT = 213
@@ -72,11 +70,11 @@ class RestConnectionTest {
 
     private RestConnection getRestConnection(MockResponse response) {
         final Dispatcher dispatcher = new Dispatcher() {
-                    @Override
-                    public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                        response
-                    }
-                };
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                response
+            }
+        };
         server.setDispatcher(dispatcher);
         UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder();
         builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
@@ -204,6 +202,13 @@ class RestConnectionTest {
         } catch (IntegrationRestException e) {
             assert 401 == e.httpStatusCode
         }
+    }
+
+    @Test
+    public void testParsingDate() {
+        String dateString = '2017-03-02T03:35:23.456Z'
+        Date date = RestConnection.parseDateString(dateString)
+        assert dateString.equals(RestConnection.formatDate(date))
     }
 
     @Test

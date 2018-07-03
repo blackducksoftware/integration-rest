@@ -69,10 +69,16 @@ import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 
 public class CertificateHandler {
     public static final String PEER_CERTIFICATES = "PEER_CERTIFICATES";
+    public final IntLogger logger;
 
+<<<<<<< HEAD
     private final IntLogger logger;
     private int timeout = 120;
     private ProxyInfo proxyInfo = ProxyInfo.NO_PROXY_INFO;
+=======
+    public int timeout = 120;
+    public ProxyInfo proxyInfo = ProxyInfo.NO_PROXY_INFO;
+>>>>>>> parent of 6c46548...  "using snapshot post release"
 
     private File javaHomeOverride;
 
@@ -259,6 +265,14 @@ public class CertificateHandler {
         return keyStore;
     }
 
+    private String getTrustStoreType() {
+        return System.getProperty("javax.net.ssl.trustStoreType", KeyStore.getDefaultType());
+    }
+
+    private char[] getKeyStorePassword() {
+        return System.getProperty("javax.net.ssl.trustStorePassword", "changeit").toCharArray();
+    }
+
     public File getTrustStore() {
         File trustStore;
         if (javaHomeOverride != null) {
@@ -272,14 +286,6 @@ public class CertificateHandler {
         }
 
         return trustStore;
-    }
-
-    private String getTrustStoreType() {
-        return System.getProperty("javax.net.ssl.trustStoreType", KeyStore.getDefaultType());
-    }
-
-    private char[] getKeyStorePassword() {
-        return System.getProperty("javax.net.ssl.trustStorePassword", "changeit").toCharArray();
     }
 
     private File resolveTrustStoreFile(final File javaHome) {
