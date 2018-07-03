@@ -153,14 +153,6 @@ public class Request extends Stringable {
             return this;
         }
 
-        public Builder queryParametersUniqueValues(final Map<String, String> queryParameters) {
-            this.queryParameters = new HashMap<>();
-            queryParameters.forEach((k, v) -> {
-                addQueryParameter(k, v);
-            });
-            return this;
-        }
-
         public Builder addQueryParameter(final String key, final String value) {
             if (this.queryParameters == null) {
                 this.queryParameters = new HashMap<>();

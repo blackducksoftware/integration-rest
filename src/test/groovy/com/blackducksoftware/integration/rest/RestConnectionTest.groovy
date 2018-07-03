@@ -253,7 +253,7 @@ class RestConnectionTest {
         assert null != requestBase.getURI()
         assert requestBase.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
 
-        request = new Request.Builder(uri).queryParameters([offset: '0', limit: '100']).build()
+        request = new Request.Builder(uri).queryParameters([offset: ['0'] as Set, limit: ['100'] as Set]).build()
         requestBase = restConnection.createHttpRequest(request)
         assert HttpMethod.GET.name() == requestBase.method
         assert ContentType.APPLICATION_JSON.getMimeType() == requestBase.getFirstHeader(HttpHeaders.ACCEPT).getValue()
@@ -262,7 +262,7 @@ class RestConnectionTest {
         assert requestBase.getURI().toString().contains('offset=0')
         assert requestBase.getURI().toString().contains('limit=100')
 
-        request = new Request.Builder(uri).queryParameters([q: 'q', test: 'one', query: 'two', offset: '0', limit: '100']).mimeType('mime').additionalHeaders([header: 'one', thing: 'two']).build()
+        request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').additionalHeaders([header: 'one', thing: 'two']).build()
         requestBase = restConnection.createHttpRequest(request)
         assert HttpMethod.GET.name() == requestBase.method
         assert 'one' == requestBase.getFirstHeader('header').getValue()
@@ -274,7 +274,7 @@ class RestConnectionTest {
 
         Map headersMap = [header: 'one', thing: 'two']
         headersMap.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
-        request = new Request.Builder(uri).queryParameters([q: 'q', test: 'one', query: 'two', offset: '0', limit: '100']).mimeType('mime').bodyEncoding(bodyEncoding).additionalHeaders(headersMap).build()
+        request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').bodyEncoding(bodyEncoding).additionalHeaders(headersMap).build()
         requestBase = restConnection.createHttpRequest(request)
         assert HttpMethod.GET.name() == requestBase.method
         assert ContentType.APPLICATION_XML.getMimeType() == requestBase.getFirstHeader(HttpHeaders.ACCEPT).getValue()
