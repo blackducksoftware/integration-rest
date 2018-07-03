@@ -26,7 +26,9 @@ package com.blackducksoftware.integration.rest.request;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -39,7 +41,7 @@ public class Request extends Stringable {
     private final HttpMethod method;
     private final String mimeType;
     private final Charset bodyEncoding;
-    private final Map<String, String> queryParameters;
+    private final Map<String, Set<String>> queryParameters;
     private final Map<String, String> additionalHeaders;
     private final BodyContent bodyContent;
 
@@ -53,7 +55,7 @@ public class Request extends Stringable {
         this.bodyContent = builder.getBodyContent();
     }
 
-    public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> queryParameters, final Map<String, String> additionalHeaders, final BodyContent bodyContent) {
+    public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, Set<String>> queryParameters, final Map<String, String> additionalHeaders, final BodyContent bodyContent) {
         this.uri = uri;
         this.method = method;
         this.mimeType = mimeType;
@@ -74,8 +76,8 @@ public class Request extends Stringable {
         return uri;
     }
 
-    public Map<String, String> getPopulatedQueryParameters() {
-        final Map<String, String> populatedQueryParameters = new HashMap<>();
+    public Map<String, Set<String>> getPopulatedQueryParameters() {
+        final Map<String, Set<String>> populatedQueryParameters = new HashMap<>();
         if (getQueryParameters() != null && !getQueryParameters().isEmpty()) {
             populatedQueryParameters.putAll(getQueryParameters());
         }
@@ -94,7 +96,7 @@ public class Request extends Stringable {
         return bodyEncoding;
     }
 
-    public Map<String, String> getQueryParameters() {
+    public Map<String, Set<String>> getQueryParameters() {
         return queryParameters;
     }
 
@@ -111,7 +113,7 @@ public class Request extends Stringable {
         private HttpMethod method;
         private String mimeType;
         private Charset bodyEncoding;
-        private Map<String, String> queryParameters;
+        private Map<String, Set<String>> queryParameters;
         private Map<String, String> additionalHeaders;
         private BodyContent bodyContent;
 
@@ -146,8 +148,16 @@ public class Request extends Stringable {
             return this;
         }
 
-        public Builder queryParameters(final Map<String, String> queryParameters) {
+        public Builder queryParameters(final Map<String, Set<String>> queryParameters) {
             this.queryParameters = queryParameters;
+            return this;
+        }
+
+        public Builder queryParametersUniqueValues(final Map<String, String> queryParameters) {
+            this.queryParameters = new HashMap<>();
+            queryParameters.forEach((k, v) -> {
+                addQueryParameter(k, v);
+            });
             return this;
         }
 
@@ -155,7 +165,7 @@ public class Request extends Stringable {
             if (this.queryParameters == null) {
                 this.queryParameters = new HashMap<>();
             }
-            this.queryParameters.put(key, value);
+            this.queryParameters.computeIfAbsent(key, k -> new HashSet<>()).add(value);
             return this;
         }
 
@@ -197,7 +207,7 @@ public class Request extends Stringable {
             return bodyEncoding;
         }
 
-        public Map<String, String> getQueryParameters() {
+        public Map<String, Set<String>> getQueryParameters() {
             return queryParameters;
         }
 
