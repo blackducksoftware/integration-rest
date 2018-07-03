@@ -35,6 +35,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -81,6 +82,8 @@ import com.blackducksoftware.integration.rest.request.Response;
 public abstract class RestConnection implements Closeable {
     public static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null";
 
+    protected final IntLogger logger;
+
     private final URL baseUrl;
     private int timeout = 120;
     private final ProxyInfo proxyInfo;
@@ -89,7 +92,6 @@ public abstract class RestConnection implements Closeable {
     private final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
     private final Map<String, String> commonRequestHeaders = new HashMap<>();
     private boolean alwaysTrustServerCertificate;
-    private final IntLogger logger;
     private CloseableHttpClient client;
 
     public RestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo) {
@@ -154,13 +156,12 @@ public abstract class RestConnection implements Closeable {
             throw new IntegrationException("Missing the HttpMethod");
         }
         try {
-            URIBuilder uriBuilder = null;
+            final URIBuilder uriBuilder;
             if (StringUtils.isNotBlank(request.getUri())) {
                 uriBuilder = new URIBuilder(request.getUri());
             } else if (baseUrl != null) {
                 uriBuilder = new URIBuilder(baseUrl.toURI());
-            }
-            if (uriBuilder == null) {
+            } else {
                 throw new IntegrationException("Missing the URI");
             }
             String mimeType = ContentType.APPLICATION_JSON.getMimeType();
@@ -186,11 +187,13 @@ public abstract class RestConnection implements Closeable {
                     requestBuilder.addHeader(header.getKey(), header.getValue());
                 }
             }
-            final Map<String, String> populatedQueryParameters = request.getPopulatedQueryParameters();
+            final Map<String, Set<String>> populatedQueryParameters = request.getPopulatedQueryParameters();
             if (!populatedQueryParameters.isEmpty()) {
-                for (final Entry<String, String> queryParameter : populatedQueryParameters.entrySet()) {
-                    uriBuilder.addParameter(queryParameter.getKey(), queryParameter.getValue());
-                }
+                populatedQueryParameters.forEach((paramKey, paramValues) -> {
+                    paramValues.forEach((paramValue) -> {
+                        uriBuilder.addParameter(paramKey, paramValue);
+                    });
+                });
             }
             requestBuilder.setUri(uriBuilder.build());
             final HttpEntity entity = request.createHttpEntity();
@@ -425,8 +428,12 @@ public abstract class RestConnection implements Closeable {
         return commonRequestHeaders;
     }
 
-    public IntLogger getLogger() {
-        return logger;
+    public void addCommonRequestHeader(final String key, final String value) {
+        commonRequestHeaders.put(key, value);
+    }
+
+    public void addCommonRequestHeaders(final Map<String, String> commonRequestHeaders) {
+        commonRequestHeaders.putAll(commonRequestHeaders);
     }
 
 }

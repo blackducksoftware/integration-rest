@@ -71,8 +71,8 @@ public class CertificateHandler {
     public static final String PEER_CERTIFICATES = "PEER_CERTIFICATES";
 
     private final IntLogger logger;
-    private final int timeout = 120;
-    private final ProxyInfo proxyInfo = ProxyInfo.NO_PROXY_INFO;
+    private int timeout = 120;
+    private ProxyInfo proxyInfo = ProxyInfo.NO_PROXY_INFO;
 
     private File javaHomeOverride;
 
@@ -296,6 +296,22 @@ public class CertificateHandler {
         }
 
         return trustStoreFile;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(final int timeout) {
+        this.timeout = timeout;
+    }
+
+    public ProxyInfo getProxyInfo() {
+        return proxyInfo;
+    }
+
+    public void setProxyInfo(final ProxyInfo proxyInfo) {
+        this.proxyInfo = proxyInfo;
     }
 
 }
