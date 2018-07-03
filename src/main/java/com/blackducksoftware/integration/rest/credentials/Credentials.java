@@ -33,7 +33,6 @@ import com.blackducksoftware.integration.util.Stringable;
 
 public class Credentials extends Stringable implements Serializable {
     private static final long serialVersionUID = 4601465049752304687L;
-
     private final String username;
     private final String encryptedPassword;
     private final int actualPasswordLength;

@@ -32,9 +32,17 @@ import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+<<<<<<< HEAD
+import java.util.Set;
+=======
+import java.util.TimeZone;
+>>>>>>> parent of 6c46548...  "using snapshot post release"
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -74,6 +82,9 @@ import com.blackducksoftware.integration.rest.exception.IntegrationRestException
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.blackducksoftware.integration.rest.request.Request;
 import com.blackducksoftware.integration.rest.request.Response;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 /**
  * The parent class of all Hub connections.
@@ -81,15 +92,29 @@ import com.blackducksoftware.integration.rest.request.Response;
 public abstract class RestConnection implements Closeable {
     public static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null";
 
+<<<<<<< HEAD
+    protected final IntLogger logger;
+
     private final URL baseUrl;
     private int timeout = 120;
+=======
+    public final Gson gson = new GsonBuilder().setDateFormat(RestConstants.JSON_DATE_FORMAT).create();
+    public final JsonParser jsonParser = new JsonParser();
+    public final Map<String, String> commonRequestHeaders = new HashMap<>();
+    public final URL baseUrl;
+>>>>>>> parent of 6c46548...  "using snapshot post release"
     private final ProxyInfo proxyInfo;
     private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
     private final HttpClientBuilder clientBuilder = HttpClientBuilder.create();
     private final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
+<<<<<<< HEAD
     private final Map<String, String> commonRequestHeaders = new HashMap<>();
     private boolean alwaysTrustServerCertificate;
-    private final IntLogger logger;
+=======
+    public int timeout = 120;
+    public boolean alwaysTrustServerCertificate;
+    public IntLogger logger;
+>>>>>>> parent of 6c46548...  "using snapshot post release"
     private CloseableHttpClient client;
 
     public RestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo) {
@@ -99,157 +124,30 @@ public abstract class RestConnection implements Closeable {
         this.proxyInfo = proxyInfo;
     }
 
+    public static Date parseDateString(final String dateString) throws ParseException {
+        final SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.parse(dateString);
+    }
+
+    public static String formatDate(final Date date) {
+        final SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(date);
+    }
+
     public void connect() throws IntegrationException {
         addBuilderConnectionTimes();
         addBuilderProxyInformation();
-        populateHttpClientBuilder(clientBuilder, defaultRequestConfigBuilder);
+        addBuilderAuthentication();
         assembleClient();
         setClient(clientBuilder.build());
-        completeConnection();
+        clientAuthenticate();
     }
 
-    /**
-     * Subclasses can add to the builders any additional fields they need to successfully connect
-     */
-    public abstract void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) throws IntegrationException;
+    public abstract void addBuilderAuthentication() throws IntegrationException;
 
-    /**
-     * Subclasses might need to do final processing to the http client (usually authentication)
-     */
-    public abstract void completeConnection() throws IntegrationException;
-
-    public RequestBuilder createRequestBuilder(final HttpMethod method) throws IntegrationException {
-        return createRequestBuilder(method, null);
-    }
-
-    public RequestBuilder createRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IntegrationException {
-        if (method == null) {
-            throw new IntegrationException("Missing field 'method'");
-        }
-        final RequestBuilder requestBuilder = RequestBuilder.create(method.name());
-
-        final Map<String, String> requestHeaders = new HashMap<>();
-        requestHeaders.putAll(commonRequestHeaders);
-        if (additionalHeaders != null && !additionalHeaders.isEmpty()) {
-            requestHeaders.putAll(additionalHeaders);
-        }
-        for (final Entry<String, String> header : requestHeaders.entrySet()) {
-            requestBuilder.addHeader(header.getKey(), header.getValue());
-        }
-        if (baseUrl != null) {
-            try {
-                requestBuilder.setUri(baseUrl.toURI());
-            } catch (final URISyntaxException e) {
-                throw new IntegrationException(e.getMessage(), e);
-            }
-        }
-        return requestBuilder;
-    }
-
-    public HttpUriRequest createHttpRequest(final Request request) throws IntegrationException {
-        if (request == null) {
-            throw new IntegrationException("Missing the Request");
-        }
-        if (request.getMethod() == null) {
-            throw new IntegrationException("Missing the HttpMethod");
-        }
-        try {
-            URIBuilder uriBuilder = null;
-            if (StringUtils.isNotBlank(request.getUri())) {
-                uriBuilder = new URIBuilder(request.getUri());
-            } else if (baseUrl != null) {
-                uriBuilder = new URIBuilder(baseUrl.toURI());
-            }
-            if (uriBuilder == null) {
-                throw new IntegrationException("Missing the URI");
-            }
-            String mimeType = ContentType.APPLICATION_JSON.getMimeType();
-            Charset bodyEncoding = Charsets.UTF_8;
-            if (StringUtils.isNotBlank(request.getMimeType())) {
-                mimeType = request.getMimeType();
-            }
-            if (request.getBodyEncoding() != null) {
-                bodyEncoding = request.getBodyEncoding();
-            }
-            final RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
-            if (HttpMethod.GET == request.getMethod() && (request.getAdditionalHeaders() == null || request.getAdditionalHeaders().isEmpty() || !request.getAdditionalHeaders().containsKey(HttpHeaders.ACCEPT))) {
-                requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
-            }
-            requestBuilder.setCharset(bodyEncoding);
-            if (request.getAdditionalHeaders() != null && !request.getAdditionalHeaders().isEmpty()) {
-                for (final Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
-                    requestBuilder.addHeader(header.getKey(), header.getValue());
-                }
-            }
-            if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
-                for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
-                    requestBuilder.addHeader(header.getKey(), header.getValue());
-                }
-            }
-            final Map<String, String> populatedQueryParameters = request.getPopulatedQueryParameters();
-            if (!populatedQueryParameters.isEmpty()) {
-                for (final Entry<String, String> queryParameter : populatedQueryParameters.entrySet()) {
-                    uriBuilder.addParameter(queryParameter.getKey(), queryParameter.getValue());
-                }
-            }
-            requestBuilder.setUri(uriBuilder.build());
-            final HttpEntity entity = request.createHttpEntity();
-            if (entity != null) {
-                requestBuilder.setEntity(entity);
-            }
-            return requestBuilder.build();
-        } catch (final URISyntaxException e) {
-            throw new IntegrationException(e.getMessage(), e);
-        }
-    }
-
-    public HttpUriRequest copyHttpRequest(final HttpUriRequest request) throws IntegrationException {
-        final RequestBuilder requestBuilder = RequestBuilder.copy(request);
-        if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
-            for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
-            }
-        }
-        return requestBuilder.build();
-    }
-
-    public Response executeRequest(final Request request) throws IntegrationException {
-        return executeRequest(createHttpRequest(request));
-    }
-
-    public Response executeRequest(final HttpUriRequest request) throws IntegrationException {
-        final long start = System.currentTimeMillis();
-        logMessage(LogLevel.TRACE, "starting request: " + request.getURI().toString());
-        try {
-            return handleClientExecution(request, 0);
-        } finally {
-            final long end = System.currentTimeMillis();
-            logMessage(LogLevel.TRACE, String.format("completed request: %s (%d ms)", request.getURI().toString(), end - start));
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (null != client) {
-            client.close();
-        }
-    }
-
-    protected void logRequestHeaders(final HttpUriRequest request) {
-        if (isDebugLogging()) {
-            final String requestName = request.getClass().getSimpleName();
-            logMessage(LogLevel.TRACE, requestName + " : " + request.toString());
-            logHeaders(requestName, request.getAllHeaders());
-        }
-    }
-
-    protected void logResponseHeaders(final HttpResponse response) {
-        if (isDebugLogging()) {
-            final String responseName = response.getClass().getSimpleName();
-            logMessage(LogLevel.TRACE, responseName + " : " + response.toString());
-            logHeaders(responseName, response.getAllHeaders());
-        }
-    }
+    public abstract void clientAuthenticate() throws IntegrationException;
 
     private void addBuilderConnectionTimes() {
         defaultRequestConfigBuilder.setConnectTimeout(timeout * 1000);
@@ -300,6 +198,117 @@ public abstract class RestConnection implements Closeable {
         if (this.proxyInfo.hasAuthenticatedProxySettings()) {
             final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getDecryptedPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
             credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
+        }
+    }
+
+    public RequestBuilder createRequestBuilder(final HttpMethod method) throws IntegrationException {
+        return createRequestBuilder(method, null);
+    }
+
+    public RequestBuilder createRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IntegrationException {
+        if (method == null) {
+            throw new IntegrationException("Missing field 'method'");
+        }
+        final RequestBuilder requestBuilder = RequestBuilder.create(method.name());
+
+        final Map<String, String> requestHeaders = new HashMap<>();
+        requestHeaders.putAll(commonRequestHeaders);
+        if (additionalHeaders != null && !additionalHeaders.isEmpty()) {
+            requestHeaders.putAll(additionalHeaders);
+        }
+        for (final Entry<String, String> header : requestHeaders.entrySet()) {
+            requestBuilder.addHeader(header.getKey(), header.getValue());
+        }
+        if (baseUrl != null) {
+            try {
+                requestBuilder.setUri(baseUrl.toURI());
+            } catch (final URISyntaxException e) {
+                throw new IntegrationException(e.getMessage(), e);
+            }
+        }
+        return requestBuilder;
+    }
+
+    public HttpUriRequest createHttpRequest(final Request request) throws IntegrationException {
+        if (request == null) {
+            throw new IntegrationException("Missing the Request");
+        }
+        if (request.getMethod() == null) {
+            throw new IntegrationException("Missing the HttpMethod");
+        }
+        try {
+            final URIBuilder uriBuilder;
+            if (StringUtils.isNotBlank(request.getUri())) {
+                uriBuilder = new URIBuilder(request.getUri());
+            } else if (baseUrl != null) {
+                uriBuilder = new URIBuilder(baseUrl.toURI());
+            } else {
+                throw new IntegrationException("Missing the URI");
+            }
+            String mimeType = ContentType.APPLICATION_JSON.getMimeType();
+            Charset bodyEncoding = Charsets.UTF_8;
+            if (StringUtils.isNotBlank(request.getMimeType())) {
+                mimeType = request.getMimeType();
+            }
+            if (request.getBodyEncoding() != null) {
+                bodyEncoding = request.getBodyEncoding();
+            }
+            final RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
+            if (HttpMethod.GET == request.getMethod() && (request.getAdditionalHeaders() == null || request.getAdditionalHeaders().isEmpty() || !request.getAdditionalHeaders().containsKey(HttpHeaders.ACCEPT))) {
+                requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
+            }
+            requestBuilder.setCharset(bodyEncoding);
+            if (request.getAdditionalHeaders() != null && !request.getAdditionalHeaders().isEmpty()) {
+                for (final Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
+                    requestBuilder.addHeader(header.getKey(), header.getValue());
+                }
+            }
+            if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
+                for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
+                    requestBuilder.addHeader(header.getKey(), header.getValue());
+                }
+            }
+            final Map<String, Set<String>> populatedQueryParameters = request.getPopulatedQueryParameters();
+            if (!populatedQueryParameters.isEmpty()) {
+                populatedQueryParameters.forEach((paramKey, paramValues) -> {
+                    paramValues.forEach((paramValue) -> {
+                        uriBuilder.addParameter(paramKey, paramValue);
+                    });
+                });
+            }
+            requestBuilder.setUri(uriBuilder.build());
+            final HttpEntity entity = request.createHttpEntity(gson);
+            if (entity != null) {
+                requestBuilder.setEntity(entity);
+            }
+            return requestBuilder.build();
+        } catch (final URISyntaxException e) {
+            throw new IntegrationException(e.getMessage(), e);
+        }
+    }
+
+    public HttpUriRequest copyHttpRequest(final HttpUriRequest request) throws IntegrationException {
+        final RequestBuilder requestBuilder = RequestBuilder.copy(request);
+        if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
+            for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
+                requestBuilder.addHeader(header.getKey(), header.getValue());
+            }
+        }
+        return requestBuilder.build();
+    }
+
+    public Response executeRequest(final Request request) throws IntegrationException {
+        return executeRequest(createHttpRequest(request));
+    }
+
+    public Response executeRequest(final HttpUriRequest request) throws IntegrationException {
+        final long start = System.currentTimeMillis();
+        logMessage(LogLevel.TRACE, "starting request: " + request.getURI().toString());
+        try {
+            return handleClientExecution(request, 0);
+        } finally {
+            final long end = System.currentTimeMillis();
+            logMessage(LogLevel.TRACE, String.format("completed request: %s (%d ms)", request.getURI().toString(), end - start));
         }
     }
 
@@ -361,6 +370,22 @@ public abstract class RestConnection implements Closeable {
         return logger != null && logger.getLogLevel() == LogLevel.TRACE;
     }
 
+    protected void logRequestHeaders(final HttpUriRequest request) {
+        if (isDebugLogging()) {
+            final String requestName = request.getClass().getSimpleName();
+            logMessage(LogLevel.TRACE, requestName + " : " + request.toString());
+            logHeaders(requestName, request.getAllHeaders());
+        }
+    }
+
+    protected void logResponseHeaders(final HttpResponse response) {
+        if (isDebugLogging()) {
+            final String responseName = response.getClass().getSimpleName();
+            logMessage(LogLevel.TRACE, responseName + " : " + response.toString());
+            logHeaders(responseName, response.getAllHeaders());
+        }
+    }
+
     private void logHeaders(final String requestOrResponseName, final Header[] headers) {
         if (headers != null && headers.length > 0) {
             logMessage(LogLevel.TRACE, requestOrResponseName + " headers : ");
@@ -377,32 +402,12 @@ public abstract class RestConnection implements Closeable {
         return "RestConnection [baseUrl=" + baseUrl + "]";
     }
 
-    public int getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(final int timeout) {
-        this.timeout = timeout;
-    }
-
-    public boolean isAlwaysTrustServerCertificate() {
-        return alwaysTrustServerCertificate;
-    }
-
-    public void setAlwaysTrustServerCertificate(final boolean alwaysTrustServerCertificate) {
-        this.alwaysTrustServerCertificate = alwaysTrustServerCertificate;
-    }
-
     public CloseableHttpClient getClient() {
         return client;
     }
 
     public void setClient(final CloseableHttpClient client) {
         this.client = client;
-    }
-
-    public URL getBaseUrl() {
-        return baseUrl;
     }
 
     public ProxyInfo getProxyInfo() {
@@ -421,12 +426,23 @@ public abstract class RestConnection implements Closeable {
         return defaultRequestConfigBuilder;
     }
 
+<<<<<<< HEAD
     public Map<String, String> getCommonRequestHeaders() {
         return commonRequestHeaders;
     }
 
-    public IntLogger getLogger() {
-        return logger;
+    public void addCommonRequestHeader(final String key, final String value) {
+        commonRequestHeaders.put(key, value);
     }
 
+    public void addCommonRequestHeaders(final Map<String, String> commonRequestHeaders) {
+        commonRequestHeaders.putAll(commonRequestHeaders);
+=======
+    @Override
+    public void close() throws IOException {
+        if (null != client) {
+            client.close();
+        }
+>>>>>>> parent of 6c46548...  "using snapshot post release"
+    }
 }

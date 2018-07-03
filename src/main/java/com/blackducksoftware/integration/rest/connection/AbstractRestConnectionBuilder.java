@@ -52,9 +52,9 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
     public C buildObject() {
         final ProxyInfo proxyInfo = getProxyInfo();
         final C connection = createConnection(proxyInfo);
-        connection.setAlwaysTrustServerCertificate(alwaysTrustServerCertificate);
+        connection.alwaysTrustServerCertificate = alwaysTrustServerCertificate;
         if (!this.commonRequestHeaders.isEmpty()) {
-            connection.getCommonRequestHeaders().putAll(this.commonRequestHeaders);
+            connection.commonRequestHeaders.putAll(this.commonRequestHeaders);
         }
         return connection;
     }
@@ -194,5 +194,4 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
     public void setCommonRequestHeaders(final Map<String, String> commonRequestHeaders) {
         this.commonRequestHeaders = commonRequestHeaders;
     }
-
 }

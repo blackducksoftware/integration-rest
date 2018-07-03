@@ -22,17 +22,17 @@
  * under the License.*/
 package com.blackducksoftware.integration.rest
 
-import org.apache.commons.lang3.StringUtils
-import org.junit.Test
-
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
 import com.blackducksoftware.integration.rest.connection.RestConnectionField
 import com.blackducksoftware.integration.rest.connection.UnauthenticatedRestConnectionValidator
 import com.blackducksoftware.integration.validator.ValidationResults
+import org.apache.commons.lang3.StringUtils
+import org.junit.Test
 
 class UnauthenticatedRestConnectionValidatorTest {
+
     @Test
     public void testValid() {
         UnauthenticatedRestConnectionValidator validator = new UnauthenticatedRestConnectionValidator()
@@ -73,7 +73,7 @@ class UnauthenticatedRestConnectionValidatorTest {
         validator.setBaseUrl(baseUrl)
         ValidationResults result = new ValidationResults()
         validator.validateBaseUrl(result)
-        String resultString = result.getResultString(RestConnectionField.URL)
+        final String resultString = result.getResultString(RestConnectionField.URL)
         assert null == validator.getBaseUrl()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)

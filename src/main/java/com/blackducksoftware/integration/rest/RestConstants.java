@@ -24,10 +24,6 @@
 package com.blackducksoftware.integration.rest;
 
 import java.net.HttpURLConnection;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 public class RestConstants {
     public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
@@ -75,17 +71,4 @@ public class RestConstants {
     public static final int UNAVAILABLE_503 = HttpURLConnection.HTTP_UNAVAILABLE;
     public static final int GATEWAY_TIMEOUT_504 = HttpURLConnection.HTTP_GATEWAY_TIMEOUT;
     public static final int VERSION_505 = HttpURLConnection.HTTP_VERSION;
-
-    public static Date parseDateString(final String dateString) throws ParseException {
-        final SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf.parse(dateString);
-    }
-
-    public static String formatDate(final Date date) {
-        final SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf.format(date);
-    }
-
 }

@@ -25,9 +25,6 @@ package com.blackducksoftware.integration.rest.connection;
 
 import java.net.URL;
 
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.HttpClientBuilder;
-
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
@@ -38,13 +35,11 @@ public class UnauthenticatedRestConnection extends RestConnection {
     }
 
     @Override
-    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) throws IntegrationException {
-        // no additional fields to populate
+    public void addBuilderAuthentication() throws IntegrationException {
     }
 
     @Override
-    public void completeConnection() throws IntegrationException {
-        // nothing additional needed to connect
+    public void clientAuthenticate() throws IntegrationException {
     }
 
 }
