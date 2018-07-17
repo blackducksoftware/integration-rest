@@ -27,17 +27,26 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 
 public class Response implements Closeable {
+    public static final String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    public static final String LAST_MODIFIED_HEADER_KEY = "Last-Modified";
+
     private final CloseableHttpResponse response;
 
     public Response(final CloseableHttpResponse response) {
@@ -136,6 +145,25 @@ public class Response implements Closeable {
     @Override
     public void close() throws IOException {
         response.close();
+    }
+
+    public long getLastModified() throws IntegrationException {
+        final String lastModified = getHeaderValue(LAST_MODIFIED_HEADER_KEY);
+        long lastModifiedLong = 0L;
+
+        if (StringUtils.isNotBlank(lastModified)) {
+            // Should parse the Date just like URLConnection did
+            try {
+                final SimpleDateFormat format = new SimpleDateFormat(LAST_MODIFIED_FORMAT, Locale.US);
+                format.setTimeZone(TimeZone.getTimeZone("UTC"));
+                final Date parsed = format.parse(lastModified);
+                lastModifiedLong = parsed.getTime();
+            } catch (final ParseException e) {
+                throw new IntegrationException("Could not parse the last modified date : " + e.getMessage());
+            }
+        }
+
+        return lastModifiedLong;
     }
 
 }
