@@ -14,7 +14,7 @@ version = '0.0.7'
 apply plugin: 'com.blackducksoftware.integration.library'
 
 dependencies {
-    compile 'com.blackducksoftware.integration:integration-common:11.3.0'
+    compile 'com.blackducksoftware.integration:integration-common:11.3.1'
 
 
     testCompile 'org.codehaus.groovy:groovy-all:2.4.12'
