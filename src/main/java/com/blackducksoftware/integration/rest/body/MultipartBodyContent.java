@@ -28,7 +28,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.FormBodyPartBuilder;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.StringBody;
 
 import com.blackducksoftware.integration.rest.request.Request;
 
@@ -48,7 +52,7 @@ public class MultipartBodyContent implements BodyContent {
             builder.addBinaryBody(entry.getKey(), entry.getValue());
         }
         for (final Entry<String, String> entry : getBodyContentStringMap().entrySet()) {
-            builder.addTextBody(entry.getKey(), entry.getValue());
+            addTextBody(builder, entry.getKey(), entry.getValue());
         }
         return builder.build();
     }
@@ -59,5 +63,15 @@ public class MultipartBodyContent implements BodyContent {
 
     public Map<String, File> getBodyContentFileMap() {
         return bodyContentFileMap;
+    }
+
+    private void addTextBody(final MultipartEntityBuilder builder, final String name, final String value) {
+        // should be 'builder.addTextBody(entry.getKey(), entry.getValue());'
+        // BUT the hub fails to parse form pieces with the header Content-Type
+        // So we must remove that header. For more info see https://jira.dc1.lan/browse/IDETECT-514
+        final StringBody body = new StringBody(value, ContentType.DEFAULT_TEXT);
+        final FormBodyPart part = FormBodyPartBuilder.create(name, body).build();
+        part.getHeader().removeFields("Content-Type");
+        builder.addPart(part);
     }
 }
