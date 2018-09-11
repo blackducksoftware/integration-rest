@@ -340,9 +340,10 @@ public abstract class RestConnection implements Closeable {
                     logger.debug("Automatically trusting the certificate for " + urlString);
                 }
                 logRequestHeaders(request);
-                final CloseableHttpResponse response = client.execute(request);
-                final int statusCode = response.getStatusLine().getStatusCode();
-                final String statusMessage = response.getStatusLine().getReasonPhrase();
+                final CloseableHttpResponse closeableHttpResponse = client.execute(request);
+                final Response response = new Response(closeableHttpResponse);
+                final int statusCode = closeableHttpResponse.getStatusLine().getStatusCode();
+                final String statusMessage = closeableHttpResponse.getStatusLine().getReasonPhrase();
                 if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
                     try {
                         if (statusCode == RestConstants.UNAUTHORIZED_401 && retryCount < 2) {
@@ -350,14 +351,16 @@ public abstract class RestConnection implements Closeable {
                             final HttpUriRequest newRequest = copyHttpRequest(request);
                             return handleClientExecution(newRequest, retryCount + 1);
                         } else {
-                            throw new IntegrationRestException(statusCode, statusMessage, String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
+                            final String httpResponseContent = response.getContentString();
+                            throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent,
+                                    String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
                         }
                     } finally {
-                        response.close();
+                        closeableHttpResponse.close();
                     }
                 }
-                logResponseHeaders(response);
-                return new Response(response);
+                logResponseHeaders(closeableHttpResponse);
+                return response;
             } catch (final IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }

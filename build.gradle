@@ -14,7 +14,7 @@ version = '0.1.4-SNAPSHOT'
 apply plugin: 'com.blackducksoftware.integration.library'
 
 dependencies {
-    compile 'com.blackducksoftware.integration:integration-common:13.1.0'
+    compile 'com.blackducksoftware.integration:integration-common:13.2.0'
 
     testCompile 'org.codehaus.groovy:groovy-all:2.4.12'
     testCompile 'com.squareup.okhttp3:mockwebserver:3.9.0'

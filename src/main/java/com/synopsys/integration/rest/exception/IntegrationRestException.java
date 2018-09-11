@@ -32,29 +32,35 @@ public class IntegrationRestException extends IntegrationException {
 
     private final int httpStatusCode;
     private final String httpStatusMessage;
+    private final String httpResponseContent;
 
-    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
+    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String httpResponseContent, final String message, final Throwable cause, final boolean enableSuppression,
+            final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
         this.httpStatusCode = httpStatusCode;
         this.httpStatusMessage = httpStatusMessage;
+        this.httpResponseContent = httpResponseContent;
     }
 
-    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String message, final Throwable cause) {
+    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String httpResponseContent, final String message, final Throwable cause) {
         super(message, cause);
         this.httpStatusCode = httpStatusCode;
         this.httpStatusMessage = httpStatusMessage;
+        this.httpResponseContent = httpResponseContent;
     }
 
-    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String message) {
+    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String httpResponseContent, final String message) {
         super(message);
         this.httpStatusCode = httpStatusCode;
         this.httpStatusMessage = httpStatusMessage;
+        this.httpResponseContent = httpResponseContent;
     }
 
-    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final Throwable cause) {
+    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String httpResponseContent, final Throwable cause) {
         super(cause);
         this.httpStatusCode = httpStatusCode;
         this.httpStatusMessage = httpStatusMessage;
+        this.httpResponseContent = httpResponseContent;
     }
 
     public int getHttpStatusCode() {
@@ -63,6 +69,10 @@ public class IntegrationRestException extends IntegrationException {
 
     public String getHttpStatusMessage() {
         return httpStatusMessage;
+    }
+
+    public String getHttpResponseContent() {
+        return httpResponseContent;
     }
 
     @Override
