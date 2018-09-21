@@ -22,7 +22,7 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
-import com.synopsys.integration.encryption.PasswordEncrypter
+
 import com.synopsys.integration.rest.credentials.Credentials
 import org.apache.commons.lang3.StringUtils
 import org.junit.Test
@@ -36,46 +36,12 @@ class CredentialsTest {
         Credentials credentials = new Credentials(username, password);
         final String maskedPassword = credentials.getMaskedPassword()
         assert username == credentials.username
-        assert password == credentials.decryptedPassword
-        assert password != credentials.encryptedPassword
-        assert password.length() == credentials.actualPasswordLength
-        assert maskedPassword.length() == password.length()
+        assert password == credentials.password
+        assert maskedPassword.length() == 24
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
     }
 
-
-    @Test
-    public void testEncryptedConstructor() throws Exception {
-        final String username = "username"
-        final String password = "password"
-        final String encryptedPassword = PasswordEncrypter.encrypt(password);
-        Credentials credentials = new Credentials(username, encryptedPassword, true);
-        final String maskedPassword = credentials.getMaskedPassword()
-        assert username == credentials.username
-        assert password == credentials.decryptedPassword
-        assert encryptedPassword == credentials.encryptedPassword
-        assert password.length() == credentials.actualPasswordLength
-        assert maskedPassword.length() == password.length()
-        assert password != maskedPassword
-        assert StringUtils.containsOnly(maskedPassword, "*")
-    }
-
-    @Test
-    public void testEncryptedAndPasswordLengthConstructor() throws Exception {
-        final String username = "username"
-        final String password = "password"
-        final String encryptedPassword = PasswordEncrypter.encrypt(password);
-        Credentials credentials = new Credentials(username, encryptedPassword, password.length());
-        final String maskedPassword = credentials.getMaskedPassword()
-        assert username == credentials.username
-        assert password == credentials.decryptedPassword
-        assert encryptedPassword == credentials.encryptedPassword
-        assert password.length() == credentials.actualPasswordLength
-        assert maskedPassword.length() == password.length()
-        assert password != maskedPassword
-        assert StringUtils.containsOnly(maskedPassword, "*")
-    }
 
     @Test
     public void testHashCode() {

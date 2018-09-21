@@ -58,7 +58,7 @@ class ProxyInfoBuilderTest {
         assert ntlmDomain == proxyInfo1.ntlmDomain
         assert ntlmWorkstation == proxyInfo1.ntlmWorkstation
 
-        assert maskedPassword.length() == password.length()
+        assert maskedPassword.length() == 24
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
     }
@@ -79,7 +79,6 @@ class ProxyInfoBuilderTest {
         builder.port = proxyPort
         builder.username = username
         builder.password = encryptedPassword
-        builder.passwordLength = password.length()
         builder.ignoredProxyHosts = proxyIgnoredHosts
         builder.ntlmDomain = ntlmDomain
         builder.ntlmWorkstation = ntlmWorkstation
@@ -94,8 +93,7 @@ class ProxyInfoBuilderTest {
         assert ntlmWorkstation == proxyInfo1.ntlmWorkstation
 
         assert password != builder.password
-        assert password.length() == builder.passwordLength
-        assert maskedPassword.length() == password.length()
+        assert maskedPassword.length() == 24
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
     }

@@ -26,8 +26,6 @@ package com.synopsys.integration.rest.credentials;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.synopsys.integration.util.Stringable;
 
 public class Credentials extends Stringable implements Serializable {
@@ -35,12 +33,10 @@ public class Credentials extends Stringable implements Serializable {
 
     private final String username;
     private final String password;
-    private final int passwordLength;
 
     public Credentials(final String username, final String password) {
         this.username = username;
         this.password = password;
-        passwordLength = StringUtils.isNotBlank(password) ? password.length() : 0;
     }
 
     public String getUsername() {
@@ -52,7 +48,7 @@ public class Credentials extends Stringable implements Serializable {
     }
 
     public String getMaskedPassword() {
-        final char[] array = new char[passwordLength];
+        final char[] array = new char[24];
         Arrays.fill(array, '*');
         return new String(array);
     }
