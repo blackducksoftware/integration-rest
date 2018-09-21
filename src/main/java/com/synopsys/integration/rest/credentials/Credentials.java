@@ -26,56 +26,34 @@ package com.synopsys.integration.rest.credentials;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import com.synopsys.integration.encryption.PasswordDecrypter;
-import com.synopsys.integration.encryption.PasswordEncrypter;
-import com.synopsys.integration.exception.EncryptionException;
+import org.apache.commons.lang3.StringUtils;
+
 import com.synopsys.integration.util.Stringable;
 
 public class Credentials extends Stringable implements Serializable {
     private static final long serialVersionUID = 4601465049752304687L;
 
     private final String username;
-    private final String encryptedPassword;
-    private final int actualPasswordLength;
+    private final String password;
+    private final int passwordLength;
 
-    public Credentials(final String username, final String password) throws EncryptionException {
+    public Credentials(final String username, final String password) {
         this.username = username;
-        this.actualPasswordLength = (password == null ? 0 : password.length());
-        this.encryptedPassword = PasswordEncrypter.encrypt(password);
-    }
-
-    public Credentials(final String username, final String encryptedPassword, final int actualPasswordLength) {
-        this.username = username;
-        this.actualPasswordLength = actualPasswordLength;
-        this.encryptedPassword = encryptedPassword;
-    }
-
-    public Credentials(final String username, final String password, final boolean isEncrypted) throws EncryptionException {
-        this.username = username;
-        this.encryptedPassword = isEncrypted ? password : PasswordEncrypter.encrypt(password);
-        this.actualPasswordLength = isEncrypted ? PasswordDecrypter.decrypt(password).length() : password.length();
-    }
-
-    public String getMaskedPassword() {
-        final char[] array = new char[actualPasswordLength];
-        Arrays.fill(array, '*');
-        return new String(array);
-    }
-
-    public String getDecryptedPassword() throws EncryptionException {
-        return PasswordDecrypter.decrypt(encryptedPassword);
+        this.password = password;
+        passwordLength = StringUtils.isNotBlank(password) ? password.length() : 0;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public String getEncryptedPassword() {
-        return encryptedPassword;
+    public String getPassword() {
+        return password;
     }
 
-    public int getActualPasswordLength() {
-        return actualPasswordLength;
+    public String getMaskedPassword() {
+        final char[] array = new char[passwordLength];
+        Arrays.fill(array, '*');
+        return new String(array);
     }
-
 }

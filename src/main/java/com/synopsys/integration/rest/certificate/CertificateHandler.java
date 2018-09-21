@@ -61,7 +61,6 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.ssl.SSLContextBuilder;
 
-import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.exception.IntegrationCertificateException;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
@@ -142,9 +141,9 @@ public class CertificateHandler {
             if (this.proxyInfo.shouldUseProxyForUrl(url)) {
                 defaultRequestConfigBuilder.setProxy(new HttpHost(this.proxyInfo.getHost(), this.proxyInfo.getPort()));
                 try {
-                    final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getDecryptedPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
+                    final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
                     credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
-                } catch (IllegalArgumentException | EncryptionException ex) {
+                } catch (IllegalArgumentException ex) {
                     throw new IntegrationException(ex);
                 }
             }

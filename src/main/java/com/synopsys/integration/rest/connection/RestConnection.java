@@ -66,7 +66,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 
-import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.log.LogLevel;
@@ -313,7 +312,7 @@ public abstract class RestConnection implements Closeable {
             defaultRequestConfigBuilder.setProxy(getProxyHttpHost());
             try {
                 addProxyCredentials();
-            } catch (IllegalArgumentException | EncryptionException ex) {
+            } catch (IllegalArgumentException ex) {
                 throw new IntegrationException(ex);
             }
         }
@@ -324,9 +323,9 @@ public abstract class RestConnection implements Closeable {
         return httpHost;
     }
 
-    private void addProxyCredentials() throws IntegrationException {
+    private void addProxyCredentials() {
         if (proxyInfo.hasAuthenticatedProxySettings()) {
-            final org.apache.http.auth.Credentials creds = new NTCredentials(proxyInfo.getUsername(), proxyInfo.getDecryptedPassword(), proxyInfo.getNtlmWorkstation(), proxyInfo.getNtlmDomain());
+            final org.apache.http.auth.Credentials creds = new NTCredentials(proxyInfo.getUsername(), proxyInfo.getPassword(), proxyInfo.getNtlmWorkstation(), proxyInfo.getNtlmDomain());
             credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost(), proxyInfo.getPort()), creds);
         }
     }
@@ -353,7 +352,7 @@ public abstract class RestConnection implements Closeable {
                         } else {
                             final String httpResponseContent = response.getContentString();
                             throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent,
-                                    String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
+                                String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
                         }
                     } finally {
                         closeableHttpResponse.close();

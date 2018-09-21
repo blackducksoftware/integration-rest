@@ -50,13 +50,13 @@ public class CredentialsValidator extends AbstractValidator {
 
     public void validateUsername(final ValidationResults result) {
         if (StringUtils.isBlank(username)) {
-            result.addResult(CredentialsField.USERNAME, new ValidationResult(ValidationResultEnum.ERROR, "No Hub Username was found."));
+            result.addResult(CredentialsField.USERNAME, new ValidationResult(ValidationResultEnum.ERROR, "No Username was found."));
         }
     }
 
     public void validatePassword(final ValidationResults result) {
         if (StringUtils.isBlank(password)) {
-            result.addResult(CredentialsField.PASSWORD, new ValidationResult(ValidationResultEnum.ERROR, "No Hub Password was found."));
+            result.addResult(CredentialsField.PASSWORD, new ValidationResult(ValidationResultEnum.ERROR, "No Password was found."));
         }
     }
 
