@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.synopsys.integration.builder.AbstractBuilder;
-import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.proxy.ProxyInfoBuilder;
@@ -82,11 +81,11 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
             setProxyHost(proxyInfo.getHost());
             setProxyPort(proxyInfo.getPort());
             setProxyUsername(proxyInfo.getUsername());
-            setProxyPassword(proxyInfo.getDecryptedPassword());
+            setProxyPassword(proxyInfo.getPassword());
             setProxyIgnoreHosts(proxyInfo.getIgnoredProxyHosts());
             setProxyNtlmDomain(proxyInfo.getNtlmDomain());
             setProxyNtlmWorkstation(proxyInfo.getNtlmWorkstation());
-        } catch (IllegalArgumentException | EncryptionException ex) {
+        } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException(ex);
         }
     }

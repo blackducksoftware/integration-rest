@@ -69,9 +69,8 @@ class ProxyInfoTest {
         assert ntlmDomain1 == proxyInfo1.ntlmDomain
         assert ntlmWorkstation1 == proxyInfo1.ntlmWorkstation
 
-        assert password1 != proxyInfo1.encryptedPassword
-        assert password1.length() == proxyInfo1.actualPasswordLength
-        assert maskedPassword.length() == password1.length()
+        assert password1 == proxyInfo1.password
+        assert maskedPassword.length() == 24
         assert password1 != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
     }

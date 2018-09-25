@@ -23,35 +23,16 @@
  */
 package com.synopsys.integration.rest.credentials;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.synopsys.integration.builder.AbstractBuilder;
-import com.synopsys.integration.encryption.PasswordEncrypter;
-import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.validator.AbstractValidator;
 
 public class CredentialsBuilder extends AbstractBuilder<Credentials> {
     private String username;
     private String password;
-    private int passwordLength;
 
     @Override
     public Credentials buildObject() {
-        Credentials creds = null;
-        if (StringUtils.isNotBlank(password) && passwordLength == 0) {
-            // Password needs to be encrypted
-            String encryptedPassword = null;
-            try {
-                encryptedPassword = PasswordEncrypter.encrypt(password);
-            } catch (final EncryptionException e) {
-                throw new IllegalArgumentException(e);
-            }
-            creds = new Credentials(username, encryptedPassword, password.length());
-        } else {
-            // password is blank or already encrypted so we just pass in the
-            // values given to us
-            creds = new Credentials(username, password, passwordLength);
-        }
+        Credentials creds = new Credentials(username, password);
         return creds;
     }
 
@@ -77,17 +58,6 @@ public class CredentialsBuilder extends AbstractBuilder<Credentials> {
 
     public void setPassword(final String password) {
         this.password = password;
-    }
-
-    public int getPasswordLength() {
-        return passwordLength;
-    }
-
-    /**
-     * IMPORTANT : The password length should only be set if the password is already encrypted
-     */
-    public void setPasswordLength(final int passwordLength) {
-        this.passwordLength = passwordLength;
     }
 
 }

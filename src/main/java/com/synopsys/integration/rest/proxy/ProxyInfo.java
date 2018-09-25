@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.rest.credentials.Credentials;
 import com.synopsys.integration.util.Stringable;
 import com.synopsys.integration.util.proxy.ProxyUtil;
@@ -100,19 +99,11 @@ public class ProxyInfo extends Stringable implements Serializable {
         }
     }
 
-    public String getEncryptedPassword() {
+    public String getPassword() {
         if (getProxyCredentials() == null) {
             return null;
         } else {
-            return getProxyCredentials().getEncryptedPassword();
-        }
-    }
-
-    public String getDecryptedPassword() throws IllegalArgumentException, EncryptionException {
-        if (getProxyCredentials() == null) {
-            return null;
-        } else {
-            return getProxyCredentials().getDecryptedPassword();
+            return getProxyCredentials().getPassword();
         }
     }
 
@@ -121,14 +112,6 @@ public class ProxyInfo extends Stringable implements Serializable {
             return null;
         } else {
             return getProxyCredentials().getMaskedPassword();
-        }
-    }
-
-    public int getActualPasswordLength() {
-        if (getProxyCredentials() == null) {
-            return 0;
-        } else {
-            return getProxyCredentials().getActualPasswordLength();
         }
     }
 
@@ -145,7 +128,7 @@ public class ProxyInfo extends Stringable implements Serializable {
     }
 
     public boolean hasAuthenticatedProxySettings() {
-        return proxyCredentials != null && StringUtils.isNotBlank(proxyCredentials.getUsername()) && StringUtils.isNotBlank(proxyCredentials.getEncryptedPassword());
+        return proxyCredentials != null && StringUtils.isNotBlank(proxyCredentials.getUsername()) && StringUtils.isNotBlank(proxyCredentials.getPassword());
     }
 
     private Credentials getProxyCredentials() {

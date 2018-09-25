@@ -47,7 +47,6 @@ public class ProxyInfoValidator extends AbstractValidator {
     private String port;
     private String username;
     private String password;
-    private int passwordLength;
     private String ignoredProxyHosts;
     private String ntlmDomain;
     private String ntlmWorkstation;
@@ -159,17 +158,6 @@ public class ProxyInfoValidator extends AbstractValidator {
         this.password = password;
     }
 
-    public int getPasswordLength() {
-        return passwordLength;
-    }
-
-    /**
-     * IMPORTANT : The password length should only be set if the password is already encrypted
-     */
-    public void setPasswordLength(final int passwordLength) {
-        this.passwordLength = passwordLength;
-    }
-
     public String getIgnoredProxyHosts() {
         return ignoredProxyHosts;
     }
@@ -196,7 +184,7 @@ public class ProxyInfoValidator extends AbstractValidator {
 
     public boolean hasProxySettings() {
         return StringUtils.isNotBlank(host) || (StringUtils.isNotBlank(port) && !"0".equals(port)) || StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password) || StringUtils.isNotBlank(ignoredProxyHosts)
-                || StringUtils.isNotBlank(ntlmDomain) || StringUtils.isNotBlank(ntlmWorkstation);
+                   || StringUtils.isNotBlank(ntlmDomain) || StringUtils.isNotBlank(ntlmWorkstation);
     }
 
     public boolean hasAuthenticatedProxySettings() {

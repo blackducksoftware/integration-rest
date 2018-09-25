@@ -22,7 +22,7 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
-import com.synopsys.integration.encryption.PasswordEncrypter
+
 import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.credentials.CredentialsBuilder
 import org.apache.commons.lang3.StringUtils
@@ -40,31 +40,8 @@ class CredentialsBuilderTest {
         Credentials credentials = builder.build()
         String maskedPassword = credentials.getMaskedPassword()
         assert username == credentials.username
-        assert password == credentials.decryptedPassword
-        assert password != credentials.encryptedPassword
-        assert password.length() == credentials.actualPasswordLength
-        assert maskedPassword.length() == password.length()
-        assert password != maskedPassword
-        assert StringUtils.containsOnly(maskedPassword, "*")
-    }
-
-    @Test
-    public void testEncryptedPassword() {
-        String username = "username"
-        String password = "password"
-        String encryptedPassword = PasswordEncrypter.encrypt(password);
-        CredentialsBuilder builder = new CredentialsBuilder()
-        builder.username = username
-        builder.password = encryptedPassword
-        builder.passwordLength = password.length()
-        Credentials credentials = builder.build()
-        String maskedPassword = credentials.getMaskedPassword()
-        assert password.length() == builder.passwordLength
-        assert username == credentials.username
-        assert password == credentials.decryptedPassword
-        assert password != credentials.encryptedPassword
-        assert password.length() == credentials.actualPasswordLength
-        assert maskedPassword.length() == password.length()
+        assert password == credentials.password
+        assert maskedPassword.length() == 24
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
     }

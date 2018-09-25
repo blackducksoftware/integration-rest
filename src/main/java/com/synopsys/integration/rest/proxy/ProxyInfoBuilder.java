@@ -36,7 +36,6 @@ public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
     private String port;
     private String username;
     private String password;
-    private int passwordLength;
     private String ignoredProxyHosts;
     private String ntlmDomain;
     private String ntlmWorkstation;
@@ -50,7 +49,6 @@ public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
             final CredentialsBuilder credBuilder = new CredentialsBuilder();
             credBuilder.setUsername(username);
             credBuilder.setPassword(password);
-            credBuilder.setPasswordLength(passwordLength);
             final Credentials credResult = credBuilder.build();
 
             proxyInfo = new ProxyInfo(host, proxyPort, credResult, ignoredProxyHosts, ntlmDomain, ntlmWorkstation);
@@ -70,7 +68,6 @@ public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
         validator.setPort(getPort());
         validator.setUsername(getUsername());
         validator.setPassword(getPassword());
-        validator.setPasswordLength(getPasswordLength());
         validator.setIgnoredProxyHosts(getIgnoredProxyHosts());
         validator.setNtlmDomain(ntlmDomain);
         validator.setNtlmWorkstation(ntlmWorkstation);
@@ -111,17 +108,6 @@ public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
 
     public void setPassword(final String password) {
         this.password = password;
-    }
-
-    public int getPasswordLength() {
-        return passwordLength;
-    }
-
-    /**
-     * IMPORTANT : The password length should only be set if the password is already encrypted
-     */
-    public void setPasswordLength(final int passwordLength) {
-        this.passwordLength = passwordLength;
     }
 
     public String getIgnoredProxyHosts() {
