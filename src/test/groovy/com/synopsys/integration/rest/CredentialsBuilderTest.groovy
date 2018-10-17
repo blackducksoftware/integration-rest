@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils
 import org.junit.Test
 
 class CredentialsBuilderTest {
-
     @Test
     public void testBuildObject() {
         String username = "username"
@@ -45,4 +44,5 @@ class CredentialsBuilderTest {
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
     }
+
 }

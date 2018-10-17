@@ -23,55 +23,60 @@
  */
 package com.synopsys.integration.rest.proxy;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
-import com.synopsys.integration.builder.AbstractBuilder;
 import com.synopsys.integration.rest.credentials.Credentials;
-import com.synopsys.integration.rest.credentials.CredentialsBuilder;
-import com.synopsys.integration.validator.AbstractValidator;
+import com.synopsys.integration.util.IntegrationBuilder;
 
-public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
+public class ProxyInfoBuilder extends IntegrationBuilder<ProxyInfo> {
     private String host;
-    private String port;
-    private String username;
-    private String password;
+    private int port;
+    private Credentials credentials;
     private String ignoredProxyHosts;
     private String ntlmDomain;
     private String ntlmWorkstation;
 
     @Override
-    public ProxyInfo buildObject() throws IllegalArgumentException {
-        ProxyInfo proxyInfo = null;
-        final int proxyPort = NumberUtils.toInt(port);
-        if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(username)) {
-
-            final CredentialsBuilder credBuilder = new CredentialsBuilder();
-            credBuilder.setUsername(username);
-            credBuilder.setPassword(password);
-            final Credentials credResult = credBuilder.build();
-
-            proxyInfo = new ProxyInfo(host, proxyPort, credResult, ignoredProxyHosts, ntlmDomain, ntlmWorkstation);
-        } else {
-            // password is blank or already encrypted so we just pass in the
-            // values given to us
-            proxyInfo = new ProxyInfo(host, proxyPort, null, ignoredProxyHosts, ntlmDomain, ntlmWorkstation);
-        }
-
+    protected ProxyInfo buildWithoutValidation() {
+        final ProxyInfo proxyInfo = new ProxyInfo(host, port, credentials, ignoredProxyHosts, ntlmDomain, ntlmWorkstation);
         return proxyInfo;
     }
 
     @Override
-    public AbstractValidator createValidator() {
-        final ProxyInfoValidator validator = new ProxyInfoValidator();
-        validator.setHost(getHost());
-        validator.setPort(getPort());
-        validator.setUsername(getUsername());
-        validator.setPassword(getPassword());
-        validator.setIgnoredProxyHosts(getIgnoredProxyHosts());
-        validator.setNtlmDomain(ntlmDomain);
-        validator.setNtlmWorkstation(ntlmWorkstation);
-        return validator;
+    protected void populateIndividualErrorMessages() {
+        if (hasProxySettings()) {
+            if (StringUtils.isBlank(host) || port <= 0) {
+                errorMessages.add("Both the proxy host and port greater than zero must be specified.");
+            }
+
+            if (!StringUtils.isAllBlank(ntlmDomain, ntlmWorkstation) && (null == credentials || credentials.isBlank())) {
+                errorMessages.add("Proxy username and password must be set for the NTLM proxy.");
+            }
+
+            if (StringUtils.isNotBlank(ignoredProxyHosts)) {
+                try {
+                    if (ignoredProxyHosts.contains(",")) {
+                        String[] ignoreHosts = null;
+                        ignoreHosts = ignoredProxyHosts.split(",");
+                        for (final String ignoreHost : ignoreHosts) {
+                            Pattern.compile(ignoreHost.trim());
+                        }
+                    } else {
+                        Pattern.compile(ignoredProxyHosts);
+                    }
+                } catch (final PatternSyntaxException ex) {
+                    errorMessages.add("Proxy ignore hosts does not compile to a valid regular expression.");
+                }
+            }
+        }
+    }
+
+    private boolean hasProxySettings() {
+        return StringUtils.isNotBlank(host) || 0 != port || (null != credentials && !credentials.isBlank()) || StringUtils.isNotBlank(ignoredProxyHosts)
+                       || StringUtils.isNotBlank(ntlmDomain) || StringUtils.isNotBlank(ntlmWorkstation);
     }
 
     public String getHost() {
@@ -82,32 +87,20 @@ public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
         this.host = host;
     }
 
-    public String getPort() {
+    public int getPort() {
         return port;
     }
 
     public void setPort(final int port) {
-        setPort(String.valueOf(port));
-    }
-
-    public void setPort(final String port) {
         this.port = port;
     }
 
-    public String getUsername() {
-        return username;
+    public Credentials getCredentials() {
+        return credentials;
     }
 
-    public void setUsername(final String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
+    public void setCredentials(final Credentials credentials) {
+        this.credentials = credentials;
     }
 
     public String getIgnoredProxyHosts() {

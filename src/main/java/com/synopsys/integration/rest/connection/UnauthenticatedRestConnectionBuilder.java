@@ -23,30 +23,21 @@
  */
 package com.synopsys.integration.rest.connection;
 
-import com.synopsys.integration.rest.proxy.ProxyInfo;
-import com.synopsys.integration.validator.AbstractValidator;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-public class UnauthenticatedRestConnectionBuilder extends AbstractRestConnectionBuilder<UnauthenticatedRestConnection> {
+public class UnauthenticatedRestConnectionBuilder extends RestConnectionBuilder<UnauthenticatedRestConnection> {
     @Override
-    public AbstractValidator createValidator() {
-        final UnauthenticatedRestConnectionValidator validator = new UnauthenticatedRestConnectionValidator();
-        validator.setBaseUrl(getBaseUrl());
-        validator.setTimeout(getTimeout());
-        validator.setProxyHost(getProxyHost());
-        validator.setProxyPort(getProxyPort());
-        validator.setProxyUsername(getProxyUsername());
-        validator.setProxyPassword(getProxyPassword());
-        validator.setProxyIgnoreHosts(getProxyIgnoreHosts());
-        validator.setProxyNtlmDomain(getProxyNtlmDomain());
-        validator.setProxyNtlmWorkstation(getProxyNtlmWorkstation());
-        validator.setLogger(getLogger());
-        validator.setCommonRequestHeaders(getCommonRequestHeaders());
-        return validator;
-    }
+    protected UnauthenticatedRestConnection buildWithoutValidation() {
+        URL url = null;
+        try {
+            url = new URL(getBaseUrl());
+        } catch (final MalformedURLException e) {
+            getLogger().error(String.format("The provided url, %s, was malformed and should have been caught by validation.", getBaseUrl()));
+            url = null;
+        }
 
-    @Override
-    public UnauthenticatedRestConnection createConnection(final ProxyInfo proxyInfo) {
-        return new UnauthenticatedRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), proxyInfo);
+        return new UnauthenticatedRestConnection(getLogger(), url, getTimeout(), getProxyInfo());
     }
 
 }

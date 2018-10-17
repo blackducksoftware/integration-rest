@@ -29,6 +29,7 @@ import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.connection.RestConnection
 import com.synopsys.integration.rest.connection.UnauthenticatedRestConnection
 import com.synopsys.integration.rest.connection.UnauthenticatedRestConnectionBuilder
+import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.exception.IntegrationRestException
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.rest.proxy.ProxyInfoBuilder
@@ -80,7 +81,7 @@ class RestConnectionTest {
         builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
         builder.baseUrl = server.url("/")
         builder.timeout = CONNECTION_TIMEOUT
-        builder.applyProxyInfo(ProxyInfo.NO_PROXY_INFO);
+        builder.setProxyInfo(ProxyInfo.NO_PROXY_INFO);
         builder.build()
     }
 
@@ -93,7 +94,7 @@ class RestConnectionTest {
         builder.logger = logger
         builder.baseUrl = server.url("/").url()
         builder.timeout = timeoutSeconds
-        builder.applyProxyInfo(ProxyInfo.NO_PROXY_INFO)
+        builder.setProxyInfo(ProxyInfo.NO_PROXY_INFO)
         builder.alwaysTrustServerCertificate = true
 
         RestConnection restConnection = builder.build()
@@ -109,20 +110,17 @@ class RestConnectionTest {
         String proxyHost = "ProxyHost"
         int proxyPort = 3128
         String proxyIgnoredHosts = "IgnoredHost"
-        String proxyUser = "testUser"
-        String proxyPassword = "password"
         ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
         proxyBuilder.host = proxyHost
         proxyBuilder.port = proxyPort
-        proxyBuilder.username = proxyUser
-        proxyBuilder.password = proxyPassword
+        proxyBuilder.credentials = new Credentials("testUser", "password")
         proxyBuilder.ignoredProxyHosts = proxyIgnoredHosts
         ProxyInfo proxyInfo = proxyBuilder.build()
         builder = new UnauthenticatedRestConnectionBuilder()
         builder.logger = logger
         builder.baseUrl = server.url("/").url()
         builder.timeout = timeoutSeconds
-        builder.applyProxyInfo(proxyInfo)
+        builder.setProxyInfo(proxyInfo)
         restConnection = builder.build()
 
         restConnection.connect()
@@ -133,15 +131,14 @@ class RestConnectionTest {
         proxyBuilder = new ProxyInfoBuilder()
         proxyBuilder.host = proxyHost
         proxyBuilder.port = proxyPort
-        proxyBuilder.username = proxyUser
-        proxyBuilder.password = proxyPassword
+        proxyBuilder.credentials = new Credentials("testUser", "password")
         proxyBuilder.ignoredProxyHosts = proxyIgnoredHosts
         proxyInfo = proxyBuilder.build()
         builder = new UnauthenticatedRestConnectionBuilder()
         builder.logger = logger
         builder.baseUrl = server.url("/").url()
         builder.timeout = timeoutSeconds
-        builder.applyProxyInfo(proxyInfo)
+        builder.setProxyInfo(proxyInfo)
         restConnection = builder.build()
 
         restConnection.connect()

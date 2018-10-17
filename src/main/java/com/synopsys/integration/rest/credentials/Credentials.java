@@ -24,12 +24,14 @@
 package com.synopsys.integration.rest.credentials;
 
 import java.io.Serializable;
-import java.util.Arrays;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.synopsys.integration.util.Stringable;
 
 public class Credentials extends Stringable implements Serializable {
     private static final long serialVersionUID = 4601465049752304687L;
+    private static final String MASKED_PASSWORD = "************************";
 
     private final String username;
     private final String password;
@@ -48,8 +50,11 @@ public class Credentials extends Stringable implements Serializable {
     }
 
     public String getMaskedPassword() {
-        final char[] array = new char[24];
-        Arrays.fill(array, '*');
-        return new String(array);
+        return MASKED_PASSWORD;
     }
+
+    public boolean isBlank() {
+        return StringUtils.isAllBlank(username, password);
+    }
+
 }
