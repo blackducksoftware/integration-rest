@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,6 +43,18 @@ public abstract class RestConnectionBuilder<C extends RestConnection> extends In
     private IntLogger logger;
     private boolean alwaysTrustServerCertificate;
     private Map<String, String> commonRequestHeaders = new HashMap<>();
+
+    @Override
+    public final C build() throws IllegalArgumentException {
+        final C restConnection = super.build();
+
+        restConnection.setAlwaysTrustServerCertificate(alwaysTrustServerCertificate);
+        if (!commonRequestHeaders.isEmpty()) {
+            restConnection.getCommonRequestHeaders().putAll(commonRequestHeaders);
+        }
+
+        return restConnection;
+    }
 
     @Override
     public void populateIndividualErrorMessages() {
@@ -73,6 +86,16 @@ public abstract class RestConnectionBuilder<C extends RestConnection> extends In
 
     public void addCommonRequestHeader(final String key, final String value) {
         commonRequestHeaders.put(key, value);
+    }
+
+    public Optional<URL> getURL() {
+        try {
+            return Optional.of(new URL(getBaseUrl()));
+        } catch (final MalformedURLException e) {
+            getLogger().error(String.format("The provided url, %s, was malformed and should have been caught by validation.", getBaseUrl()));
+        }
+
+        return Optional.empty();
     }
 
     public String getBaseUrl() {

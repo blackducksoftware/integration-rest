@@ -23,21 +23,15 @@
  */
 package com.synopsys.integration.rest.connection;
 
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 public class UnauthenticatedRestConnectionBuilder extends RestConnectionBuilder<UnauthenticatedRestConnection> {
     @Override
     protected UnauthenticatedRestConnection buildWithoutValidation() {
-        URL url = null;
-        try {
-            url = new URL(getBaseUrl());
-        } catch (final MalformedURLException e) {
-            getLogger().error(String.format("The provided url, %s, was malformed and should have been caught by validation.", getBaseUrl()));
-            url = null;
-        }
+        final Optional<URL> url = getURL();
 
-        return new UnauthenticatedRestConnection(getLogger(), url, getTimeout(), getProxyInfo());
+        return new UnauthenticatedRestConnection(getLogger(), url.orElse(null), getTimeout(), getProxyInfo());
     }
 
 }
