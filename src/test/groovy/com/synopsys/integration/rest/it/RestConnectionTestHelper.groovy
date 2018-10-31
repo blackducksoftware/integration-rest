@@ -134,9 +134,10 @@ public class RestConnectionTestHelper {
         builder.logger = new PrintStreamIntLogger(System.out, logLevel);
         builder.baseUrl = getIntegrationServerUrl()
         builder.timeout = getTimeout()
-        builder.applyProxyInfo(proxyInfo)
+        builder.setProxyInfo(proxyInfo)
         builder.setAlwaysTrustServerCertificate(true)
         RestConnection restConnection = builder.build()
         return restConnection
     }
+
 }
