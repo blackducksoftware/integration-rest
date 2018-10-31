@@ -23,30 +23,15 @@
  */
 package com.synopsys.integration.rest.connection;
 
-import com.synopsys.integration.rest.proxy.ProxyInfo;
-import com.synopsys.integration.validator.AbstractValidator;
+import java.net.URL;
+import java.util.Optional;
 
-public class UnauthenticatedRestConnectionBuilder extends AbstractRestConnectionBuilder<UnauthenticatedRestConnection> {
+public class UnauthenticatedRestConnectionBuilder extends RestConnectionBuilder<UnauthenticatedRestConnection> {
     @Override
-    public AbstractValidator createValidator() {
-        final UnauthenticatedRestConnectionValidator validator = new UnauthenticatedRestConnectionValidator();
-        validator.setBaseUrl(getBaseUrl());
-        validator.setTimeout(getTimeout());
-        validator.setProxyHost(getProxyHost());
-        validator.setProxyPort(getProxyPort());
-        validator.setProxyUsername(getProxyUsername());
-        validator.setProxyPassword(getProxyPassword());
-        validator.setProxyIgnoreHosts(getProxyIgnoreHosts());
-        validator.setProxyNtlmDomain(getProxyNtlmDomain());
-        validator.setProxyNtlmWorkstation(getProxyNtlmWorkstation());
-        validator.setLogger(getLogger());
-        validator.setCommonRequestHeaders(getCommonRequestHeaders());
-        return validator;
-    }
+    protected UnauthenticatedRestConnection buildWithoutValidation() {
+        final Optional<URL> url = getURL();
 
-    @Override
-    public UnauthenticatedRestConnection createConnection(final ProxyInfo proxyInfo) {
-        return new UnauthenticatedRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), proxyInfo);
+        return new UnauthenticatedRestConnection(getLogger(), url.orElse(null), getTimeout(), getProxyInfo());
     }
 
 }

@@ -33,12 +33,12 @@ import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class UnauthenticatedRestConnection extends RestConnection {
-    public UnauthenticatedRestConnection(final IntLogger logger, final URL hubBaseUrl, final ProxyInfo proxyInfo) {
-        super(logger, hubBaseUrl, proxyInfo);
+    public UnauthenticatedRestConnection(final IntLogger logger, final URL baseUrl, final ProxyInfo proxyInfo) {
+        super(logger, baseUrl, proxyInfo);
     }
 
-    public UnauthenticatedRestConnection(final IntLogger logger, final URL hubBaseUrl, final int timeout, final ProxyInfo proxyInfo) {
-        super(logger, hubBaseUrl, timeout, proxyInfo);
+    public UnauthenticatedRestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo) {
+        super(logger, baseUrl, timeout, proxyInfo);
     }
 
     @Override

@@ -23,25 +23,25 @@
  */
 package com.synopsys.integration.rest.credentials;
 
-import com.synopsys.integration.builder.AbstractBuilder;
-import com.synopsys.integration.validator.AbstractValidator;
+import org.apache.commons.lang3.StringUtils;
 
-public class CredentialsBuilder extends AbstractBuilder<Credentials> {
+import com.synopsys.integration.util.BuilderStatus;
+import com.synopsys.integration.util.IntegrationBuilder;
+
+public class CredentialsBuilder extends IntegrationBuilder<Credentials> {
     private String username;
     private String password;
 
     @Override
-    public Credentials buildObject() {
-        Credentials creds = new Credentials(username, password);
-        return creds;
+    protected Credentials buildWithoutValidation() {
+        return new Credentials(username, password);
     }
 
     @Override
-    public AbstractValidator createValidator() {
-        final CredentialsValidator validator = new CredentialsValidator();
-        validator.setUsername(getUsername());
-        validator.setPassword(getPassword());
-        return validator;
+    protected void validate(final BuilderStatus builderStatus) {
+        if (StringUtils.isAnyBlank(username, password) && !StringUtils.isAllBlank(username, password)) {
+            builderStatus.addErrorMessage("The username and password must both be populated or both be empty.");
+        }
     }
 
     public String getUsername() {
