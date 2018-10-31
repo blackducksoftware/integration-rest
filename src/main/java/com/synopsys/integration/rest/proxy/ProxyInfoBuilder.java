@@ -29,6 +29,7 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.synopsys.integration.rest.credentials.Credentials;
+import com.synopsys.integration.util.BuilderStatus;
 import com.synopsys.integration.util.IntegrationBuilder;
 
 public class ProxyInfoBuilder extends IntegrationBuilder<ProxyInfo> {
@@ -46,14 +47,14 @@ public class ProxyInfoBuilder extends IntegrationBuilder<ProxyInfo> {
     }
 
     @Override
-    protected void populateIndividualErrorMessages() {
+    protected void validate(final BuilderStatus builderStatus) {
         if (hasProxySettings()) {
             if (StringUtils.isBlank(host) || port <= 0) {
-                errorMessages.add("Both the proxy host and port greater than zero must be specified.");
+                builderStatus.addErrorMessage("Both the proxy host and port greater than zero must be specified.");
             }
 
             if (!StringUtils.isAllBlank(ntlmDomain, ntlmWorkstation) && (null == credentials || credentials.isBlank())) {
-                errorMessages.add("Proxy username and password must be set for the NTLM proxy.");
+                builderStatus.addErrorMessage("Proxy username and password must be set for the NTLM proxy.");
             }
 
             if (StringUtils.isNotBlank(ignoredProxyHosts)) {
@@ -68,7 +69,7 @@ public class ProxyInfoBuilder extends IntegrationBuilder<ProxyInfo> {
                         Pattern.compile(ignoredProxyHosts);
                     }
                 } catch (final PatternSyntaxException ex) {
-                    errorMessages.add("Proxy ignore hosts does not compile to a valid regular expression.");
+                    builderStatus.addErrorMessage("Proxy ignore hosts does not compile to a valid regular expression.");
                 }
             }
         }

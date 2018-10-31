@@ -25,6 +25,7 @@ package com.synopsys.integration.rest.credentials;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.synopsys.integration.util.BuilderStatus;
 import com.synopsys.integration.util.IntegrationBuilder;
 
 public class CredentialsBuilder extends IntegrationBuilder<Credentials> {
@@ -37,9 +38,9 @@ public class CredentialsBuilder extends IntegrationBuilder<Credentials> {
     }
 
     @Override
-    protected void populateIndividualErrorMessages() {
+    protected void validate(final BuilderStatus builderStatus) {
         if (StringUtils.isAnyBlank(username, password) && !StringUtils.isAllBlank(username, password)) {
-            errorMessages.add("The username and password must both be populated or both be empty.");
+            builderStatus.addErrorMessage("The username and password must both be populated or both be empty.");
         }
     }
 

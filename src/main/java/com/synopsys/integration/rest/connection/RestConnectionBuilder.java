@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
+import com.synopsys.integration.util.BuilderStatus;
 import com.synopsys.integration.util.IntegrationBuilder;
 
 public abstract class RestConnectionBuilder<C extends RestConnection> extends IntegrationBuilder<C> {
@@ -57,30 +58,30 @@ public abstract class RestConnectionBuilder<C extends RestConnection> extends In
     }
 
     @Override
-    public void populateIndividualErrorMessages() {
+    protected void validate(final BuilderStatus builderStatus) {
         if (StringUtils.isBlank(baseUrl)) {
-            errorMessages.add("No base url was provided.");
+            builderStatus.addErrorMessage("No base url was provided.");
         } else {
             try {
                 final URL url = new URL(baseUrl);
                 url.toURI();
             } catch (final MalformedURLException e) {
-                errorMessages.add("The provided base url is not a valid java.net.URL.");
+                builderStatus.addErrorMessage("The provided base url is not a valid java.net.URL.");
             } catch (final URISyntaxException e) {
-                errorMessages.add("The provided base url is not a valid java.net.URI.");
+                builderStatus.addErrorMessage("The provided base url is not a valid java.net.URI.");
             }
         }
 
         if (0 >= timeout) {
-            errorMessages.add("The timeout must be greater than 0.");
+            builderStatus.addErrorMessage("The timeout must be greater than 0.");
         }
 
         if (null == logger) {
-            errorMessages.add("The logger instance may not be null.");
+            builderStatus.addErrorMessage("The logger instance may not be null.");
         }
 
         if (null == commonRequestHeaders) {
-            errorMessages.add("The common request headers map cannot be null.");
+            builderStatus.addErrorMessage("The common request headers map cannot be null.");
         }
     }
 
