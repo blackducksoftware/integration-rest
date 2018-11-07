@@ -70,21 +70,19 @@ import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.log.LogLevel;
 import com.synopsys.integration.rest.HttpMethod;
-import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Request;
 import com.synopsys.integration.rest.request.Response;
 
 /**
- * The parent class of all Hub connections.
+ * The parent class of all rest connections.
  */
 public abstract class RestConnection implements Closeable {
     public static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null";
 
     protected final IntLogger logger;
 
-    private final URL baseUrl;
     private int timeout = 120;
     private final ProxyInfo proxyInfo;
     private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -94,14 +92,13 @@ public abstract class RestConnection implements Closeable {
     private boolean alwaysTrustServerCertificate;
     private CloseableHttpClient client;
 
-    public RestConnection(final IntLogger logger, final URL baseUrl, final ProxyInfo proxyInfo) {
+    public RestConnection(final IntLogger logger, final ProxyInfo proxyInfo) {
         this.logger = logger;
-        this.baseUrl = baseUrl;
         this.proxyInfo = proxyInfo;
     }
 
-    public RestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo) {
-        this(logger, baseUrl, proxyInfo);
+    public RestConnection(final IntLogger logger, final int timeout, final ProxyInfo proxyInfo) {
+        this(logger, proxyInfo);
         this.timeout = timeout;
     }
 
@@ -124,18 +121,17 @@ public abstract class RestConnection implements Closeable {
      */
     public abstract void completeConnection() throws IntegrationException;
 
-    public RequestBuilder createRequestBuilder(final HttpMethod method) throws IntegrationException {
-        return createRequestBuilder(method, null);
+    public RequestBuilder createRequestBuilder(final URL baseUrl, final HttpMethod method) throws IntegrationException {
+        return createRequestBuilder(baseUrl, method, null);
     }
 
-    public RequestBuilder createRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IntegrationException {
+    public RequestBuilder createRequestBuilder(final URL baseUrl, final HttpMethod method, final Map<String, String> additionalHeaders) throws IntegrationException {
         if (method == null) {
             throw new IntegrationException("Missing field 'method'");
         }
         final RequestBuilder requestBuilder = RequestBuilder.create(method.name());
 
-        final Map<String, String> requestHeaders = new HashMap<>();
-        requestHeaders.putAll(commonRequestHeaders);
+        final Map<String, String> requestHeaders = new HashMap<>(commonRequestHeaders);
         if (additionalHeaders != null && !additionalHeaders.isEmpty()) {
             requestHeaders.putAll(additionalHeaders);
         }
@@ -163,8 +159,6 @@ public abstract class RestConnection implements Closeable {
             final URIBuilder uriBuilder;
             if (StringUtils.isNotBlank(request.getUri())) {
                 uriBuilder = new URIBuilder(request.getUri());
-            } else if (baseUrl != null) {
-                uriBuilder = new URIBuilder(baseUrl.toURI());
             } else {
                 throw new IntegrationException("Missing the URI");
             }
@@ -186,7 +180,7 @@ public abstract class RestConnection implements Closeable {
                     requestBuilder.addHeader(header.getKey(), header.getValue());
                 }
             }
-            if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
+            if (!commonRequestHeaders.isEmpty()) {
                 for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
                     requestBuilder.addHeader(header.getKey(), header.getValue());
                 }
@@ -212,7 +206,7 @@ public abstract class RestConnection implements Closeable {
 
     public HttpUriRequest copyHttpRequest(final HttpUriRequest request) throws IntegrationException {
         final RequestBuilder requestBuilder = RequestBuilder.copy(request);
-        if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
+        if (!commonRequestHeaders.isEmpty()) {
             for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
                 requestBuilder.addHeader(header.getKey(), header.getValue());
             }
@@ -220,26 +214,47 @@ public abstract class RestConnection implements Closeable {
         return requestBuilder.build();
     }
 
-    public Response executeRequest(final Request request) throws IntegrationException {
-        return executeRequest(createHttpRequest(request));
+    public Response executeRequestWithoutException(final Request request) throws IntegrationException {
+        return executeRequestWithoutException(createHttpRequest(request));
     }
 
-    public Response executeRequest(final HttpUriRequest request) throws IntegrationException {
+    public Response executeRequestWithoutException(final HttpUriRequest request) throws IntegrationException {
         final long start = System.currentTimeMillis();
         logMessage(LogLevel.TRACE, "starting request: " + request.getURI().toString());
         try {
-            return handleClientExecution(request, 0);
+            return handleClientExecution(request);
         } finally {
             final long end = System.currentTimeMillis();
             logMessage(LogLevel.TRACE, String.format("completed request: %s (%d ms)", request.getURI().toString(), end - start));
         }
     }
 
+    public Response executeRequest(final Request request) throws IntegrationException {
+        return executeRequest(createHttpRequest(request));
+    }
+
+    /**
+     * Will throw an exception if the status code is an error code
+     */
+    public Response executeRequest(final HttpUriRequest request) throws IntegrationException {
+        final Response response = executeRequestWithoutException(request);
+
+        if (response.isStatusCodeError()) {
+            final Integer statusCode = response.getStatusCode();
+            final String statusMessage = response.getStatusMessage();
+            final String httpResponseContent = response.getContentString();
+            throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent,
+                String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), request.getURI(), statusCode, statusMessage));
+        }
+
+        return response;
+    }
+
     public Optional<Response> executeGetRequestIfModifiedSince(final Request getRequest, final long timeToCheck) throws IntegrationException, IOException {
         final Request headRequest = new Request.Builder(getRequest).method(HttpMethod.HEAD).build();
 
         long lastModifiedOnServer = 0L;
-        try (Response headResponse = executeRequest(headRequest)) {
+        try (final Response headResponse = executeRequest(headRequest)) {
             lastModifiedOnServer = headResponse.getLastModified();
             logger.debug(String.format("Last modified on server: %d", lastModifiedOnServer));
         } catch (final IntegrationException e) {
@@ -298,7 +313,7 @@ public abstract class RestConnection implements Closeable {
             final HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
             final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
             clientBuilder.setSSLSocketFactory(connectionFactory);
-        } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+        } catch (final KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
             throw new IntegrationException(e.getMessage(), e);
         }
     }
@@ -308,11 +323,11 @@ public abstract class RestConnection implements Closeable {
             throw new IllegalStateException(ERROR_MSG_PROXY_INFO_NULL);
         }
 
-        if (proxyInfo.shouldUseProxyForUrl(baseUrl)) {
+        if (proxyInfo.equals(ProxyInfo.NO_PROXY_INFO)) {
             defaultRequestConfigBuilder.setProxy(getProxyHttpHost());
             try {
                 addProxyCredentials();
-            } catch (IllegalArgumentException ex) {
+            } catch (final IllegalArgumentException ex) {
                 throw new IntegrationException(ex);
             }
         }
@@ -330,7 +345,7 @@ public abstract class RestConnection implements Closeable {
         }
     }
 
-    private Response handleClientExecution(final HttpUriRequest request, final int retryCount) throws IntegrationException {
+    private Response handleClientExecution(final HttpUriRequest request) throws IntegrationException {
         if (client != null) {
             try {
                 final URI uri = request.getURI();
@@ -341,23 +356,6 @@ public abstract class RestConnection implements Closeable {
                 logRequestHeaders(request);
                 final CloseableHttpResponse closeableHttpResponse = client.execute(request);
                 final Response response = new Response(closeableHttpResponse);
-                final int statusCode = closeableHttpResponse.getStatusLine().getStatusCode();
-                final String statusMessage = closeableHttpResponse.getStatusLine().getReasonPhrase();
-                if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
-                    try {
-                        if (statusCode == RestConstants.UNAUTHORIZED_401 && retryCount < 2) {
-                            connect();
-                            final HttpUriRequest newRequest = copyHttpRequest(request);
-                            return handleClientExecution(newRequest, retryCount + 1);
-                        } else {
-                            final String httpResponseContent = response.getContentString();
-                            throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent,
-                                String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
-                        }
-                    } finally {
-                        closeableHttpResponse.close();
-                    }
-                }
                 logResponseHeaders(closeableHttpResponse);
                 return response;
             } catch (final IOException e) {
@@ -366,7 +364,7 @@ public abstract class RestConnection implements Closeable {
         } else {
             connect();
             final HttpUriRequest newRequest = copyHttpRequest(request);
-            return handleClientExecution(newRequest, retryCount);
+            return handleClientExecution(newRequest);
         }
     }
 
@@ -401,11 +399,6 @@ public abstract class RestConnection implements Closeable {
         }
     }
 
-    @Override
-    public String toString() {
-        return "RestConnection [baseUrl=" + baseUrl + "]";
-    }
-
     public int getTimeout() {
         return timeout;
     }
@@ -428,10 +421,6 @@ public abstract class RestConnection implements Closeable {
 
     public void setClient(final CloseableHttpClient client) {
         this.client = client;
-    }
-
-    public URL getBaseUrl() {
-        return baseUrl;
     }
 
     public ProxyInfo getProxyInfo() {
@@ -459,7 +448,7 @@ public abstract class RestConnection implements Closeable {
     }
 
     public void addCommonRequestHeaders(final Map<String, String> commonRequestHeaders) {
-        commonRequestHeaders.putAll(commonRequestHeaders);
+        this.commonRequestHeaders.putAll(commonRequestHeaders);
     }
 
 }

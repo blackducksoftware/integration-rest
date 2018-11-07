@@ -42,6 +42,7 @@ import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.rest.RestConstants;
 
 public class Response implements Closeable {
     public static final String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
@@ -61,6 +62,19 @@ public class Response implements Closeable {
         }
     }
 
+    public Boolean isStatusCodeOkay() {
+        final Integer statusCode = getStatusCode();
+        if (statusCode != null) {
+            return statusCode >= RestConstants.OK_200 && statusCode < RestConstants.MULT_CHOICE_300;
+        } else {
+            return null;
+        }
+    }
+
+    public Boolean isStatusCodeError() {
+        return !isStatusCodeOkay();
+    }
+
     public String getStatusMessage() {
         if (response.getStatusLine() != null) {
             return response.getStatusLine().getReasonPhrase();
@@ -73,7 +87,7 @@ public class Response implements Closeable {
         if (response.getEntity() != null) {
             try {
                 return response.getEntity().getContent();
-            } catch (UnsupportedOperationException | IOException e) {
+            } catch (final UnsupportedOperationException | IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }
         } else {
@@ -89,7 +103,7 @@ public class Response implements Closeable {
         if (response.getEntity() != null) {
             try (final InputStream inputStream = response.getEntity().getContent()) {
                 return IOUtils.toString(inputStream, encoding);
-            } catch (UnsupportedOperationException | IOException e) {
+            } catch (final UnsupportedOperationException | IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }
         } else {

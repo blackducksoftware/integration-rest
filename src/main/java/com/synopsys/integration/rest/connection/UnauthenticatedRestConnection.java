@@ -23,31 +23,28 @@
  */
 package com.synopsys.integration.rest.connection;
 
-import java.net.URL;
-
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class UnauthenticatedRestConnection extends RestConnection {
-    public UnauthenticatedRestConnection(final IntLogger logger, final URL baseUrl, final ProxyInfo proxyInfo) {
-        super(logger, baseUrl, proxyInfo);
+    public UnauthenticatedRestConnection(final IntLogger logger, final ProxyInfo proxyInfo) {
+        super(logger, proxyInfo);
     }
 
-    public UnauthenticatedRestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo) {
-        super(logger, baseUrl, timeout, proxyInfo);
+    public UnauthenticatedRestConnection(final IntLogger logger, final int timeout, final ProxyInfo proxyInfo) {
+        super(logger, timeout, proxyInfo);
     }
 
     @Override
-    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) throws IntegrationException {
+    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) {
         // no additional fields to populate
     }
 
     @Override
-    public void completeConnection() throws IntegrationException {
+    public void completeConnection() {
         // nothing additional needed to connect
     }
 

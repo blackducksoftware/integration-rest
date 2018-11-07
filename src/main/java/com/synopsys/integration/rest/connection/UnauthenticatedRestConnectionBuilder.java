@@ -23,15 +23,10 @@
  */
 package com.synopsys.integration.rest.connection;
 
-import java.net.URL;
-import java.util.Optional;
-
 public class UnauthenticatedRestConnectionBuilder extends RestConnectionBuilder<UnauthenticatedRestConnection> {
     @Override
     protected UnauthenticatedRestConnection buildWithoutValidation() {
-        final Optional<URL> url = getURL();
-
-        return new UnauthenticatedRestConnection(getLogger(), url.orElse(null), getTimeout(), getProxyInfo());
+        return new UnauthenticatedRestConnection(getLogger(), getTimeout(), getProxyInfo());
     }
 
 }
