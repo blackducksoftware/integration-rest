@@ -138,12 +138,12 @@ public class CertificateHandler {
                 throw new IllegalStateException("The proxy information can not be null.");
             }
 
-            if (this.proxyInfo.shouldUseProxyForUrl(url)) {
+            if (this.proxyInfo.shouldUseProxy()) {
                 defaultRequestConfigBuilder.setProxy(new HttpHost(this.proxyInfo.getHost(), this.proxyInfo.getPort()));
                 try {
                     final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
                     credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
-                } catch (IllegalArgumentException ex) {
+                } catch (final IllegalArgumentException ex) {
                     throw new IntegrationException(ex);
                 }
             }
@@ -175,7 +175,7 @@ public class CertificateHandler {
             };
             clientBuilder.addInterceptorLast(certificateInterceptor);
             return clientBuilder.build();
-        } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+        } catch (final KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
             throw new IntegrationException(e.getMessage(), e);
         }
     }
@@ -202,7 +202,7 @@ public class CertificateHandler {
         try {
             final KeyStore keyStore = getKeyStore(trustStore);
             keyStore.setCertificateEntry(url.getHost(), certificate);
-            try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(trustStore))) {
+            try (final OutputStream stream = new BufferedOutputStream(new FileOutputStream(trustStore))) {
                 keyStore.store(stream, getKeyStorePassword());
             }
         } catch (final Exception e) {
@@ -218,7 +218,7 @@ public class CertificateHandler {
             final KeyStore keyStore = getKeyStore(trustStore);
             if (keyStore.containsAlias(url.getHost())) {
                 keyStore.deleteEntry(url.getHost());
-                try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(trustStore))) {
+                try (final OutputStream stream = new BufferedOutputStream(new FileOutputStream(trustStore))) {
                     keyStore.store(stream, getKeyStorePassword());
                 }
             }
@@ -251,7 +251,7 @@ public class CertificateHandler {
         }
         final KeyStore keyStore = KeyStore.getInstance(getTrustStoreType());
         keyStore.load(null, null);
-        try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(trustStore))) {
+        try (final OutputStream stream = new BufferedOutputStream(new FileOutputStream(trustStore))) {
             // to create a valid empty keystore file
             keyStore.store(stream, getKeyStorePassword());
         }
