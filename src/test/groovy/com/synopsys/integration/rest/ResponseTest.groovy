@@ -79,7 +79,7 @@ class ResponseTest {
                 response.close()
             }
         }
-        InputStream stream = folder.newFile().newInputStream()
+        InputStream stream = new ByteArrayInputStream();
         HttpEntity entity = [getContent: { return stream }] as HttpEntity
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {
@@ -105,11 +105,10 @@ class ResponseTest {
             }
         }
         String expectedString = 'Test String'
-        File file = folder.newFile()
-        file << expectedString
-        InputStream stream = file.newInputStream()
+        InputStream stream = new ByteArrayInputStream(expectedString.bytes)
         HttpEntity entity = [getContent: { return stream }] as HttpEntity
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
+
         try {
             response = new Response(closeableHttpResponse)
             assertEquals(expectedString, response.getContentString())
@@ -119,7 +118,7 @@ class ResponseTest {
             }
         }
 
-        stream = file.newInputStream()
+        stream = new ByteArrayInputStream(expectedString.bytes)
         entity = [getContent: { return stream }] as HttpEntity
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {

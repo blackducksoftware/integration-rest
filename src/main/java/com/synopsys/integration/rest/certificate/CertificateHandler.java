@@ -61,9 +61,9 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.ssl.SSLContextBuilder;
 
-import com.synopsys.integration.exception.IntegrationCertificateException;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.rest.exception.IntegrationCertificateException;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class CertificateHandler {
@@ -134,16 +134,16 @@ public class CertificateHandler {
             defaultRequestConfigBuilder.setSocketTimeout(timeout);
             defaultRequestConfigBuilder.setConnectionRequestTimeout(timeout);
 
-            if (this.proxyInfo == null) {
+            if (proxyInfo == null) {
                 throw new IllegalStateException("The proxy information can not be null.");
             }
 
-            if (this.proxyInfo.shouldUseProxyForUrl(url)) {
-                defaultRequestConfigBuilder.setProxy(new HttpHost(this.proxyInfo.getHost(), this.proxyInfo.getPort()));
+            if (proxyInfo.shouldUseProxyForUrl(url)) {
+                defaultRequestConfigBuilder.setProxy(new HttpHost(proxyInfo.getHost(), proxyInfo.getPort()));
                 try {
-                    final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
-                    credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
-                } catch (IllegalArgumentException ex) {
+                    final org.apache.http.auth.Credentials creds = new NTCredentials(proxyInfo.getUsername(), proxyInfo.getPassword(), proxyInfo.getNtlmWorkstation(), proxyInfo.getNtlmDomain());
+                    credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost(), proxyInfo.getPort()), creds);
+                } catch (final IllegalArgumentException ex) {
                     throw new IntegrationException(ex);
                 }
             }

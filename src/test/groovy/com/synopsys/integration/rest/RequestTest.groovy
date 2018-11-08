@@ -22,10 +22,16 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.synopsys.integration.rest.request.Request
 import org.apache.commons.codec.Charsets
 import org.apache.http.entity.ContentType
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 import java.nio.charset.Charset
 

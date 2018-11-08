@@ -22,10 +22,16 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import org.apache.commons.lang3.StringUtils
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class ProxyInfoTest {
 
@@ -144,7 +150,6 @@ class ProxyInfoTest {
 
         ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, ntlmDomain1, ntlmWorkstation1)
 
-
         String username2 = "username"
         String password2 = "password"
         Credentials credentials2 = new Credentials(username1, password1);
@@ -171,7 +176,6 @@ class ProxyInfoTest {
         String ntlmWorkstation1 = 'workstation'
         ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, ntlmDomain1, ntlmWorkstation1)
 
-
         String username2 = "username"
         String password2 = "password"
         Credentials credentials2 = new Credentials(username1, password1);
@@ -196,7 +200,6 @@ class ProxyInfoTest {
         String ntlmDomain1 = 'domain'
         String ntlmWorkstation1 = 'workstation'
         ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, ntlmDomain1, ntlmWorkstation1)
-
 
         String username2 = "username"
         String password2 = "password"

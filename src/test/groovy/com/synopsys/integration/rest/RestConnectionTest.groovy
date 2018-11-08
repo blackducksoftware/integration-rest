@@ -22,6 +22,12 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.synopsys.integration.exception.IntegrationException
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
@@ -46,7 +52,7 @@ import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.entity.ContentType
 import org.junit.After
 import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 import java.nio.charset.Charset
 
@@ -165,7 +171,6 @@ class RestConnectionTest {
         String s = "RestConnection [baseUrl=${server.url("/").toString()}]"
         assert s.equals(restConnection.toString())
     }
-
 
     @Test
     public void testHandleExecuteClientCallSuccessful() {

@@ -9,14 +9,14 @@ buildscript {
 
 plugins { id 'groovy' }
 
-version = '0.2.1-SNAPSHOT'
+version = '0.3.0'
 
 apply plugin: 'com.blackducksoftware.integration.library'
 
 dependencies {
-    compile 'com.blackducksoftware.integration:integration-common:14.0.0'
+    implementation 'com.blackducksoftware.integration:integration-common:15.0.0'
 
-    testCompile 'org.codehaus.groovy:groovy-all:2.4.12'
-    testCompile 'com.squareup.okhttp3:mockwebserver:3.9.0'
-    testCompile 'org.bouncycastle:bcprov-jdk15on:1.52'
+    testImplementation 'org.codehaus.groovy:groovy-all:2.4.12'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:3.9.0'
+    testImplementation 'org.bouncycastle:bcprov-jdk15on:1.52'
 }

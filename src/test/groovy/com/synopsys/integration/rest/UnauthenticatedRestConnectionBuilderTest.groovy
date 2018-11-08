@@ -22,9 +22,9 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
+import com.synopsys.integration.log.BufferedIntLogger
 import com.synopsys.integration.rest.connection.UnauthenticatedRestConnectionBuilder
-import com.synopsys.integration.test.tool.TestLogger
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class UnauthenticatedRestConnectionBuilderTest {
     @Test
@@ -69,7 +69,7 @@ class UnauthenticatedRestConnectionBuilderTest {
         builder.logger = null
         assert !builder.isValid()
 
-        builder.logger = new TestLogger();
+        builder.logger = new BufferedIntLogger();
         assert builder.isValid()
     }
 
@@ -86,7 +86,7 @@ class UnauthenticatedRestConnectionBuilderTest {
     private UnauthenticatedRestConnectionBuilder createValid() {
         UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder();
         builder.baseUrl = "http://www.google.com"
-        builder.logger = new TestLogger()
+        builder.logger = new BufferedIntLogger()
         return builder
     }
 

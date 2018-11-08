@@ -22,11 +22,10 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
-
 import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.credentials.CredentialsBuilder
 import org.apache.commons.lang3.StringUtils
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class CredentialsBuilderTest {
     @Test

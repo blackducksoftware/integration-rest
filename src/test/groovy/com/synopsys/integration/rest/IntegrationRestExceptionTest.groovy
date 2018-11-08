@@ -22,8 +22,14 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.synopsys.integration.rest.exception.IntegrationRestException
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class IntegrationRestExceptionTest {
     @Test
