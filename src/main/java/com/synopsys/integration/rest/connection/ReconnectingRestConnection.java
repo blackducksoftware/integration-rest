@@ -31,7 +31,7 @@ public abstract class ReconnectingRestConnection extends RestConnection {
         final int statusCode = response.getStatusCode();
 
         if (statusCode == RestConstants.UNAUTHORIZED_401 && retryCount < 2) {
-            connect();
+            completeConnection();
             final HttpUriRequest newRequest = copyHttpRequest(request);
             return handleClientExecution(newRequest, retryCount + 1);
         }
