@@ -52,7 +52,6 @@ public abstract class RestConnectionBuilder<C extends RestConnection> extends In
 
     @Override
     protected void validate(final BuilderStatus builderStatus) {
-
         if (0 >= timeout) {
             builderStatus.addErrorMessage("The timeout must be greater than 0.");
         }
@@ -63,6 +62,10 @@ public abstract class RestConnectionBuilder<C extends RestConnection> extends In
 
         if (null == commonRequestHeaders) {
             builderStatus.addErrorMessage("The common request headers map cannot be null.");
+        }
+
+        if (null == proxyInfo) {
+            builderStatus.addErrorMessage("The proxy info cannot be null.");
         }
     }
 
