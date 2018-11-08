@@ -107,11 +107,10 @@ class CertificateHandlerTestIT {
     @Test
     @ExtendWith(TempDirectory.class)
     public void testKeystoreSetBySystemProperty(@TempDirectory.TempDir Path folder) throws Exception {
-        final File tmpTrustStore = folder.resolve("trustStore.tmp").toFile()
+        final File tmpTrustStore = folder.resolve("trustStore.tmp").toFile().createNewFile()
         assertTrue(tmpTrustStore.length() == 0)
         try {
             System.setProperty("javax.net.ssl.trustStore", tmpTrustStore.getAbsolutePath())
-
             final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
             certificateHandler.retrieveAndImportHttpsCertificate(url)
             assertTrue(certificateHandler.isCertificateInTrustStore(url))
