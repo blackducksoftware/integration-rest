@@ -150,7 +150,7 @@ class RestConnectionTest {
     public void testRestConnectionNoProxy() {
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
         int timeoutSeconds = 213
-        UnauthenticatedRestConnection restConnection = new UnauthenticatedRestConnection(logger, server.url("/").url(), timeoutSeconds, null)
+        UnauthenticatedRestConnection restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, null)
         try {
             restConnection.connect();
             fail('Should have thrown exception')
@@ -165,7 +165,6 @@ class RestConnectionTest {
         String s = "RestConnection [baseUrl=${server.url("/").toString()}]"
         assert s.equals(restConnection.toString())
     }
-
 
     @Test
     public void testHandleExecuteClientCallSuccessful() {
@@ -257,7 +256,8 @@ class RestConnectionTest {
         assert requestBase.getURI().toString().contains('offset=0')
         assert requestBase.getURI().toString().contains('limit=100')
 
-        request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').additionalHeaders([header: 'one', thing: 'two']).build()
+        request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').additionalHeaders([header: 'one', thing: 'two']).
+            build()
         requestBase = restConnection.createHttpRequest(request)
         assert HttpMethod.GET.name() == requestBase.method
         assert 'one' == requestBase.getFirstHeader('header').getValue()
@@ -269,7 +269,8 @@ class RestConnectionTest {
 
         Map headersMap = [header: 'one', thing: 'two']
         headersMap.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
-        request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').bodyEncoding(bodyEncoding).additionalHeaders(headersMap).build()
+        request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').bodyEncoding(bodyEncoding).
+            additionalHeaders(headersMap).build()
         requestBase = restConnection.createHttpRequest(request)
         assert HttpMethod.GET.name() == requestBase.method
         assert ContentType.APPLICATION_XML.getMimeType() == requestBase.getFirstHeader(HttpHeaders.ACCEPT).getValue()

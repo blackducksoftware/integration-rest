@@ -27,7 +27,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -121,11 +120,11 @@ public abstract class RestConnection implements Closeable {
      */
     public abstract void completeConnection() throws IntegrationException;
 
-    public RequestBuilder createRequestBuilder(final URL baseUrl, final HttpMethod method) throws IntegrationException {
-        return createRequestBuilder(baseUrl, method, null);
+    public RequestBuilder createRequestBuilder(final HttpMethod method) throws IntegrationException {
+        return createRequestBuilder(method, null);
     }
 
-    public RequestBuilder createRequestBuilder(final URL baseUrl, final HttpMethod method, final Map<String, String> additionalHeaders) throws IntegrationException {
+    public RequestBuilder createRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IntegrationException {
         if (method == null) {
             throw new IntegrationException("Missing field 'method'");
         }
@@ -138,13 +137,7 @@ public abstract class RestConnection implements Closeable {
         for (final Entry<String, String> header : requestHeaders.entrySet()) {
             requestBuilder.addHeader(header.getKey(), header.getValue());
         }
-        if (baseUrl != null) {
-            try {
-                requestBuilder.setUri(baseUrl.toURI());
-            } catch (final URISyntaxException e) {
-                throw new IntegrationException(e.getMessage(), e);
-            }
-        }
+
         return requestBuilder;
     }
 
