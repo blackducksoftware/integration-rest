@@ -170,11 +170,19 @@ public abstract class RestConnection implements Closeable {
         return response;
     }
 
+    /**
+     * Will throw an exception if the status code is an error code
+     */
+    public Response executeRequest(final Request request) throws IntegrationException {
+        final HttpUriRequest httpUriRequest = request.createHttpUriRequest(commonRequestHeaders);
+        return executeRequest(httpUriRequest);
+    }
+
     public Optional<Response> executeGetRequestIfModifiedSince(final Request getRequest, final long timeToCheck) throws IntegrationException, IOException {
         final Request headRequest = new Request.Builder(getRequest).method(HttpMethod.HEAD).build();
 
         long lastModifiedOnServer = 0L;
-        try (final Response headResponse = executeRequest(headRequest.createHttpRequest(commonRequestHeaders))) {
+        try (final Response headResponse = executeRequest(headRequest.createHttpUriRequest(commonRequestHeaders))) {
             lastModifiedOnServer = headResponse.getLastModified();
             logger.debug(String.format("Last modified on server: %d", lastModifiedOnServer));
         } catch (final IntegrationException e) {
@@ -187,7 +195,7 @@ public abstract class RestConnection implements Closeable {
             return Optional.empty();
         }
 
-        return Optional.of(executeRequest(getRequest.createHttpRequest(commonRequestHeaders)));
+        return Optional.of(executeRequest(getRequest.createHttpUriRequest(commonRequestHeaders)));
     }
 
     @Override

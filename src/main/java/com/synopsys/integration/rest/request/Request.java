@@ -117,9 +117,9 @@ public class Request extends Stringable {
         return bodyContent;
     }
 
-    public HttpUriRequest createHttpRequest(final Map<String, String> commonRequestHeaders) throws IntegrationException {
+    public HttpUriRequest createHttpUriRequest(final Map<String, String> commonRequestHeaders) throws IntegrationException {
         final Request request = this;
-        
+
         if (request.getMethod() == null) {
             throw new IntegrationException("Missing the HttpMethod");
         }
