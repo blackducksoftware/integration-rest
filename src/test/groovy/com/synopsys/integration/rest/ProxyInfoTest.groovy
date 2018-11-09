@@ -92,27 +92,6 @@ class ProxyInfoTest {
     }
 
     @Test
-    public void testShouldUseProxy() {
-        String username1 = "username"
-        String password1 = "password"
-        Credentials credentials1 = new Credentials(username1, password1);
-        String proxyHost1 = "proxyHost"
-        int proxyPort1 = 25
-        String proxyIgnoredHosts1 = ""
-        String ntlmDomain1 = 'domain'
-        String ntlmWorkstation1 = 'workstation'
-
-        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, ntlmDomain1, ntlmWorkstation1)
-
-        assert true == proxyInfo1.shouldUseProxyForUrl(new URL(VALID_URL))
-
-        proxyIgnoredHosts1 = ".*"
-        proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, ntlmDomain1, ntlmWorkstation1)
-        boolean result = proxyInfo1.shouldUseProxyForUrl(new URL(VALID_URL))
-        assert !result
-    }
-
-    @Test
     public void testGetProxy() {
         String username1 = "username"
         String password1 = "password"
@@ -124,11 +103,11 @@ class ProxyInfoTest {
         String ntlmWorkstation1 = 'workstation'
 
         ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, ntlmDomain1, ntlmWorkstation1)
-        assert null != proxyInfo1.getProxy(new URL(VALID_URL))
+        assert null != proxyInfo1.getProxy()
 
         proxyIgnoredHosts1 = ".*"
         proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, ntlmDomain1, ntlmWorkstation1)
-        assert Proxy.NO_PROXY == proxyInfo1.getProxy(new URL(VALID_URL))
+        assert Proxy.NO_PROXY != proxyInfo1.getProxy()
     }
 
     @Test

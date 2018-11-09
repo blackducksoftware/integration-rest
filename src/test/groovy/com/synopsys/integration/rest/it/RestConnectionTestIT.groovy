@@ -66,7 +66,7 @@ class RestConnectionTestIT {
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_PASSTHROUGH"))
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.connect()
+            restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
             restConnection.executeRequest(request)
         } catch (final Exception e) {
@@ -87,7 +87,7 @@ class RestConnectionTestIT {
             proxyBuilder.credentials = credentialsBuilder.build();
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.connect()
+            restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
             restConnection.executeRequest(request)
         } catch (final Exception e) {
@@ -103,7 +103,7 @@ class RestConnectionTestIT {
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.connect()
+            restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
             restConnection.executeRequest(request)
             fail("An exception should be thrown")
@@ -122,7 +122,7 @@ class RestConnectionTestIT {
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.connect()
+            restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
             restConnection.executeRequest(request)
             fail("An exception should be thrown")
@@ -148,7 +148,7 @@ class RestConnectionTestIT {
             proxyBuilder.credentials = proxyCredentials;
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.connect()
+            restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
             restConnection.executeRequest(request)
         } catch (final Exception e) {
@@ -164,7 +164,7 @@ class RestConnectionTestIT {
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.connect()
+            restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
             restConnection.executeRequest(request)
             fail("An exception should be thrown")
@@ -188,7 +188,7 @@ class RestConnectionTestIT {
             proxyBuilder.ntlmWorkstation = restConnectionTestHelper.getProperty("TEST_PROXY_WORKSTATION_NTLM")
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.connect()
+            restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
             restConnection.executeRequest(request)
         } catch (final Exception e) {
@@ -204,7 +204,7 @@ class RestConnectionTestIT {
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.connect()
+            restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
             restConnection.executeRequest(request)
             fail("An exception should be thrown")

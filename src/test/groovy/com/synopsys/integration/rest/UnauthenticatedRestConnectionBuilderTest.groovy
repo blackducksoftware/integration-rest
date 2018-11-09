@@ -23,6 +23,7 @@
 package com.synopsys.integration.rest
 
 import com.synopsys.integration.rest.connection.UnauthenticatedRestConnectionBuilder
+import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.test.tool.TestLogger
 import org.junit.Test
 
@@ -40,26 +41,6 @@ class UnauthenticatedRestConnectionBuilderTest {
         assert !builder.isValid()
 
         builder.timeout = 120
-        assert builder.isValid()
-    }
-
-    @Test
-    public void testNoBaseUrlInvalid() {
-        UnauthenticatedRestConnectionBuilder builder = createValid()
-        builder.baseUrl = null
-        assert !builder.isValid()
-
-        builder.baseUrl = "http://www.google.com"
-        assert builder.isValid()
-    }
-
-    @Test
-    public void testBaseUrlInvalid() {
-        UnauthenticatedRestConnectionBuilder builder = createValid()
-        builder.baseUrl = "htp:/a.bad.domain"
-        assert !builder.isValid()
-
-        builder.baseUrl = "http://www.google.com"
         assert builder.isValid()
     }
 
@@ -83,10 +64,11 @@ class UnauthenticatedRestConnectionBuilderTest {
         assert builder.isValid()
     }
 
-    private UnauthenticatedRestConnectionBuilder createValid() {
-        UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder();
-        builder.baseUrl = "http://www.google.com"
-        builder.logger = new TestLogger()
+    private static UnauthenticatedRestConnectionBuilder createValid() {
+        UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder()
+        builder.setCommonRequestHeaders(new HashMap<String, String>())
+        builder.setProxyInfo(ProxyInfo.NO_PROXY_INFO)
+        builder.setLogger(new TestLogger())
         return builder
     }
 

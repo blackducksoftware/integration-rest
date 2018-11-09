@@ -57,11 +57,11 @@ public class ProxyInfo extends Stringable implements Serializable {
     }
 
     public URLConnection openConnection(final URL url) throws IOException {
-        final Proxy proxy = getProxy(url);
+        final Proxy proxy = getProxy();
         return url.openConnection(proxy);
     }
 
-    public Proxy getProxy(final URL url) {
+    public Proxy getProxy() {
         return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
     }
 

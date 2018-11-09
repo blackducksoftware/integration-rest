@@ -92,7 +92,7 @@ public abstract class RestConnection implements Closeable {
         this.timeout = timeout;
     }
 
-    public void connect() throws IntegrationException {
+    public void initialize() throws IntegrationException {
         addBuilderConnectionTimes();
         addBuilderProxyInformation();
         populateHttpClientBuilder(clientBuilder, defaultRequestConfigBuilder);
@@ -102,7 +102,7 @@ public abstract class RestConnection implements Closeable {
     }
 
     /**
-     * Subclasses can add to the builders any additional fields they need to successfully connect
+     * Subclasses can add to the builders any additional fields they need to successfully initialize
      */
     public abstract void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) throws IntegrationException;
 
@@ -243,7 +243,7 @@ public abstract class RestConnection implements Closeable {
             throw new IllegalStateException(ERROR_MSG_PROXY_INFO_NULL);
         }
 
-        if (proxyInfo.equals(ProxyInfo.NO_PROXY_INFO)) {
+        if (!proxyInfo.equals(ProxyInfo.NO_PROXY_INFO)) {
             defaultRequestConfigBuilder.setProxy(getProxyHttpHost());
             try {
                 addProxyCredentials();
@@ -282,7 +282,7 @@ public abstract class RestConnection implements Closeable {
                 throw new IntegrationException(e.getMessage(), e);
             }
         } else {
-            connect();
+            initialize();
             final HttpUriRequest newRequest = copyHttpRequest(request);
             return handleClientExecution(newRequest);
         }
@@ -370,5 +370,4 @@ public abstract class RestConnection implements Closeable {
     public void addCommonRequestHeaders(final Map<String, String> commonRequestHeaders) {
         this.commonRequestHeaders.putAll(commonRequestHeaders);
     }
-
 }
