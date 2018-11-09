@@ -43,15 +43,13 @@ public class ProxyInfo extends Stringable implements Serializable {
     private final String host;
     private final int port;
     private final Credentials proxyCredentials;
-    private final String ignoredProxyHosts;
     private final String ntlmDomain;
     private final String ntlmWorkstation;
 
-    public ProxyInfo(final String host, final int port, final Credentials proxyCredentials, final String ignoredProxyHosts, final String ntlmDomain, final String ntlmWorkstation) {
+    public ProxyInfo(final String host, final int port, final Credentials proxyCredentials, final String ntlmDomain, final String ntlmWorkstation) {
         this.host = host;
         this.port = port;
         this.proxyCredentials = proxyCredentials;
-        this.ignoredProxyHosts = ignoredProxyHosts;
         this.ntlmDomain = ntlmDomain;
         this.ntlmWorkstation = ntlmWorkstation;
     }
@@ -101,10 +99,6 @@ public class ProxyInfo extends Stringable implements Serializable {
         }
     }
 
-    public String getIgnoredProxyHosts() {
-        return ignoredProxyHosts;
-    }
-
     public String getNtlmDomain() {
         return ntlmDomain;
     }
@@ -125,7 +119,12 @@ public class ProxyInfo extends Stringable implements Serializable {
         private static final long serialVersionUID = 7646573390510702513L;
 
         public NoProxyInfo() {
-            super("", 0, null, "", null, null);
+            super("", 0, null, null, null);
+        }
+
+        @Override
+        public Proxy getProxy() {
+            return null;
         }
     }
 

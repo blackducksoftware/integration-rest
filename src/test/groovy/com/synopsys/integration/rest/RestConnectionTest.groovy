@@ -111,12 +111,10 @@ class RestConnectionTest {
 
         String proxyHost = "ProxyHost"
         int proxyPort = 3128
-        String proxyIgnoredHosts = "IgnoredHost"
         ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
         proxyBuilder.host = proxyHost
         proxyBuilder.port = proxyPort
         proxyBuilder.credentials = new Credentials("testUser", "password")
-        proxyBuilder.ignoredProxyHosts = proxyIgnoredHosts
         ProxyInfo proxyInfo = proxyBuilder.build()
         builder = new UnauthenticatedRestConnectionBuilder()
         builder.logger = logger
@@ -127,23 +125,6 @@ class RestConnectionTest {
         restConnection.initialize()
         realClient = restConnection.client
         assert null != realClient.defaultConfig.proxy
-
-        proxyIgnoredHosts = ".*"
-        proxyBuilder = new ProxyInfoBuilder()
-        proxyBuilder.host = proxyHost
-        proxyBuilder.port = proxyPort
-        proxyBuilder.credentials = new Credentials("testUser", "password")
-        proxyBuilder.ignoredProxyHosts = proxyIgnoredHosts
-        proxyInfo = proxyBuilder.build()
-        builder = new UnauthenticatedRestConnectionBuilder()
-        builder.logger = logger
-        builder.timeout = timeoutSeconds
-        builder.setProxyInfo(ProxyInfo.NO_PROXY_INFO)
-        restConnection = builder.build()
-
-        restConnection.initialize()
-        realClient = restConnection.client
-        assert null == realClient.defaultConfig.proxy
     }
 
     @Test
