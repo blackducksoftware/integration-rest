@@ -24,8 +24,8 @@ package com.synopsys.integration.rest.it
 
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
+import com.synopsys.integration.rest.connection.BasicRestConnection
 import com.synopsys.integration.rest.connection.RestConnection
-import com.synopsys.integration.rest.connection.UnauthenticatedRestConnectionBuilder
 import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.credentials.CredentialsBuilder
 import com.synopsys.integration.rest.proxy.ProxyInfo
@@ -52,16 +52,16 @@ class RestConnectionTestIT {
     public ExpectedException exception = ExpectedException.none()
 
     @Test
-    public void testTimeoutSet() {
+    void testTimeoutSet() {
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection()
         restConnection.timeout = 459
         assertEquals(459, restConnection.timeout)
     }
 
     @Test
-    public void testPassthroughProxyWithHttp() {
+    void testPassthroughProxyWithHttp() {
         try {
-            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_PASSTHROUGH")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_PASSTHROUGH"))
             ProxyInfo proxyInfo = proxyBuilder.build()
@@ -75,16 +75,16 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testBasicProxyWithHttp() {
+    void testBasicProxyWithHttp() {
         try {
-            CredentialsBuilder credentialsBuilder = new CredentialsBuilder();
-            credentialsBuilder.setUsername(restConnectionTestHelper.getProperty("TEST_PROXY_USER_BASIC"));
-            credentialsBuilder.setPassword(restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_BASIC"));
+            CredentialsBuilder credentialsBuilder = new CredentialsBuilder()
+            credentialsBuilder.setUsername(restConnectionTestHelper.getProperty("TEST_PROXY_USER_BASIC"))
+            credentialsBuilder.setPassword(restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_BASIC"))
 
-            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_BASIC")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
-            proxyBuilder.credentials = credentialsBuilder.build();
+            proxyBuilder.credentials = credentialsBuilder.build()
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
             restConnection.initialize()
@@ -96,9 +96,9 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testBasicProxyFailsWithoutCredentialsWithHttp() {
+    void testBasicProxyFailsWithoutCredentialsWithHttp() {
         try {
-            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_BASIC")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
             ProxyInfo proxyInfo = proxyBuilder.build()
@@ -114,10 +114,10 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testBasicProxyFailsWithoutCredentialsWithHttps() {
+    void testBasicProxyFailsWithoutCredentialsWithHttps() {
         RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper(TestingPropertyKey.TEST_HTTPS_SERVER_URL.name())
         try {
-            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_BASIC")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
             ProxyInfo proxyInfo = proxyBuilder.build()
@@ -133,19 +133,19 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testDigestProxyWithHttp() {
+    void testDigestProxyWithHttp() {
         try {
-            String proxyUsername = restConnectionTestHelper.getProperty("TEST_PROXY_USER_DIGEST");
-            String proxyPassword = restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_DIGEST");
-            CredentialsBuilder credentialsBuilder = new CredentialsBuilder();
+            String proxyUsername = restConnectionTestHelper.getProperty("TEST_PROXY_USER_DIGEST")
+            String proxyPassword = restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_DIGEST")
+            CredentialsBuilder credentialsBuilder = new CredentialsBuilder()
             credentialsBuilder.setUsername(proxyUsername)
             credentialsBuilder.setPassword(proxyPassword)
-            Credentials proxyCredentials = credentialsBuilder.build();
+            Credentials proxyCredentials = credentialsBuilder.build()
 
-            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_DIGEST")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
-            proxyBuilder.credentials = proxyCredentials;
+            proxyBuilder.credentials = proxyCredentials
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
             restConnection.initialize()
@@ -157,9 +157,9 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testDigestProxyFailsWithoutCredentialsWithHttp() {
+    void testDigestProxyFailsWithoutCredentialsWithHttp() {
         try {
-            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_DIGEST")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
             ProxyInfo proxyInfo = proxyBuilder.build()
@@ -175,15 +175,15 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testNtlmProxyWithHttp() {
+    void testNtlmProxyWithHttp() {
         try {
-            CredentialsBuilder credentialsBuilder = new CredentialsBuilder();
-            credentialsBuilder.setUsername(restConnectionTestHelper.getProperty("TEST_PROXY_USER_NTLM"));
-            credentialsBuilder.setPassword(restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_NTLM"));
-            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            CredentialsBuilder credentialsBuilder = new CredentialsBuilder()
+            credentialsBuilder.setUsername(restConnectionTestHelper.getProperty("TEST_PROXY_USER_NTLM"))
+            credentialsBuilder.setPassword(restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_NTLM"))
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
-            proxyBuilder.credentials = credentialsBuilder.build();
+            proxyBuilder.credentials = credentialsBuilder.build()
             proxyBuilder.ntlmDomain = restConnectionTestHelper.getProperty("TEST_PROXY_DOMAIN_NTLM")
             proxyBuilder.ntlmWorkstation = restConnectionTestHelper.getProperty("TEST_PROXY_WORKSTATION_NTLM")
             ProxyInfo proxyInfo = proxyBuilder.build()
@@ -197,9 +197,9 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testNtlmProxyFailsWithoutCredentialsWithHttp() {
+    void testNtlmProxyFailsWithoutCredentialsWithHttp() {
         try {
-            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
             ProxyInfo proxyInfo = proxyBuilder.build()
@@ -215,16 +215,9 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testUnauthorizedGet() throws Exception {
+    void testUnauthorizedGet() throws Exception {
         String url = restConnectionTestHelper.getProperty("TEST_AUTHENTICATED_SERVER_URL")
-        UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder();
-        builder.logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
-        builder.baseUrl = url
-        builder.timeout = 120;
-        builder.setProxyInfo(ProxyInfo.NO_PROXY_INFO);
-        builder.setAlwaysTrustServerCertificate(true)
-        final RestConnection restConnection = builder.build()
-
+        final RestConnection restConnection = new BasicRestConnection(new PrintStreamIntLogger(System.out, LogLevel.INFO), 120, true, ProxyInfo.NO_PROXY_INFO)
         final Request hubRequest = new Request.Builder(url.toString()).build()
         System.out.println("Executing: " + hubRequest.toString())
         try {

@@ -22,21 +22,21 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
-import com.synopsys.integration.rest.connection.UnauthenticatedRestConnectionBuilder
+import com.synopsys.integration.rest.connection.BasicRestConnection
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.test.tool.TestLogger
 import org.junit.Test
 
-class UnauthenticatedRestConnectionBuilderTest {
+class BasicRestConnectionBuilderTest {
     @Test
-    public void testMinimumValid() {
-        UnauthenticatedRestConnectionBuilder builder = createValid()
+    void testMinimumValid() {
+        BasicRestConnection builder = createValid()
         assert builder.isValid()
     }
 
     @Test
-    public void testInvalidTimeout() {
-        UnauthenticatedRestConnectionBuilder builder = createValid()
+    void testInvalidTimeout() {
+        BasicRestConnection builder = createValid()
         builder.timeout = -1
         assert !builder.isValid()
 
@@ -45,31 +45,16 @@ class UnauthenticatedRestConnectionBuilderTest {
     }
 
     @Test
-    public void testLogger() {
-        UnauthenticatedRestConnectionBuilder builder = createValid()
-        builder.logger = null
-        assert !builder.isValid()
+    void testLogger() {
+        BasicRestConnection valid = createValid()
+        assert valid.isValid()
 
-        builder.logger = new TestLogger();
-        assert builder.isValid()
+        BasicRestConnection invalid = new BasicRestConnection(null, BasicRestConnection.DEFAULT_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
+        assert !invalid.isValid()
     }
 
-    @Test
-    public void testHeadersValid() {
-        UnauthenticatedRestConnectionBuilder builder = createValid()
-        builder.commonRequestHeaders = null
-        assert !builder.isValid()
-
-        builder.commonRequestHeaders = new HashMap<>();
-        assert builder.isValid()
-    }
-
-    private static UnauthenticatedRestConnectionBuilder createValid() {
-        UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder()
-        builder.setCommonRequestHeaders(new HashMap<String, String>())
-        builder.setProxyInfo(ProxyInfo.NO_PROXY_INFO)
-        builder.setLogger(new TestLogger())
-        return builder
+    private static BasicRestConnection createValid() {
+        return new BasicRestConnection(new TestLogger(), BasicRestConnection.DEFAULT_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
     }
 
 }

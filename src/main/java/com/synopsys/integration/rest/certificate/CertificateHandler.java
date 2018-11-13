@@ -109,7 +109,7 @@ public class CertificateHandler {
 
         Certificate certificate = null;
         try {
-            final HttpClient client = getHttpClient(url);
+            final HttpClient client = getHttpClient();
             final RequestBuilder requestBuilder = RequestBuilder.create("GET");
             requestBuilder.setUri(url.toURI());
             final HttpUriRequest request = requestBuilder.build();
@@ -124,7 +124,7 @@ public class CertificateHandler {
         return certificate;
     }
 
-    protected HttpClient getHttpClient(final URL url) throws IntegrationException {
+    protected HttpClient getHttpClient() throws IntegrationException {
         try {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             final HttpClientBuilder clientBuilder = HttpClientBuilder.create();

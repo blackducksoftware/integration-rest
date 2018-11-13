@@ -26,9 +26,8 @@ import com.synopsys.integration.exception.IntegrationException
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
+import com.synopsys.integration.rest.connection.BasicRestConnection
 import com.synopsys.integration.rest.connection.RestConnection
-import com.synopsys.integration.rest.connection.UnauthenticatedRestConnection
-import com.synopsys.integration.rest.connection.UnauthenticatedRestConnectionBuilder
 import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.exception.IntegrationRestException
 import com.synopsys.integration.rest.proxy.ProxyInfo
@@ -81,11 +80,8 @@ class RestConnectionTest {
             }
         }
         server.setDispatcher(dispatcher)
-        UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder()
-        builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE)
-        builder.timeout = CONNECTION_TIMEOUT
-        builder.setProxyInfo(ProxyInfo.NO_PROXY_INFO)
-        builder.build()
+
+        return new BasicRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), CONNECTION_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
     }
 
     @Test
@@ -93,13 +89,8 @@ class RestConnectionTest {
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
         int timeoutSeconds = 213
         int timeoutMilliSeconds = timeoutSeconds * 1000
-        UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder()
-        builder.logger = logger
-        builder.timeout = timeoutSeconds
-        builder.setProxyInfo(ProxyInfo.NO_PROXY_INFO)
-        builder.alwaysTrustServerCertificate = true
 
-        RestConnection restConnection = builder.build()
+        RestConnection restConnection = new BasicRestConnection(logger, timeoutSeconds, true, ProxyInfo.NO_PROXY_INFO)
         def realClient = restConnection.client
         assert null == realClient
         restConnection.initialize()
@@ -116,11 +107,8 @@ class RestConnectionTest {
         proxyBuilder.port = proxyPort
         proxyBuilder.credentials = new Credentials("testUser", "password")
         ProxyInfo proxyInfo = proxyBuilder.build()
-        builder = new UnauthenticatedRestConnectionBuilder()
-        builder.logger = logger
-        builder.timeout = timeoutSeconds
-        builder.setProxyInfo(proxyInfo)
-        restConnection = builder.build()
+
+        restConnection = new BasicRestConnection(logger, timeoutSeconds, true, proxyInfo)
 
         restConnection.initialize()
         realClient = restConnection.client
@@ -131,7 +119,7 @@ class RestConnectionTest {
     void testRestConnectionNoProxy() {
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
         int timeoutSeconds = 213
-        UnauthenticatedRestConnection restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, null)
+        RestConnection restConnection = new BasicRestConnection(logger, timeoutSeconds, true, null)
         try {
             restConnection.initialize()
             fail('Should have thrown exception')
@@ -180,7 +168,7 @@ class RestConnectionTest {
 
     @Test
     void testCreateHttpRequestNoURI() {
-        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), 300, ProxyInfo.NO_PROXY_INFO)
+        RestConnection restConnection = new BasicRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), 300, true, ProxyInfo.NO_PROXY_INFO)
         Request request = new Request.Builder().build()
         try {
             request.createHttpUriRequest(restConnection.getCommonRequestHeaders())

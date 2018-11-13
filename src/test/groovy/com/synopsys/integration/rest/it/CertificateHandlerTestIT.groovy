@@ -29,11 +29,7 @@ import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.certificate.CertificateHandler
 import com.synopsys.integration.test.annotation.IntegrationTest
 import org.apache.commons.lang3.StringUtils
-import org.junit.AfterClass
-import org.junit.Assume
-import org.junit.BeforeClass
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.experimental.categories.Category
 import org.junit.rules.TemporaryFolder
 
@@ -65,7 +61,7 @@ class CertificateHandlerTestIT {
     public TemporaryFolder folder = new TemporaryFolder()
 
     @BeforeClass
-    public static void init() throws Exception {
+    static void init() throws Exception {
         RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper()
         final String urlString = restConnectionTestHelper.getProperty("TEST_HTTPS_SERVER_URL")
         logger.info("Using Hub server ${urlString}")
@@ -84,22 +80,24 @@ class CertificateHandlerTestIT {
     }
 
     @AfterClass
-    public static void tearDown() throws Exception {
+    static void tearDown() throws Exception {
         if (originalCertificate != null) {
             CERT_HANDLER.importHttpsCertificate(url, originalCertificate)
         }
     }
 
     @Test
-    public void testCertificateRetrieval() throws Exception {
+    void testCertificateRetrieval() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
+        certificateHandler.setTimeout(1000)
         final Certificate output = certificateHandler.retrieveHttpsCertificateFromURL(url)
         assertNotNull(output)
     }
 
     @Test
-    public void testRetrieveAndImportHttpsCertificate() throws Exception {
+    void testRetrieveAndImportHttpsCertificate() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
+        certificateHandler.setTimeout(1000)
         certificateHandler.retrieveAndImportHttpsCertificate(url)
         assertTrue(certificateHandler.isCertificateInTrustStore(url))
         assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url))
@@ -108,13 +106,14 @@ class CertificateHandlerTestIT {
     }
 
     @Test
-    public void testKeystoreSetBySystemProperty() throws Exception {
+    void testKeystoreSetBySystemProperty() throws Exception {
         final File tmpTrustStore = folder.newFile()
         assertTrue(tmpTrustStore.length() == 0)
         try {
             System.setProperty("javax.net.ssl.trustStore", tmpTrustStore.getAbsolutePath())
 
             final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
+            certificateHandler.setTimeout(1000)
             certificateHandler.retrieveAndImportHttpsCertificate(url)
             assertTrue(certificateHandler.isCertificateInTrustStore(url))
             assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url))
@@ -128,7 +127,7 @@ class CertificateHandlerTestIT {
     }
 
     @Test
-    public void testRetrieveAndImportHttpsCertificateForSpecificJavaHome() throws Exception {
+    void testRetrieveAndImportHttpsCertificateForSpecificJavaHome() throws Exception {
         final String javaHomeToManipulate = System.getProperty("JAVA_TO_MANIPULATE")
         Assume.assumeTrue(StringUtils.isNotBlank(javaHomeToManipulate))
 
