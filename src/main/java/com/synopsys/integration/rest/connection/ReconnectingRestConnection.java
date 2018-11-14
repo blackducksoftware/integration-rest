@@ -26,31 +26,36 @@ package com.synopsys.integration.rest.connection;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.RestConstants;
+import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Response;
 
 /**
  * A rest connection that will attempt to reconnect in the event of the client being unauthorized multiple times before
  * throwing an exception. Other unsuccessful status codes will result in an exception being thrown
  */
-public class ReconnectingRestConnection extends RestConnectionDecorator {
-    public ReconnectingRestConnection(final RestConnection restConnection) {
-        super(restConnection);
+public abstract class ReconnectingRestConnection extends RestConnection {
+    public ReconnectingRestConnection(final IntLogger logger, final int timeout, final boolean alwaysTrustServerCertificate, final ProxyInfo proxyInfo) {
+        super(logger, timeout, alwaysTrustServerCertificate, proxyInfo);
     }
 
     @Override
-    public Response executeRequest(final HttpUriRequest request) throws IntegrationException {
+    public Response executeRequestWithoutException(final HttpUriRequest request) throws IntegrationException {
         return handleClientExecution(request, 0);
     }
 
     private Response handleClientExecution(final HttpUriRequest request, final int retryCount) throws IntegrationException {
-        final Response response = super.executeRequest(request);
+        final Response response = super.executeRequestWithoutException(request);
         final int statusCode = response.getStatusCode();
+        final boolean unauthorized = statusCode == RestConstants.UNAUTHORIZED_401;
 
-        if (statusCode == RestConstants.UNAUTHORIZED_401 && retryCount < 2) {
-            completeConnection();
+        if (unauthorized && retryCount < 2) {
+            initialize();
             final HttpUriRequest newRequest = copyHttpRequest(request);
             return handleClientExecution(newRequest, retryCount + 1);
+        } else if (unauthorized) {
+            throw new IntegrationException("Failed to reconnect");
         }
 
         return response;

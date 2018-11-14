@@ -22,7 +22,8 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
-import com.synopsys.integration.rest.connection.BasicRestConnection
+import com.synopsys.integration.rest.connection.RestConnection
+import com.synopsys.integration.rest.connection.UnauthenticatedRestConnection
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.test.tool.TestLogger
 import org.junit.Test
@@ -30,31 +31,30 @@ import org.junit.Test
 class BasicRestConnectionBuilderTest {
     @Test
     void testMinimumValid() {
-        BasicRestConnection builder = createValid()
-        assert builder.isValid()
+        RestConnection builder = createValid()
     }
 
     @Test
     void testInvalidTimeout() {
-        BasicRestConnection builder = createValid()
-        builder.timeout = -1
-        assert !builder.isValid()
+        RestConnection restConnection = createValid()
+        restConnection.timeout = -1
+        assert !restConnection.isValid()
 
-        builder.timeout = 120
-        assert builder.isValid()
+        restConnection.timeout = 120
+        assert restConnection.isValid()
     }
 
     @Test
     void testLogger() {
-        BasicRestConnection valid = createValid()
+        RestConnection valid = createValid()
         assert valid.isValid()
 
-        BasicRestConnection invalid = new BasicRestConnection(null, BasicRestConnection.DEFAULT_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
+        RestConnection invalid = new UnauthenticatedRestConnection(null, RestConnection.DEFAULT_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
         assert !invalid.isValid()
     }
 
-    private static BasicRestConnection createValid() {
-        return new BasicRestConnection(new TestLogger(), BasicRestConnection.DEFAULT_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
+    private static RestConnection createValid() throws IllegalAccessException {
+        return new UnauthenticatedRestConnection(new TestLogger(), RestConnection.DEFAULT_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
     }
 
 }

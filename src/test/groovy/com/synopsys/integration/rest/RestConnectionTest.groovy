@@ -26,8 +26,8 @@ import com.synopsys.integration.exception.IntegrationException
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
-import com.synopsys.integration.rest.connection.BasicRestConnection
 import com.synopsys.integration.rest.connection.RestConnection
+import com.synopsys.integration.rest.connection.UnauthenticatedRestConnection
 import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.exception.IntegrationRestException
 import com.synopsys.integration.rest.proxy.ProxyInfo
@@ -81,7 +81,7 @@ class RestConnectionTest {
         }
         server.setDispatcher(dispatcher)
 
-        return new BasicRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), CONNECTION_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
+        return new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), CONNECTION_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
     }
 
     @Test
@@ -90,7 +90,7 @@ class RestConnectionTest {
         int timeoutSeconds = 213
         int timeoutMilliSeconds = timeoutSeconds * 1000
 
-        RestConnection restConnection = new BasicRestConnection(logger, timeoutSeconds, true, ProxyInfo.NO_PROXY_INFO)
+        RestConnection restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, true, ProxyInfo.NO_PROXY_INFO)
         def realClient = restConnection.client
         assert null == realClient
         restConnection.initialize()
@@ -108,7 +108,7 @@ class RestConnectionTest {
         proxyBuilder.credentials = new Credentials("testUser", "password")
         ProxyInfo proxyInfo = proxyBuilder.build()
 
-        restConnection = new BasicRestConnection(logger, timeoutSeconds, true, proxyInfo)
+        restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, true, proxyInfo)
 
         restConnection.initialize()
         realClient = restConnection.client
@@ -119,7 +119,7 @@ class RestConnectionTest {
     void testRestConnectionNoProxy() {
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
         int timeoutSeconds = 213
-        RestConnection restConnection = new BasicRestConnection(logger, timeoutSeconds, true, null)
+        RestConnection restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, true, null)
         try {
             restConnection.initialize()
             fail('Should have thrown exception')
@@ -168,7 +168,7 @@ class RestConnectionTest {
 
     @Test
     void testCreateHttpRequestNoURI() {
-        RestConnection restConnection = new BasicRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), 300, true, ProxyInfo.NO_PROXY_INFO)
+        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), 300, true, ProxyInfo.NO_PROXY_INFO)
         Request request = new Request.Builder().build()
         try {
             request.createHttpUriRequest(restConnection.getCommonRequestHeaders())

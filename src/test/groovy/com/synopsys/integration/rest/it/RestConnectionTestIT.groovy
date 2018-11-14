@@ -24,8 +24,8 @@ package com.synopsys.integration.rest.it
 
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
-import com.synopsys.integration.rest.connection.BasicRestConnection
 import com.synopsys.integration.rest.connection.RestConnection
+import com.synopsys.integration.rest.connection.UnauthenticatedRestConnection
 import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.credentials.CredentialsBuilder
 import com.synopsys.integration.rest.proxy.ProxyInfo
@@ -217,7 +217,7 @@ class RestConnectionTestIT {
     @Test
     void testUnauthorizedGet() throws Exception {
         String url = restConnectionTestHelper.getProperty("TEST_AUTHENTICATED_SERVER_URL")
-        final RestConnection restConnection = new BasicRestConnection(new PrintStreamIntLogger(System.out, LogLevel.INFO), 120, true, ProxyInfo.NO_PROXY_INFO)
+        final RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.INFO), 120, true, ProxyInfo.NO_PROXY_INFO)
         final Request hubRequest = new Request.Builder(url.toString()).build()
         System.out.println("Executing: " + hubRequest.toString())
         try {

@@ -24,7 +24,8 @@ package com.synopsys.integration.rest.it
 
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
-import com.synopsys.integration.rest.connection.*
+import com.synopsys.integration.rest.connection.RestConnection
+import com.synopsys.integration.rest.connection.UnauthenticatedRestConnection
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import okhttp3.OkHttpClient
 import org.apache.commons.lang3.math.NumberUtils
@@ -129,7 +130,7 @@ class RestConnectionTestHelper {
     }
 
     RestConnection getRestConnection(final LogLevel logLevel, ProxyInfo proxyInfo) {
-        return new BasicRestConnection(new PrintStreamIntLogger(System.out, logLevel), getTimeout(), true, proxyInfo)
+        return new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, logLevel), getTimeout(), true, proxyInfo)
     }
 
 }
