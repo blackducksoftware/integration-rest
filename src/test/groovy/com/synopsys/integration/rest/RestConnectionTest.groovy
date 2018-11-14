@@ -45,9 +45,13 @@ import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.entity.ContentType
 import org.junit.After
 import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 import java.nio.charset.Charset
+
+import static org.junit.jupiter.api.Assertions.*
+import static org.junit.jupiter.api.Assertions.*
+import static org.junit.jupiter.api.Assertions.*
 
 class RestConnectionTest {
     public static final int CONNECTION_TIMEOUT = 213

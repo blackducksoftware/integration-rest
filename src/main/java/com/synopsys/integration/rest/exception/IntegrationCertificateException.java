@@ -1,5 +1,5 @@
 /**
- * Hub Common Rest
+ * integration-rest
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -19,16 +19,27 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
- * under the License.*/
-package com.synopsys.integration.rest
+ * under the License.
+ */
+package com.synopsys.integration.rest.exception;
 
-import org.junit.jupiter.api.Test
+public class IntegrationCertificateException extends IllegalStateException {
+    private static final long serialVersionUID = 6323746503432559576L;
 
-class RestConstantsTest {
-    @Test
-    public void testParsingDate() {
-        String dateString = '2017-03-02T03:35:23.456Z'
-        Date date = RestConstants.parseDateString(dateString)
-        assert dateString.equals(RestConstants.formatDate(date))
+    public IntegrationCertificateException() {
+        super();
     }
+
+    public IntegrationCertificateException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+    public IntegrationCertificateException(final String message) {
+        super(message);
+    }
+
+    public IntegrationCertificateException(final Throwable cause) {
+        super(cause);
+    }
+
 }

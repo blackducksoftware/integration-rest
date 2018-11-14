@@ -22,13 +22,17 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.synopsys.integration.rest.credentials.Credentials
 import org.apache.commons.lang3.StringUtils
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class CredentialsTest {
-
     @Test
     public void testUserAndPasswordConstructor() {
         final String username = "username"
@@ -41,7 +45,6 @@ class CredentialsTest {
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
     }
-
 
     @Test
     public void testHashCode() {

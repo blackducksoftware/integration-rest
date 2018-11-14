@@ -31,25 +31,19 @@ import com.synopsys.integration.rest.credentials.CredentialsBuilder
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.rest.proxy.ProxyInfoBuilder
 import com.synopsys.integration.rest.request.Request
-import com.synopsys.integration.test.annotation.IntegrationTest
 import org.apache.commons.lang3.math.NumberUtils
-import org.junit.Rule
-import org.junit.Test
-import org.junit.experimental.categories.Category
-import org.junit.rules.ExpectedException
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import static org.junit.Assert.*
+import static org.junit.jupiter.api.Assertions.*
 
-@Category(IntegrationTest.class)
+@Tag("integration")
 class RestConnectionTestIT {
     private final Logger logger = LoggerFactory.getLogger(RestConnectionTestIT.class)
 
     private static RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper()
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none()
 
     @Test
     void testTimeoutSet() {
@@ -108,8 +102,8 @@ class RestConnectionTestIT {
             restConnection.executeRequest(request)
             fail("An exception should be thrown")
         } catch (final Exception e) {
-            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
-            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
+            assertFalse(e.getMessage().contains("Can not reach this server"), e.getMessage())
+            assertTrue(e.getMessage().contains("Proxy Authentication Required"), e.getMessage())
         }
     }
 
@@ -127,8 +121,8 @@ class RestConnectionTestIT {
             restConnection.executeRequest(request)
             fail("An exception should be thrown")
         } catch (final Exception e) {
-            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
-            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
+            assertFalse(e.getMessage().contains("Can not reach this server"), e.getMessage())
+            assertTrue(e.getMessage().contains("Proxy Authentication Required"), e.getMessage())
         }
     }
 
@@ -169,8 +163,8 @@ class RestConnectionTestIT {
             restConnection.executeRequest(request)
             fail("An exception should be thrown")
         } catch (final Exception e) {
-            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
-            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
+            assertFalse(e.getMessage().contains("Can not reach this server"), e.getMessage())
+            assertTrue(e.getMessage().contains("Proxy Authentication Required"), e.getMessage())
         }
     }
 
@@ -209,8 +203,8 @@ class RestConnectionTestIT {
             restConnection.executeRequest(request)
             fail("An exception should be thrown")
         } catch (final Exception e) {
-            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
-            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
+            assertFalse(e.getMessage().contains("Can not reach this server"), e.getMessage())
+            assertTrue(e.getMessage().contains("Proxy Authentication Required"), e.getMessage())
         }
     }
 

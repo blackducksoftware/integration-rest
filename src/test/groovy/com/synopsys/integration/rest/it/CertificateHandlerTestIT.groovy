@@ -27,15 +27,19 @@ import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.certificate.CertificateHandler
-import com.synopsys.integration.test.annotation.IntegrationTest
 import org.apache.commons.lang3.StringUtils
-import org.junit.*
-import org.junit.experimental.categories.Category
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junitpioneer.jupiter.TempDirectory
 
+import java.nio.file.Path
 import java.security.cert.Certificate
 
-import static org.junit.Assert.*
+import static org.junit.jupiter.api.Assertions.*
+import static org.junit.jupiter.api.Assumptions.assumeTrue
 
 /*
  * Copyright (C) 2017 Black Duck Software Inc.
@@ -49,7 +53,7 @@ import static org.junit.Assert.*
  * with Black Duck Software.
  */
 
-@Category(IntegrationTest.class)
+@Tag("integration")
 class CertificateHandlerTestIT {
     private static final IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE)
 
@@ -57,11 +61,8 @@ class CertificateHandlerTestIT {
     private static URL url
     private static Certificate originalCertificate
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder()
-
-    @BeforeClass
-    static void init() throws Exception {
+    @BeforeAll
+    public static void init() throws Exception {
         RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper()
         final String urlString = restConnectionTestHelper.getProperty("TEST_HTTPS_SERVER_URL")
         logger.info("Using Hub server ${urlString}")
@@ -79,15 +80,15 @@ class CertificateHandlerTestIT {
         }
     }
 
-    @AfterClass
-    static void tearDown() throws Exception {
+    @AfterAll
+    public static void tearDown() throws Exception {
         if (originalCertificate != null) {
             CERT_HANDLER.importHttpsCertificate(url, originalCertificate)
         }
     }
 
     @Test
-    void testCertificateRetrieval() throws Exception {
+    public void testCertificateRetrieval() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
         certificateHandler.setTimeout(1000)
         final Certificate output = certificateHandler.retrieveHttpsCertificateFromURL(url)
@@ -95,7 +96,7 @@ class CertificateHandlerTestIT {
     }
 
     @Test
-    void testRetrieveAndImportHttpsCertificate() throws Exception {
+    public void testRetrieveAndImportHttpsCertificate() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
         certificateHandler.setTimeout(1000)
         certificateHandler.retrieveAndImportHttpsCertificate(url)
@@ -106,12 +107,13 @@ class CertificateHandlerTestIT {
     }
 
     @Test
-    void testKeystoreSetBySystemProperty() throws Exception {
-        final File tmpTrustStore = folder.newFile()
+    @ExtendWith(TempDirectory.class)
+    public void testKeystoreSetBySystemProperty(@TempDirectory.TempDir Path folder) throws Exception {
+        final File tmpTrustStore = folder.resolve("trustStore.tmp").toFile()
+        tmpTrustStore.createNewFile()
         assertTrue(tmpTrustStore.length() == 0)
         try {
             System.setProperty("javax.net.ssl.trustStore", tmpTrustStore.getAbsolutePath())
-
             final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
             certificateHandler.setTimeout(1000)
             certificateHandler.retrieveAndImportHttpsCertificate(url)
@@ -129,7 +131,7 @@ class CertificateHandlerTestIT {
     @Test
     void testRetrieveAndImportHttpsCertificateForSpecificJavaHome() throws Exception {
         final String javaHomeToManipulate = System.getProperty("JAVA_TO_MANIPULATE")
-        Assume.assumeTrue(StringUtils.isNotBlank(javaHomeToManipulate))
+        assumeTrue(StringUtils.isNotBlank(javaHomeToManipulate))
 
         final CertificateHandler certificateHandlerDefault = new CertificateHandler(logger, null)
         final CertificateHandler certificateHandler = new CertificateHandler(logger, new File(javaHomeToManipulate))
