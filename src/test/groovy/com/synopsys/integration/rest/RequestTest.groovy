@@ -22,12 +22,6 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.synopsys.integration.rest.request.Request
 import org.apache.commons.codec.Charsets
 import org.apache.http.entity.ContentType
@@ -37,7 +31,7 @@ import java.nio.charset.Charset
 
 class RequestTest {
     @Test
-    public void testRequest() {
+    void testRequest() {
         String uri = 'URI'
         Map<String, String> queryParametes = [test: "one", query: "two"]
         String q = 'q'

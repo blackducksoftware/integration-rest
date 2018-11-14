@@ -62,7 +62,7 @@ class CertificateHandlerTestIT {
     private static Certificate originalCertificate
 
     @BeforeAll
-    public static void init() throws Exception {
+    static void init() throws Exception {
         RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper()
         final String urlString = restConnectionTestHelper.getProperty("TEST_HTTPS_SERVER_URL")
         logger.info("Using Hub server ${urlString}")
@@ -81,14 +81,14 @@ class CertificateHandlerTestIT {
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
+    static void tearDown() throws Exception {
         if (originalCertificate != null) {
             CERT_HANDLER.importHttpsCertificate(url, originalCertificate)
         }
     }
 
     @Test
-    public void testCertificateRetrieval() throws Exception {
+    void testCertificateRetrieval() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
         certificateHandler.setTimeout(1000)
         final Certificate output = certificateHandler.retrieveHttpsCertificateFromURL(url)
@@ -96,7 +96,7 @@ class CertificateHandlerTestIT {
     }
 
     @Test
-    public void testRetrieveAndImportHttpsCertificate() throws Exception {
+    void testRetrieveAndImportHttpsCertificate() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
         certificateHandler.setTimeout(1000)
         certificateHandler.retrieveAndImportHttpsCertificate(url)
@@ -108,7 +108,7 @@ class CertificateHandlerTestIT {
 
     @Test
     @ExtendWith(TempDirectory.class)
-    public void testKeystoreSetBySystemProperty(@TempDirectory.TempDir Path folder) throws Exception {
+    void testKeystoreSetBySystemProperty(@TempDirectory.TempDir Path folder) throws Exception {
         final File tmpTrustStore = folder.resolve("trustStore.tmp").toFile()
         tmpTrustStore.createNewFile()
         assertTrue(tmpTrustStore.length() == 0)

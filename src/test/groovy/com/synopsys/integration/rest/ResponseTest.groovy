@@ -10,7 +10,7 @@ import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.message.BasicHeader
 import org.apache.http.message.BasicStatusLine
 import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.junit.rules.TemporaryFolder
 
 import static org.junit.Assert.*
@@ -20,7 +20,7 @@ class ResponseTest {
     public TemporaryFolder folder = new TemporaryFolder()
 
     @Test
-    public void testGetStatusCode() throws Exception {
+    void testGetStatusCode() throws Exception {
         CloseableHttpResponse closeableHttpResponse = [getStatusLine: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
@@ -44,7 +44,7 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetStatusMessage() throws Exception {
+    void testGetStatusMessage() throws Exception {
         CloseableHttpResponse closeableHttpResponse = [getStatusLine: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
@@ -68,7 +68,7 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContent() throws Exception {
+    void testGetContent() throws Exception {
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
@@ -79,7 +79,7 @@ class ResponseTest {
                 response.close()
             }
         }
-        InputStream stream = new ByteArrayInputStream();
+        InputStream stream = new ByteArrayInputStream()
         HttpEntity entity = [getContent: { return stream }] as HttpEntity
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {
@@ -93,7 +93,7 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContentString() throws Exception {
+    void testGetContentString() throws Exception {
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
@@ -132,7 +132,7 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContentLength() throws Exception {
+    void testGetContentLength() throws Exception {
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
@@ -156,7 +156,7 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContentEncoding() throws Exception {
+    void testGetContentEncoding() throws Exception {
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
@@ -191,7 +191,7 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContentType() throws Exception {
+    void testGetContentType() throws Exception {
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
@@ -226,7 +226,7 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetHeaders() throws Exception {
+    void testGetHeaders() throws Exception {
         CloseableHttpResponse closeableHttpResponse = [containsHeader: { return false }, getAllHeaders: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
@@ -253,9 +253,8 @@ class ResponseTest {
         }
     }
 
-
     @Test
-    public void testGetActualResponse() throws Exception {
+    void testGetActualResponse() throws Exception {
         CloseableHttpResponse closeableHttpResponse = [close: {}] as CloseableHttpResponse
         Response response = null
         try {

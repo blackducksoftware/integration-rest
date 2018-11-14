@@ -68,7 +68,7 @@ import com.synopsys.integration.rest.request.Response;
  * The parent class of all rest connections.
  */
 public abstract class RestConnection {
-    public static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null";
+    public static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null.";
     public static final int DEFAULT_TIMEOUT = 120;
 
     protected final IntLogger logger;
@@ -98,7 +98,7 @@ public abstract class RestConnection {
         }
 
         if (null == proxyInfo) {
-            throw new IllegalArgumentException("The proxy info cannot be null.");
+            throw new IllegalArgumentException(ERROR_MSG_PROXY_INFO_NULL);
         }
     }
 

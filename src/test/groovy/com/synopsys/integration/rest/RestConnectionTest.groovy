@@ -49,9 +49,7 @@ import org.junit.jupiter.api.Test
 
 import java.nio.charset.Charset
 
-import static org.junit.jupiter.api.Assertions.*
-import static org.junit.jupiter.api.Assertions.*
-import static org.junit.jupiter.api.Assertions.*
+import static org.junit.jupiter.api.Assertions.fail
 
 class RestConnectionTest {
     public static final int CONNECTION_TIMEOUT = 213
@@ -123,11 +121,12 @@ class RestConnectionTest {
     void testRestConnectionNoProxy() {
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
         int timeoutSeconds = 213
-        RestConnection restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, true, null)
+
         try {
+            RestConnection restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, true, null)
             restConnection.initialize()
             fail('Should have thrown exception')
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             assert RestConnection.ERROR_MSG_PROXY_INFO_NULL == e.getMessage()
         }
     }

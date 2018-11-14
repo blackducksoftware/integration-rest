@@ -22,12 +22,6 @@
  * under the License.*/
 package com.synopsys.integration.rest
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.rest.proxy.ProxyInfoBuilder

@@ -57,7 +57,7 @@ class RestConnectionTestHelper {
         try {
             is = classLoader.getResourceAsStream("test.properties")
             testProperties.load(is)
-        } catch (final Exception e) {
+        } catch (final Exception ignored) {
             System.err.println("reading test.properties failed!")
         } finally {
             if (is != null) {
@@ -68,7 +68,7 @@ class RestConnectionTestHelper {
         if (testProperties.isEmpty()) {
             try {
                 loadOverrideProperties(TestingPropertyKey.values())
-            } catch (final Exception e) {
+            } catch (final Exception ignored) {
                 System.err.println("reading properties from the environment failed")
             }
         }
