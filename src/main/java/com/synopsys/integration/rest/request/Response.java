@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.RestConstants;
@@ -48,9 +49,11 @@ public class Response implements Closeable {
     public static final String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
     public static final String LAST_MODIFIED_HEADER_KEY = "Last-Modified";
 
+    private final CloseableHttpClient client;
     private final CloseableHttpResponse response;
 
-    public Response(final CloseableHttpResponse response) {
+    public Response(final CloseableHttpClient client, final CloseableHttpResponse response) {
+        this.client = client;
         this.response = response;
     }
 
@@ -159,6 +162,7 @@ public class Response implements Closeable {
     @Override
     public void close() throws IOException {
         response.close();
+        client.close();
     }
 
     public long getLastModified() throws IntegrationException {

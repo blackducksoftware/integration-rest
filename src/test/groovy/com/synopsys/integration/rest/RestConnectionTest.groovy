@@ -27,11 +27,8 @@ import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.connection.RestConnection
-import com.synopsys.integration.rest.connection.UnauthenticatedRestConnection
-import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.exception.IntegrationRestException
 import com.synopsys.integration.rest.proxy.ProxyInfo
-import com.synopsys.integration.rest.proxy.ProxyInfoBuilder
 import com.synopsys.integration.rest.request.Request
 import com.synopsys.integration.rest.request.Response
 import okhttp3.mockwebserver.Dispatcher
@@ -55,6 +52,7 @@ class RestConnectionTest {
     public static final int CONNECTION_TIMEOUT = 213
 
     private final MockWebServer server = new MockWebServer()
+    private final IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.DEBUG)
 
     @Before
     void setUp() throws Exception {
@@ -83,47 +81,15 @@ class RestConnectionTest {
         }
         server.setDispatcher(dispatcher)
 
-        return new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), CONNECTION_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
-    }
-
-    @Test
-    void testClientBuilding() {
-        IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
-        int timeoutSeconds = 213
-        int timeoutMilliSeconds = timeoutSeconds * 1000
-
-        RestConnection restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, true, ProxyInfo.NO_PROXY_INFO)
-        def realClient = restConnection.client
-        assert null == realClient
-        restConnection.initialize()
-        realClient = restConnection.client
-        assert timeoutMilliSeconds == realClient.defaultConfig.socketTimeout
-        assert timeoutMilliSeconds == realClient.defaultConfig.connectionRequestTimeout
-        assert timeoutMilliSeconds == realClient.defaultConfig.connectTimeout
-        assert null == realClient.defaultConfig.proxy
-
-        String proxyHost = "ProxyHost"
-        int proxyPort = 3128
-        ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
-        proxyBuilder.host = proxyHost
-        proxyBuilder.port = proxyPort
-        proxyBuilder.credentials = new Credentials("testUser", "password")
-        ProxyInfo proxyInfo = proxyBuilder.build()
-
-        restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, true, proxyInfo)
-
-        restConnection.initialize()
-        realClient = restConnection.client
-        assert null != realClient.defaultConfig.proxy
+        return new RestConnection(logger, CONNECTION_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
     }
 
     @Test
     void testRestConnectionNoProxy() {
-        IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
         int timeoutSeconds = 213
 
         try {
-            RestConnection restConnection = new UnauthenticatedRestConnection(logger, timeoutSeconds, true, null)
+            RestConnection restConnection = new RestConnection(logger, timeoutSeconds, true, null)
             restConnection.initialize()
             fail('Should have thrown exception')
         } catch (IllegalArgumentException e) {
@@ -154,7 +120,32 @@ class RestConnectionTest {
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(404))
         try {
-            restConnection.executeRequest(request)
+            final Response response = restConnection.executeRequest(request)
+            assert 404 == response.getStatusCode()
+        } catch (IntegrationRestException e) {
+            fail('Should NOT have thrown exception')
+        }
+
+        restConnection = getRestConnection(new MockResponse().setResponseCode(401))
+        try {
+            final Response response = restConnection.executeRequest(request)
+            assert 401 == response.getStatusCode()
+        } catch (IntegrationRestException e) {
+            fail('Should NOT have thrown exception')
+        }
+    }
+
+    @Test
+    void testHandleExecuteWithExceptionClientCallFail() {
+        RestConnection restConnection = getRestConnection()
+        RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.GET)
+        requestBuilder.setUri(getValidUri())
+        HttpUriRequest request = requestBuilder.build()
+        restConnection.initialize()
+
+        restConnection = getRestConnection(new MockResponse().setResponseCode(404))
+        try {
+            restConnection.executeRequestWithException(request)
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 404 == e.httpStatusCode
@@ -162,7 +153,7 @@ class RestConnectionTest {
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(401))
         try {
-            restConnection.executeRequest(request)
+            restConnection.executeRequestWithException(request)
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 401 == e.httpStatusCode
@@ -171,7 +162,7 @@ class RestConnectionTest {
 
     @Test
     void testCreateHttpRequestNoURI() {
-        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), 300, true, ProxyInfo.NO_PROXY_INFO)
+        RestConnection restConnection = new RestConnection(logger, 300, true, ProxyInfo.NO_PROXY_INFO)
         Request request = new Request.Builder().build()
         try {
             request.createHttpUriRequest(restConnection.getCommonRequestHeaders())

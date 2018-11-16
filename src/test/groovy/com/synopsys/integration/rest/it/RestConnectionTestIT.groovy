@@ -22,10 +22,9 @@
  * under the License.*/
 package com.synopsys.integration.rest.it
 
-import com.synopsys.integration.log.LogLevel
+import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.connection.RestConnection
-import com.synopsys.integration.rest.connection.UnauthenticatedRestConnection
 import com.synopsys.integration.rest.credentials.Credentials
 import com.synopsys.integration.rest.credentials.CredentialsBuilder
 import com.synopsys.integration.rest.proxy.ProxyInfo
@@ -34,14 +33,12 @@ import com.synopsys.integration.rest.request.Request
 import org.apache.commons.lang3.math.NumberUtils
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import static org.junit.jupiter.api.Assertions.*
 
 @Tag("integration")
 class RestConnectionTestIT {
-    private final Logger logger = LoggerFactory.getLogger(RestConnectionTestIT.class)
+    private final IntLogger logger = new PrintStreamIntLogger(System.out, RestConnectionTestHelper.DEFAULT_LOGGING_LEVEL)
 
     private static RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper()
 
@@ -53,16 +50,16 @@ class RestConnectionTestIT {
     }
 
     @Test
-    void testPassthroughProxyWithHttp() {
+    void testPassThroughProxyWithHttp() {
         try {
             ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_PASSTHROUGH")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_PASSTHROUGH"))
             ProxyInfo proxyInfo = proxyBuilder.build()
-            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
             restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
-            restConnection.executeRequest(request)
+            restConnection.executeRequestWithException(request)
         } catch (final Exception e) {
             fail("No exception should be thrown with a valid config: " + e.getMessage())
         }
@@ -80,10 +77,10 @@ class RestConnectionTestIT {
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
             proxyBuilder.credentials = credentialsBuilder.build()
             ProxyInfo proxyInfo = proxyBuilder.build()
-            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
             restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
-            restConnection.executeRequest(request)
+            restConnection.executeRequestWithException(request)
         } catch (final Exception e) {
             fail("No exception should be thrown with a valid config: " + e.getMessage())
         }
@@ -96,10 +93,10 @@ class RestConnectionTestIT {
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_BASIC")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
             ProxyInfo proxyInfo = proxyBuilder.build()
-            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
             restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
-            restConnection.executeRequest(request)
+            restConnection.executeRequestWithException(request)
             fail("An exception should be thrown")
         } catch (final Exception e) {
             assertFalse(e.getMessage().contains("Can not reach this server"), e.getMessage())
@@ -115,10 +112,10 @@ class RestConnectionTestIT {
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_BASIC")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
             ProxyInfo proxyInfo = proxyBuilder.build()
-            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
             restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
-            restConnection.executeRequest(request)
+            restConnection.executeRequestWithException(request)
             fail("An exception should be thrown")
         } catch (final Exception e) {
             assertFalse(e.getMessage().contains("Can not reach this server"), e.getMessage())
@@ -141,10 +138,10 @@ class RestConnectionTestIT {
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
             proxyBuilder.credentials = proxyCredentials
             ProxyInfo proxyInfo = proxyBuilder.build()
-            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
             restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
-            restConnection.executeRequest(request)
+            restConnection.executeRequestWithException(request)
         } catch (final Exception e) {
             fail("No exception should be thrown with a valid config: " + e.getMessage())
         }
@@ -157,10 +154,10 @@ class RestConnectionTestIT {
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_DIGEST")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
             ProxyInfo proxyInfo = proxyBuilder.build()
-            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
             restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
-            restConnection.executeRequest(request)
+            restConnection.executeRequestWithException(request).close()
             fail("An exception should be thrown")
         } catch (final Exception e) {
             assertFalse(e.getMessage().contains("Can not reach this server"), e.getMessage())
@@ -181,10 +178,10 @@ class RestConnectionTestIT {
             proxyBuilder.ntlmDomain = restConnectionTestHelper.getProperty("TEST_PROXY_DOMAIN_NTLM")
             proxyBuilder.ntlmWorkstation = restConnectionTestHelper.getProperty("TEST_PROXY_WORKSTATION_NTLM")
             ProxyInfo proxyInfo = proxyBuilder.build()
-            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
             restConnection.initialize()
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
-            restConnection.executeRequest(request)
+            restConnection.executeRequestWithException(request).close()
         } catch (final Exception e) {
             fail("No exception should be thrown with a valid config: " + e.getMessage())
         }
@@ -197,10 +194,9 @@ class RestConnectionTestIT {
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
             ProxyInfo proxyInfo = proxyBuilder.build()
-            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.initialize()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
             Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
-            restConnection.executeRequest(request)
+            restConnection.executeRequestWithException(request).close()
             fail("An exception should be thrown")
         } catch (final Exception e) {
             assertFalse(e.getMessage().contains("Can not reach this server"), e.getMessage())
@@ -211,13 +207,14 @@ class RestConnectionTestIT {
     @Test
     void testUnauthorizedGet() throws Exception {
         String url = restConnectionTestHelper.getProperty("TEST_AUTHENTICATED_SERVER_URL")
-        final RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.INFO), 120, true, ProxyInfo.NO_PROXY_INFO)
+        final RestConnection restConnection = new RestConnection(logger, 120, true, ProxyInfo.NO_PROXY_INFO)
         final Request hubRequest = new Request.Builder(url.toString()).build()
         System.out.println("Executing: " + hubRequest.toString())
         try {
-            restConnection.executeRequest(hubRequest)
+            restConnection.executeRequestWithException(hubRequest)
             fail("Expected Unauthorized Exception")
         } catch (final Exception e) {
+            logger.trace("[ExceptionMessage]: " + e.getMessage())
             assertTrue(e.getMessage().contains("401"))
         }
     }

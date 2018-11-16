@@ -24,7 +24,6 @@ package com.synopsys.integration.rest.it
 
 import com.synopsys.integration.exception.IntegrationException
 import com.synopsys.integration.log.IntLogger
-import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.certificate.CertificateHandler
 import org.apache.commons.lang3.StringUtils
@@ -55,7 +54,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue
 
 @Tag("integration")
 class CertificateHandlerTestIT {
-    private static final IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE)
+    private static final IntLogger logger = new PrintStreamIntLogger(System.out, RestConnectionTestHelper.DEFAULT_LOGGING_LEVEL)
 
     private static final CertificateHandler CERT_HANDLER = new CertificateHandler(logger, null)
     private static URL url

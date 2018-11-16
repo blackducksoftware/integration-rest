@@ -22,10 +22,10 @@
  * under the License.*/
 package com.synopsys.integration.rest.it
 
+import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.connection.RestConnection
-import com.synopsys.integration.rest.connection.UnauthenticatedRestConnection
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import okhttp3.OkHttpClient
 import org.apache.commons.lang3.math.NumberUtils
@@ -35,9 +35,12 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 class RestConnectionTestHelper {
-    private Properties testProperties
+    public static final LogLevel DEFAULT_LOGGING_LEVEL = LogLevel.TRACE
 
     private final String serverUrl
+    private final IntLogger logger = new PrintStreamIntLogger(System.out, DEFAULT_LOGGING_LEVEL)
+
+    private Properties testProperties
 
     RestConnectionTestHelper() {
         initProperties()
@@ -122,15 +125,11 @@ class RestConnectionTestHelper {
     }
 
     RestConnection getRestConnection() {
-        return getRestConnection(LogLevel.DEBUG, ProxyInfo.NO_PROXY_INFO)
+        return getRestConnection(ProxyInfo.NO_PROXY_INFO)
     }
 
-    RestConnection getRestConnection(final LogLevel logLevel) {
-        return getRestConnection(logLevel, ProxyInfo.NO_PROXY_INFO)
-    }
-
-    RestConnection getRestConnection(final LogLevel logLevel, ProxyInfo proxyInfo) {
-        return new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, logLevel), getTimeout(), true, proxyInfo)
+    RestConnection getRestConnection(ProxyInfo proxyInfo) {
+        return new RestConnection(logger, getTimeout(), true, proxyInfo)
     }
 
 }
