@@ -7,6 +7,7 @@ import org.apache.http.HttpEntity
 import org.apache.http.ProtocolVersion
 import org.apache.http.StatusLine
 import org.apache.http.client.methods.CloseableHttpResponse
+import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.message.BasicHeader
 import org.apache.http.message.BasicStatusLine
 import org.junit.jupiter.api.Test
@@ -15,11 +16,12 @@ import static org.junit.jupiter.api.Assertions.*
 
 class ResponseTest {
     @Test
-    public void testGetStatusCode() throws Exception {
+    void testGetStatusCode() throws Exception {
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
         CloseableHttpResponse closeableHttpResponse = [getStatusLine: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertNull(response.getStatusCode())
         } finally {
             if (response != null) {
@@ -27,9 +29,10 @@ class ResponseTest {
             }
         }
         StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("test", 1, 0), 200, "Everything went well")
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getStatusLine: { -> return statusLine }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals(200, response.getStatusCode())
         } finally {
             if (response != null) {
@@ -39,11 +42,12 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetStatusMessage() throws Exception {
+    void testGetStatusMessage() throws Exception {
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
         CloseableHttpResponse closeableHttpResponse = [getStatusLine: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertNull(response.getStatusMessage())
         } finally {
             if (response != null) {
@@ -51,9 +55,10 @@ class ResponseTest {
             }
         }
         StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("test", 1, 0), 200, "Everything went well")
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getStatusLine: { -> return statusLine }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals("Everything went well", response.getStatusMessage())
         } finally {
             if (response != null) {
@@ -63,22 +68,24 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContent() throws Exception {
+    void testGetContent() throws Exception {
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertNull(response.getContent())
         } finally {
             if (response != null) {
                 response.close()
             }
         }
-        InputStream stream = new ByteArrayInputStream();
+        InputStream stream = new ByteArrayInputStream()
         HttpEntity entity = [getContent: { return stream }] as HttpEntity
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals(stream, response.getContent())
         } finally {
             if (response != null) {
@@ -88,11 +95,12 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContentString() throws Exception {
+    void testGetContentString() throws Exception {
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertNull(response.getContentString())
         } finally {
             if (response != null) {
@@ -102,10 +110,11 @@ class ResponseTest {
         String expectedString = 'Test String'
         InputStream stream = new ByteArrayInputStream(expectedString.bytes)
         HttpEntity entity = [getContent: { return stream }] as HttpEntity
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
 
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals(expectedString, response.getContentString())
         } finally {
             if (response != null) {
@@ -115,9 +124,10 @@ class ResponseTest {
 
         stream = new ByteArrayInputStream(expectedString.bytes)
         entity = [getContent: { return stream }] as HttpEntity
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals(expectedString, response.getContentString(Charsets.UTF_8))
         } finally {
             if (response != null) {
@@ -127,11 +137,12 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContentLength() throws Exception {
+    void testGetContentLength() throws Exception {
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertNull(response.getContentLength())
         } finally {
             if (response != null) {
@@ -139,9 +150,10 @@ class ResponseTest {
             }
         }
         HttpEntity entity = [getContentLength: { return 11L }] as HttpEntity
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals(11L, response.getContentLength())
         } finally {
             if (response != null) {
@@ -151,11 +163,12 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContentEncoding() throws Exception {
+    void testGetContentEncoding() throws Exception {
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertNull(response.getContentEncoding())
         } finally {
             if (response != null) {
@@ -163,9 +176,10 @@ class ResponseTest {
             }
         }
         HttpEntity entity = [getContentEncoding: { return null }] as HttpEntity
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertNull(response.getContentEncoding())
         } finally {
             if (response != null) {
@@ -174,9 +188,10 @@ class ResponseTest {
         }
 
         entity = [getContentEncoding: { return new BasicHeader("TestName", "Value") }] as HttpEntity
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals("Value", response.getContentEncoding())
         } finally {
             if (response != null) {
@@ -186,11 +201,12 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetContentType() throws Exception {
+    void testGetContentType() throws Exception {
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
         CloseableHttpResponse closeableHttpResponse = [getEntity: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertNull(response.getContentType())
         } finally {
             if (response != null) {
@@ -198,9 +214,10 @@ class ResponseTest {
             }
         }
         HttpEntity entity = [getContentType: { return null }] as HttpEntity
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertNull(response.getContentType())
         } finally {
             if (response != null) {
@@ -209,9 +226,10 @@ class ResponseTest {
         }
 
         entity = [getContentType: { return new BasicHeader("TestName", "Value") }] as HttpEntity
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getEntity: { return entity }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals("Value", response.getContentType())
         } finally {
             if (response != null) {
@@ -221,11 +239,12 @@ class ResponseTest {
     }
 
     @Test
-    public void testGetHeaders() throws Exception {
+    void testGetHeaders() throws Exception {
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
         CloseableHttpResponse closeableHttpResponse = [containsHeader: { return false }, getAllHeaders: { return null }, close: {}] as CloseableHttpResponse
         Response response = null
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals(Collections.emptyMap(), response.getHeaders())
             assertNull(response.getHeaderValue("TestName"))
         } finally {
@@ -236,9 +255,10 @@ class ResponseTest {
 
         Header[] headers = new Header[1]
         headers[0] = new BasicHeader("TestName", "Value")
+        closeableHttpClient = [close: {}] as CloseableHttpClient
         closeableHttpResponse = [getFirstHeader: { return headers[0] }, containsHeader: { return true }, getAllHeaders: { return headers }, close: {}] as CloseableHttpResponse
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertTrue(!response.getHeaders().isEmpty())
             assertEquals("Value", response.getHeaderValue("TestName"))
         } finally {
@@ -248,13 +268,13 @@ class ResponseTest {
         }
     }
 
-
     @Test
-    public void testGetActualResponse() throws Exception {
+    void testGetActualResponse() throws Exception {
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
         CloseableHttpResponse closeableHttpResponse = [close: {}] as CloseableHttpResponse
         Response response = null
         try {
-            response = new Response(closeableHttpResponse)
+            response = new Response(closeableHttpClient, closeableHttpResponse)
             assertEquals(closeableHttpResponse, response.getActualResponse())
         } finally {
             if (response != null) {

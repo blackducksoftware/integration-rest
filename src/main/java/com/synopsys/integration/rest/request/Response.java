@@ -40,16 +40,20 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.rest.RestConstants;
 
 public class Response implements Closeable {
     public static final String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
     public static final String LAST_MODIFIED_HEADER_KEY = "Last-Modified";
 
+    private final CloseableHttpClient client;
     private final CloseableHttpResponse response;
 
-    public Response(final CloseableHttpResponse response) {
+    public Response(final CloseableHttpClient client, final CloseableHttpResponse response) {
+        this.client = client;
         this.response = response;
     }
 
@@ -59,6 +63,19 @@ public class Response implements Closeable {
         } else {
             return null;
         }
+    }
+
+    public Boolean isStatusCodeOkay() {
+        final Integer statusCode = getStatusCode();
+        if (statusCode != null) {
+            return statusCode >= RestConstants.OK_200 && statusCode < RestConstants.MULT_CHOICE_300;
+        } else {
+            return null;
+        }
+    }
+
+    public Boolean isStatusCodeError() {
+        return !isStatusCodeOkay();
     }
 
     public String getStatusMessage() {
@@ -73,7 +90,7 @@ public class Response implements Closeable {
         if (response.getEntity() != null) {
             try {
                 return response.getEntity().getContent();
-            } catch (UnsupportedOperationException | IOException e) {
+            } catch (final UnsupportedOperationException | IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }
         } else {
@@ -89,7 +106,7 @@ public class Response implements Closeable {
         if (response.getEntity() != null) {
             try (final InputStream inputStream = response.getEntity().getContent()) {
                 return IOUtils.toString(inputStream, encoding);
-            } catch (UnsupportedOperationException | IOException e) {
+            } catch (final UnsupportedOperationException | IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }
         } else {
@@ -145,6 +162,7 @@ public class Response implements Closeable {
     @Override
     public void close() throws IOException {
         response.close();
+        client.close();
     }
 
     public long getLastModified() throws IntegrationException {

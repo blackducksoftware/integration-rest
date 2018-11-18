@@ -23,6 +23,7 @@
  */
 package com.synopsys.integration.rest.request;
 
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -30,9 +31,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.codec.Charsets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 
+import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.body.BodyContent;
 import com.synopsys.integration.util.Stringable;
@@ -107,6 +115,61 @@ public class Request extends Stringable {
 
     public BodyContent getBodyContent() {
         return bodyContent;
+    }
+
+    public HttpUriRequest createHttpUriRequest(final Map<String, String> commonRequestHeaders) throws IntegrationException {
+        final Request request = this;
+
+        if (request.getMethod() == null) {
+            throw new IntegrationException("Missing the HttpMethod");
+        }
+        try {
+            final URIBuilder uriBuilder;
+            if (StringUtils.isNotBlank(request.getUri())) {
+                uriBuilder = new URIBuilder(request.getUri());
+            } else {
+                throw new IntegrationException("Missing the URI");
+            }
+            String mimeType = ContentType.APPLICATION_JSON.getMimeType();
+            Charset bodyEncoding = Charsets.UTF_8;
+            if (StringUtils.isNotBlank(request.getMimeType())) {
+                mimeType = request.getMimeType();
+            }
+            if (request.getBodyEncoding() != null) {
+                bodyEncoding = request.getBodyEncoding();
+            }
+            final RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
+            if (HttpMethod.GET == request.getMethod() && (request.getAdditionalHeaders() == null || request.getAdditionalHeaders().isEmpty() || !request.getAdditionalHeaders().containsKey(HttpHeaders.ACCEPT))) {
+                requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
+            }
+            requestBuilder.setCharset(bodyEncoding);
+            if (request.getAdditionalHeaders() != null && !request.getAdditionalHeaders().isEmpty()) {
+                for (final Map.Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
+                    requestBuilder.addHeader(header.getKey(), header.getValue());
+                }
+            }
+            if (!commonRequestHeaders.isEmpty()) {
+                for (final Map.Entry<String, String> header : commonRequestHeaders.entrySet()) {
+                    requestBuilder.addHeader(header.getKey(), header.getValue());
+                }
+            }
+            final Map<String, Set<String>> populatedQueryParameters = request.getPopulatedQueryParameters();
+            if (!populatedQueryParameters.isEmpty()) {
+                populatedQueryParameters.forEach((paramKey, paramValues) -> {
+                    paramValues.forEach((paramValue) -> {
+                        uriBuilder.addParameter(paramKey, paramValue);
+                    });
+                });
+            }
+            requestBuilder.setUri(uriBuilder.build());
+            final HttpEntity entity = request.createHttpEntity();
+            if (entity != null) {
+                requestBuilder.setEntity(entity);
+            }
+            return requestBuilder.build();
+        } catch (final URISyntaxException e) {
+            throw new IntegrationException(e.getMessage(), e);
+        }
     }
 
     public static class Builder {

@@ -7,53 +7,47 @@ import org.junit.jupiter.api.Test
 
 class ProxyInfoBuilderTest {
     @Test
-    public void testBuilder() {
-        Credentials credentials = new Credentials("username", "password");
+    void testBuilder() {
+        Credentials credentials = new Credentials("username", "password")
         String proxyHost = "proxyHost"
         int proxyPort = 25
-        String proxyIgnoredHosts = ".*"
         String ntlmDomain = 'domain'
         String ntlmWorkstation = 'workstation'
 
         ProxyInfoBuilder builder = new ProxyInfoBuilder()
         builder.host = proxyHost
         builder.port = proxyPort
-        builder.credentials = credentials;
-        builder.ignoredProxyHosts = proxyIgnoredHosts
+        builder.credentials = credentials
         builder.ntlmDomain = ntlmDomain
         builder.ntlmWorkstation = ntlmWorkstation
 
         ProxyInfo proxyInfo1 = builder.build()
         assert proxyHost == proxyInfo1.host
         assert proxyPort == proxyInfo1.port
-        assert proxyIgnoredHosts == proxyInfo1.ignoredProxyHosts
 
         assert ntlmDomain == proxyInfo1.ntlmDomain
         assert ntlmWorkstation == proxyInfo1.ntlmWorkstation
     }
 
     @Test
-    public void testUnauthenticatedBuilder() {
+    void testUnauthenticatedBuilder() {
         String proxyHost = "proxyHost"
         int proxyPort = 25
 
-        String proxyIgnoredHosts = ".*"
         ProxyInfoBuilder builder = new ProxyInfoBuilder()
         builder.host = proxyHost
         builder.port = proxyPort
-        builder.ignoredProxyHosts = proxyIgnoredHosts
 
         ProxyInfo proxyInfo1 = builder.build()
         assert proxyHost == proxyInfo1.host
         assert proxyPort == proxyInfo1.port
-        assert proxyIgnoredHosts == proxyInfo1.ignoredProxyHosts
 
         assert null == proxyInfo1.ntlmDomain
         assert null == proxyInfo1.ntlmWorkstation
     }
 
     @Test
-    public void testProxyValid() {
+    void testProxyValid() {
         ProxyInfoBuilder builder = new ProxyInfoBuilder()
         assert !builder.hasProxySettings()
         assert builder.isValid()
@@ -65,8 +59,7 @@ class ProxyInfoBuilderTest {
 
         builder.host = "proxyhost"
         builder.port = 25
-        builder.credentials = new Credentials("proxyUser", "proxyPassword");
-        builder.ignoredProxyHosts = ".*"
+        builder.credentials = new Credentials("proxyUser", "proxyPassword")
         builder.ntlmDomain = "domain"
         builder.ntlmWorkstation = "workstation"
 
@@ -75,7 +68,7 @@ class ProxyInfoBuilderTest {
     }
 
     @Test
-    public void testInvalidPort() {
+    void testInvalidPort() {
         ProxyInfoBuilder builder = new ProxyInfoBuilder()
         builder.host = "proxyhost"
         builder.port = -1
@@ -96,7 +89,7 @@ class ProxyInfoBuilderTest {
     }
 
     @Test
-    public void testValidCredentials() {
+    void testValidCredentials() {
         ProxyInfoBuilder builder = new ProxyInfoBuilder()
         builder.host = "proxyhost"
         builder.port = 25
@@ -106,12 +99,11 @@ class ProxyInfoBuilderTest {
     }
 
     @Test
-    public void testInvalidCredentials() {
+    void testInvalidCredentials() {
         ProxyInfoBuilder builder = new ProxyInfoBuilder()
         builder.host = ""
         builder.port = 25
         builder.credentials = new Credentials("proxyUser", "proxyPassword")
-        builder.ignoredProxyHosts = ".*"
         assert builder.hasProxySettings()
         assert !builder.isValid()
 
@@ -137,33 +129,4 @@ class ProxyInfoBuilderTest {
         assert builder.hasProxySettings()
         assert !builder.isValid()
     }
-
-    @Test
-    public void testIgnoredHostValid() {
-        ProxyInfoBuilder builder = new ProxyInfoBuilder()
-        builder.host = "proxyhost"
-        builder.port = 25
-        builder.ignoredProxyHosts = ".*,.*"
-        assert builder.hasProxySettings()
-        assert builder.isValid()
-    }
-
-    @Test
-    public void testIgnoredHostInvalid() {
-        ProxyInfoBuilder builder = new ProxyInfoBuilder()
-        builder.host = "proxyhost"
-        builder.port = 25
-        builder.credentials = new Credentials("proxyUser", "proxyPassword");
-        builder.ignoredProxyHosts = ".asdfajdflkjaf{ ])(faslkfj,{][[)("
-        assert builder.hasProxySettings()
-        assert !builder.isValid()
-
-        builder = new ProxyInfoBuilder()
-        builder.host = "proxyhost"
-        builder.port = 25
-        builder.ignoredProxyHosts = ".asdfajdflkjaf{ ])(faslkfj"
-        assert builder.hasProxySettings()
-        assert !builder.isValid()
-    }
-
 }

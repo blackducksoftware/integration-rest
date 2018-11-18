@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test
 
 class CredentialsTest {
     @Test
-    public void testUserAndPasswordConstructor() {
+    void testUserAndPasswordConstructor() {
         final String username = "username"
         final String password = "password"
-        Credentials credentials = new Credentials(username, password);
+        Credentials credentials = new Credentials(username, password)
         final String maskedPassword = credentials.getMaskedPassword()
         assert username == credentials.username
         assert password == credentials.password
@@ -19,10 +19,10 @@ class CredentialsTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         final String username1 = "username"
         final String password1 = "password"
-        Credentials credentials1 = new Credentials(username1, password1);
+        Credentials credentials1 = new Credentials(username1, password1)
         final String username2 = "username"
         final String password2 = "password"
         Credentials credentials2 = new Credentials(username2, password2)
@@ -31,10 +31,10 @@ class CredentialsTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         final String username1 = "username"
         final String password1 = "password"
-        Credentials credentials1 = new Credentials(username1, password1);
+        Credentials credentials1 = new Credentials(username1, password1)
         final String username2 = "username"
         final String password2 = "password"
         Credentials credentials2 = new Credentials(username2, password2)
@@ -43,10 +43,10 @@ class CredentialsTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         final String username1 = "username"
         final String password1 = "password"
-        Credentials credentials1 = new Credentials(username1, password1);
+        Credentials credentials1 = new Credentials(username1, password1)
         final String username2 = "username"
         final String password2 = "password"
         Credentials credentials2 = new Credentials(username2, password2)

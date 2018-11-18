@@ -9,7 +9,7 @@ import java.nio.charset.Charset
 
 class RequestTest {
     @Test
-    public void testRequest() {
+    void testRequest() {
         String uri = 'URI'
         Map<String, String> queryParametes = [test: "one", query: "two"]
         String q = 'q'
