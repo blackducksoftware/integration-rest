@@ -77,7 +77,7 @@ import com.synopsys.integration.rest.request.Request;
 import com.synopsys.integration.rest.request.Response;
 
 /**
- * The parent class of all Hub connections.
+ * The parent class of all Black Duck connections.
  */
 public abstract class RestConnection implements Closeable {
     public static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null";
@@ -312,7 +312,7 @@ public abstract class RestConnection implements Closeable {
             defaultRequestConfigBuilder.setProxy(getProxyHttpHost());
             try {
                 addProxyCredentials();
-            } catch (IllegalArgumentException ex) {
+            } catch (final IllegalArgumentException ex) {
                 throw new IntegrationException(ex);
             }
         }
@@ -352,7 +352,7 @@ public abstract class RestConnection implements Closeable {
                         } else {
                             final String httpResponseContent = response.getContentString();
                             throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent,
-                                String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
+                                    String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
                         }
                     } finally {
                         closeableHttpResponse.close();

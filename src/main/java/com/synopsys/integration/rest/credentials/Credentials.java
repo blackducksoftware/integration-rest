@@ -30,6 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.synopsys.integration.util.Stringable;
 
 public class Credentials extends Stringable implements Serializable {
+    public static final Credentials NO_CREDENTIALS = new Credentials(null, null);
+
     private static final long serialVersionUID = 4601465049752304687L;
     private static final String MASKED_PASSWORD = "************************";
 

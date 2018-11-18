@@ -67,7 +67,7 @@ public class MultipartBodyContent implements BodyContent {
 
     private void addTextBody(final MultipartEntityBuilder builder, final String name, final String value) {
         // should be 'builder.addTextBody(entry.getKey(), entry.getValue());'
-        // BUT the hub fails to parse form pieces with the header Content-Type
+        // BUT Black Duck fails to parse form pieces with the header Content-Type
         // So we must remove that header. For more info see https://jira.dc1.lan/browse/IDETECT-514
         final StringBody body = new StringBody(value, ContentType.DEFAULT_TEXT);
         final FormBodyPart part = FormBodyPartBuilder.create(name, body).build();
