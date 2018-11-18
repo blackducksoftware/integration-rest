@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test
 
 class CredentialsBuilderTest {
     @Test
-    public void testBuildObject() {
+    void testBuildObject() {
         String username = "username"
         String password = "password"
         CredentialsBuilder builder = new CredentialsBuilder()

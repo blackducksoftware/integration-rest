@@ -22,10 +22,10 @@
  * under the License.*/
 package com.synopsys.integration.rest.it
 
+import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.connection.RestConnection
-import com.synopsys.integration.rest.connection.UnauthenticatedRestConnectionBuilder
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import okhttp3.OkHttpClient
 import org.apache.commons.lang3.math.NumberUtils
@@ -34,17 +34,20 @@ import org.junit.Assert
 import java.util.logging.Level
 import java.util.logging.Logger
 
-public class RestConnectionTestHelper {
-    private Properties testProperties;
+class RestConnectionTestHelper {
+    public static final LogLevel DEFAULT_LOGGING_LEVEL = LogLevel.TRACE
 
-    private final String serverUrl;
+    private final String serverUrl
+    private final IntLogger logger = new PrintStreamIntLogger(System.out, DEFAULT_LOGGING_LEVEL)
 
-    public RestConnectionTestHelper() {
+    private Properties testProperties
+
+    RestConnectionTestHelper() {
         initProperties()
         this.serverUrl = getProperty(TestingPropertyKey.TEST_HTTPS_SERVER_URL)
     }
 
-    public RestConnectionTestHelper(final String serverUrlPropertyName) {
+    RestConnectionTestHelper(final String serverUrlPropertyName) {
         initProperties()
         this.serverUrl = testProperties.getProperty(serverUrlPropertyName)
     }
@@ -53,11 +56,11 @@ public class RestConnectionTestHelper {
         Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE)
         testProperties = new Properties()
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader()
-        InputStream is = null;
+        InputStream is = null
         try {
             is = classLoader.getResourceAsStream("test.properties")
             testProperties.load(is)
-        } catch (final Exception e) {
+        } catch (final Exception ignored) {
             System.err.println("reading test.properties failed!")
         } finally {
             if (is != null) {
@@ -68,7 +71,7 @@ public class RestConnectionTestHelper {
         if (testProperties.isEmpty()) {
             try {
                 loadOverrideProperties(TestingPropertyKey.values())
-            } catch (final Exception e) {
+            } catch (final Exception ignored) {
                 System.err.println("reading properties from the environment failed")
             }
         }
@@ -83,19 +86,19 @@ public class RestConnectionTestHelper {
         }
     }
 
-    public String getProperty(final TestingPropertyKey key) {
+    String getProperty(final TestingPropertyKey key) {
         return getProperty(key.toString())
     }
 
-    public String getProperty(final String key) {
+    String getProperty(final String key) {
         return testProperties.getProperty(key)
     }
 
-    public String getIntegrationServerUrlString() {
+    String getIntegrationServerUrlString() {
         return serverUrl
     }
 
-    public URL getIntegrationServerUrl() {
+    URL getIntegrationServerUrl() {
         URL url
         try {
             url = new URL(getIntegrationServerUrlString())
@@ -105,12 +108,12 @@ public class RestConnectionTestHelper {
         return url
     }
 
-    public int getTimeout() {
+    int getTimeout() {
         int timeout = NumberUtils.toInt(getProperty(TestingPropertyKey.TEST_TIMEOUT), 300)
         return timeout
     }
 
-    public File getFile(final String classpathResource) {
+    File getFile(final String classpathResource) {
         try {
             final URL url = Thread.currentThread().getContextClassLoader().getResource(classpathResource)
             final File file = new File(url.toURI().getPath())
@@ -121,23 +124,12 @@ public class RestConnectionTestHelper {
         }
     }
 
-    public RestConnection getRestConnection() {
-        return getRestConnection(LogLevel.DEBUG, ProxyInfo.NO_PROXY_INFO);
+    RestConnection getRestConnection() {
+        return getRestConnection(ProxyInfo.NO_PROXY_INFO)
     }
 
-    public RestConnection getRestConnection(final LogLevel logLevel) {
-        return getRestConnection(logLevel, ProxyInfo.NO_PROXY_INFO);
-    }
-
-    public RestConnection getRestConnection(final LogLevel logLevel, ProxyInfo proxyInfo) {
-        UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder();
-        builder.logger = new PrintStreamIntLogger(System.out, logLevel);
-        builder.baseUrl = getIntegrationServerUrl()
-        builder.timeout = getTimeout()
-        builder.setProxyInfo(proxyInfo)
-        builder.setAlwaysTrustServerCertificate(true)
-        RestConnection restConnection = builder.build()
-        return restConnection
+    RestConnection getRestConnection(ProxyInfo proxyInfo) {
+        return new RestConnection(logger, getTimeout(), true, proxyInfo)
     }
 
 }
