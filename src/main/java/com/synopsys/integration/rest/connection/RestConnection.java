@@ -58,7 +58,6 @@ import org.apache.http.ssl.SSLContexts;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.HttpMethod;
-import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Request;
 import com.synopsys.integration.rest.request.Response;
@@ -108,7 +107,6 @@ public class RestConnection {
         populateHttpClientBuilder(clientBuilder, defaultRequestConfigBuilder);
         addBuilderCredentialsProvider();
         addBuilderSSLContext();
-        completeConnection();
         initialized = true;
     }
 
@@ -116,14 +114,19 @@ public class RestConnection {
      * Subclasses can add to the builders any additional fields they need to successfully initialize
      */
     public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) throws IntegrationException {
-
     }
 
     /**
-     * Subclasses might need to do final processing to the http client (usually authentication)
+     * Subclasses might need to do final processing to the http client (usually authentication).
+     * This is called every time a request is made
      */
-    public void completeConnection() throws IntegrationException {
+    public void finalizeRequest(final HttpUriRequest request) throws IntegrationException {
+    }
 
+    /**
+     * Subclasses might need to handle an error response and modify the request
+     */
+    public void handleErrorResponse(final HttpUriRequest request, final Response response) {
     }
 
     public final RequestBuilder createRequestBuilder(final HttpMethod method) throws IntegrationException {
@@ -147,22 +150,12 @@ public class RestConnection {
         return requestBuilder;
     }
 
-    public final HttpUriRequest copyHttpRequest(final HttpUriRequest request) {
-        final RequestBuilder requestBuilder = RequestBuilder.copy(request);
-        if (!commonRequestHeaders.isEmpty()) {
-            for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
-            }
-        }
-        return requestBuilder.build();
-    }
-
-    public Response executeRequest(final Request request) throws IntegrationException {
+    public Response execute(final Request request) throws IntegrationException {
         final HttpUriRequest httpUriRequest = request.createHttpUriRequest(commonRequestHeaders);
-        return executeRequest(httpUriRequest);
+        return execute(httpUriRequest);
     }
 
-    public Response executeRequest(final HttpUriRequest request) throws IntegrationException {
+    public Response execute(final HttpUriRequest request) throws IntegrationException {
         final long start = System.currentTimeMillis();
         logger.trace("starting request: " + request.getURI().toString());
         try {
@@ -173,42 +166,11 @@ public class RestConnection {
         }
     }
 
-    /**
-     * Will throw an exception if the status code is an error code
-     */
-    public Response executeRequestWithException(final HttpUriRequest request) throws IntegrationException {
-        final Response response = executeRequest(request);
-
-        if (response.isStatusCodeError()) {
-            final Integer statusCode = response.getStatusCode();
-            final String statusMessage = response.getStatusMessage();
-            String httpResponseContent;
-            try {
-                httpResponseContent = response.getContentString();
-            } catch (final IntegrationException e) {
-                httpResponseContent = e.getMessage();
-            }
-
-            throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent,
-                String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), request.getURI(), statusCode, statusMessage));
-        }
-
-        return response;
-    }
-
-    /**
-     * Will throw an exception if the status code is an error code
-     */
-    public Response executeRequestWithException(final Request request) throws IntegrationException {
-        final HttpUriRequest httpUriRequest = request.createHttpUriRequest(commonRequestHeaders);
-        return executeRequestWithException(httpUriRequest);
-    }
-
     public Optional<Response> executeGetRequestIfModifiedSince(final Request getRequest, final long timeToCheck) throws IntegrationException, IOException {
         final Request headRequest = new Request.Builder(getRequest).method(HttpMethod.HEAD).build();
 
         long lastModifiedOnServer = 0L;
-        try (final Response headResponse = executeRequest(headRequest.createHttpUriRequest(commonRequestHeaders))) {
+        try (final Response headResponse = execute(headRequest.createHttpUriRequest(commonRequestHeaders))) {
             lastModifiedOnServer = headResponse.getLastModified();
             logger.debug(String.format("Last modified on server: %d", lastModifiedOnServer));
         } catch (final IntegrationException e) {
@@ -221,7 +183,7 @@ public class RestConnection {
             return Optional.empty();
         }
 
-        return Optional.of(executeRequest(getRequest.createHttpUriRequest(commonRequestHeaders)));
+        return Optional.of(execute(getRequest.createHttpUriRequest(commonRequestHeaders)));
     }
 
     public final void logRequestHeaders(final HttpUriRequest request) {
@@ -290,6 +252,8 @@ public class RestConnection {
             initialize();
         }
 
+        finalizeRequest(request);
+
         try {
             final CloseableHttpClient client = clientBuilder.build();
             final URI uri = request.getURI();
@@ -301,6 +265,9 @@ public class RestConnection {
             final CloseableHttpResponse closeableHttpResponse = client.execute(request);
             final Response response = new Response(client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
+            if (response.isStatusCodeError()) {
+                handleErrorResponse(request, response);
+            }
             return response;
         } catch (final IOException e) {
             throw new IntegrationException(e.getMessage(), e);
@@ -362,7 +329,12 @@ public class RestConnection {
         this.commonRequestHeaders.putAll(commonRequestHeaders);
     }
 
+    public String removeCommonRequestHeader(final String key) {
+        return commonRequestHeaders.remove(key);
+    }
+
     public IntLogger getLogger() {
         return logger;
     }
+
 }

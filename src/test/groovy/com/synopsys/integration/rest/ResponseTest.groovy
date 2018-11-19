@@ -10,16 +10,11 @@ import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.message.BasicHeader
 import org.apache.http.message.BasicStatusLine
-import org.junit.Rule
 import org.junit.jupiter.api.Test
-import org.junit.rules.TemporaryFolder
 
-import static org.junit.Assert.*
+import static org.junit.jupiter.api.Assertions.*
 
 class ResponseTest {
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder()
-
     @Test
     void testGetStatusCode() throws Exception {
         CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient

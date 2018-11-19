@@ -1,25 +1,3 @@
-/**
- * Hub Common Rest
- *
- * Copyright (C) 2018 Black Duck Software, Inc.
- * http://www.blackducksoftware.com/
- *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.*/
 package com.synopsys.integration.rest
 
 import com.synopsys.integration.exception.IntegrationException
@@ -40,8 +18,8 @@ import org.apache.http.HttpHeaders
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.entity.ContentType
-import org.junit.After
-import org.junit.Before
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import java.nio.charset.Charset
@@ -54,12 +32,12 @@ class RestConnectionTest {
     private final MockWebServer server = new MockWebServer()
     private final IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.DEBUG)
 
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         server.start()
     }
 
-    @After
+    @AfterEach
     void tearDown() throws Exception {
         server.shutdown()
     }
@@ -105,7 +83,7 @@ class RestConnectionTest {
         requestBuilder.setUri(getValidUri())
         assert null != requestBuilder.getHeaders("Common")
 
-        Response response = restConnection.executeRequest(requestBuilder.build())
+        Response response = restConnection.execute(requestBuilder.build())
 
         assert 200 == response.getStatusCode()
     }
@@ -120,7 +98,7 @@ class RestConnectionTest {
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(404))
         try {
-            final Response response = restConnection.executeRequest(request)
+            final Response response = restConnection.execute(request)
             assert 404 == response.getStatusCode()
         } catch (IntegrationRestException e) {
             fail('Should NOT have thrown exception')
@@ -128,35 +106,10 @@ class RestConnectionTest {
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(401))
         try {
-            final Response response = restConnection.executeRequest(request)
+            final Response response = restConnection.execute(request)
             assert 401 == response.getStatusCode()
         } catch (IntegrationRestException e) {
             fail('Should NOT have thrown exception')
-        }
-    }
-
-    @Test
-    void testHandleExecuteWithExceptionClientCallFail() {
-        RestConnection restConnection = getRestConnection()
-        RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.GET)
-        requestBuilder.setUri(getValidUri())
-        HttpUriRequest request = requestBuilder.build()
-        restConnection.initialize()
-
-        restConnection = getRestConnection(new MockResponse().setResponseCode(404))
-        try {
-            restConnection.executeRequestWithException(request)
-            fail('Should have thrown exception')
-        } catch (IntegrationRestException e) {
-            assert 404 == e.httpStatusCode
-        }
-
-        restConnection = getRestConnection(new MockResponse().setResponseCode(401))
-        try {
-            restConnection.executeRequestWithException(request)
-            fail('Should have thrown exception')
-        } catch (IntegrationRestException e) {
-            assert 401 == e.httpStatusCode
         }
     }
 
@@ -206,7 +159,7 @@ class RestConnectionTest {
         assert uriRequest.getURI().toString().contains('limit=100')
 
         request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').additionalHeaders([header: 'one', thing: 'two']).
-            build()
+                build()
         uriRequest = request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
         assert HttpMethod.GET.name() == uriRequest.method
         assert 'one' == uriRequest.getFirstHeader('header').getValue()
@@ -219,7 +172,7 @@ class RestConnectionTest {
         Map headersMap = [header: 'one', thing: 'two']
         headersMap.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
         request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').bodyEncoding(bodyEncoding).
-            additionalHeaders(headersMap).build()
+                additionalHeaders(headersMap).build()
         uriRequest = request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
         assert HttpMethod.GET.name() == uriRequest.method
         assert ContentType.APPLICATION_XML.getMimeType() == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
@@ -237,4 +190,5 @@ class RestConnectionTest {
         assert null != uriRequest.getURI()
         assert uriRequest.getURI().toString().contains(uri)
     }
+
 }
