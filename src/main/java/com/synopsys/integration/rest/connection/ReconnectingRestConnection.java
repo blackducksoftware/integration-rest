@@ -45,19 +45,25 @@ public abstract class ReconnectingRestConnection extends RestConnection {
         return executeRequest(request, 0);
     }
 
+    /**
+     * Will attempt connection again. Subclasses should override the handleErrorResponse method to prepare the request to be executed again
+     */
     private Response executeRequest(final HttpUriRequest request, final int retryCount) throws IntegrationException {
         final Response response = super.executeRequest(request);
+
         final int statusCode = response.getStatusCode();
-        final boolean unauthorized = statusCode == RestConstants.UNAUTHORIZED_401;
+        final boolean unauthorized = isUnauthorized(statusCode);
 
         if (unauthorized && retryCount < 2) {
-            completeConnection();
-            final HttpUriRequest newRequest = copyHttpRequest(request);
-            return executeRequest(newRequest, retryCount + 1);
+            return executeRequest(request, retryCount + 1);
         } else if (unauthorized) {
             throw new IntegrationException("Failed to reconnect: " + statusCode);
         }
 
         return response;
+    }
+
+    protected boolean isUnauthorized(final int statusCode) {
+        return statusCode == RestConstants.UNAUTHORIZED_401 || statusCode == RestConstants.FORBIDDEN_403;
     }
 }

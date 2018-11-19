@@ -108,7 +108,6 @@ public class RestConnection {
         populateHttpClientBuilder(clientBuilder, defaultRequestConfigBuilder);
         addBuilderCredentialsProvider();
         addBuilderSSLContext();
-        completeConnection();
         initialized = true;
     }
 
@@ -120,9 +119,17 @@ public class RestConnection {
     }
 
     /**
-     * Subclasses might need to do final processing to the http client (usually authentication)
+     * Subclasses might need to do final processing to the http client (usually authentication).
+     * This is called every time a request is made
      */
-    public void completeConnection() throws IntegrationException {
+    public void finalizeRequest(final HttpUriRequest request) throws IntegrationException {
+
+    }
+
+    /**
+     * Subclasses might need to handle an error response and modify the request
+     */
+    public void handleErrorResponse(final HttpUriRequest request, final Response response) {
 
     }
 
@@ -145,16 +152,6 @@ public class RestConnection {
         }
 
         return requestBuilder;
-    }
-
-    public final HttpUriRequest copyHttpRequest(final HttpUriRequest request) {
-        final RequestBuilder requestBuilder = RequestBuilder.copy(request);
-        if (!commonRequestHeaders.isEmpty()) {
-            for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
-            }
-        }
-        return requestBuilder.build();
     }
 
     public Response executeRequest(final Request request) throws IntegrationException {
@@ -290,6 +287,8 @@ public class RestConnection {
             initialize();
         }
 
+        finalizeRequest(request);
+
         try {
             final CloseableHttpClient client = clientBuilder.build();
             final URI uri = request.getURI();
@@ -301,6 +300,9 @@ public class RestConnection {
             final CloseableHttpResponse closeableHttpResponse = client.execute(request);
             final Response response = new Response(client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
+            if (response.isStatusCodeError()) {
+                handleErrorResponse(request, response);
+            }
             return response;
         } catch (final IOException e) {
             throw new IntegrationException(e.getMessage(), e);
@@ -360,6 +362,10 @@ public class RestConnection {
 
     public void addCommonRequestHeaders(final Map<String, String> commonRequestHeaders) {
         this.commonRequestHeaders.putAll(commonRequestHeaders);
+    }
+
+    public String removeCommonRequestHeader(final String key) {
+        return commonRequestHeaders.remove(key);
     }
 
     public IntLogger getLogger() {
