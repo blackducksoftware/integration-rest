@@ -1,6 +1,7 @@
 package com.synopsys.integration.rest.it
 
 import com.synopsys.integration.log.IntLogger
+import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.connection.RestConnection
 import com.synopsys.integration.rest.proxy.ProxyInfo
@@ -13,6 +14,8 @@ import java.util.logging.Logger
 import static org.junit.jupiter.api.Assertions.fail
 
 public class RestConnectionTestHelper {
+    public static final LogLevel DEFAULT_LOGGING_LEVEL = LogLevel.TRACE;
+
     private final String serverUrl
     private final IntLogger logger = new PrintStreamIntLogger(System.out, DEFAULT_LOGGING_LEVEL)
 
