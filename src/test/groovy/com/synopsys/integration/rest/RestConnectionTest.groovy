@@ -83,7 +83,7 @@ class RestConnectionTest {
         requestBuilder.setUri(getValidUri())
         assert null != requestBuilder.getHeaders("Common")
 
-        Response response = restConnection.executeRequest(requestBuilder.build())
+        Response response = restConnection.execute(requestBuilder.build())
 
         assert 200 == response.getStatusCode()
     }
@@ -98,7 +98,7 @@ class RestConnectionTest {
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(404))
         try {
-            final Response response = restConnection.executeRequest(request)
+            final Response response = restConnection.execute(request)
             assert 404 == response.getStatusCode()
         } catch (IntegrationRestException e) {
             fail('Should NOT have thrown exception')
@@ -106,35 +106,10 @@ class RestConnectionTest {
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(401))
         try {
-            final Response response = restConnection.executeRequest(request)
+            final Response response = restConnection.execute(request)
             assert 401 == response.getStatusCode()
         } catch (IntegrationRestException e) {
             fail('Should NOT have thrown exception')
-        }
-    }
-
-    @Test
-    void testHandleExecuteWithExceptionClientCallFail() {
-        RestConnection restConnection = getRestConnection()
-        RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.GET)
-        requestBuilder.setUri(getValidUri())
-        HttpUriRequest request = requestBuilder.build()
-        restConnection.initialize()
-
-        restConnection = getRestConnection(new MockResponse().setResponseCode(404))
-        try {
-            restConnection.executeRequestWithException(request)
-            fail('Should have thrown exception')
-        } catch (IntegrationRestException e) {
-            assert 404 == e.httpStatusCode
-        }
-
-        restConnection = getRestConnection(new MockResponse().setResponseCode(401))
-        try {
-            restConnection.executeRequestWithException(request)
-            fail('Should have thrown exception')
-        } catch (IntegrationRestException e) {
-            assert 401 == e.httpStatusCode
         }
     }
 
@@ -184,7 +159,7 @@ class RestConnectionTest {
         assert uriRequest.getURI().toString().contains('limit=100')
 
         request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').additionalHeaders([header: 'one', thing: 'two']).
-            build()
+                build()
         uriRequest = request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
         assert HttpMethod.GET.name() == uriRequest.method
         assert 'one' == uriRequest.getFirstHeader('header').getValue()
@@ -197,7 +172,7 @@ class RestConnectionTest {
         Map headersMap = [header: 'one', thing: 'two']
         headersMap.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
         request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').bodyEncoding(bodyEncoding).
-            additionalHeaders(headersMap).build()
+                additionalHeaders(headersMap).build()
         uriRequest = request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
         assert HttpMethod.GET.name() == uriRequest.method
         assert ContentType.APPLICATION_XML.getMimeType() == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
