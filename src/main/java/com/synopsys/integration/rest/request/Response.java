@@ -44,6 +44,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.RestConstants;
+import com.synopsys.integration.rest.exception.IntegrationRestException;
 
 public class Response implements Closeable {
     public static final String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
@@ -182,6 +183,22 @@ public class Response implements Closeable {
         }
 
         return lastModifiedLong;
+    }
+
+    public void throwExceptionForError(final Request request) throws IntegrationRestException {
+        if (isStatusCodeError()) {
+            final Integer statusCode = getStatusCode();
+            final String statusMessage = getStatusMessage();
+            String httpResponseContent;
+            try {
+                httpResponseContent = getContentString();
+            } catch (final IntegrationException e) {
+                httpResponseContent = e.getMessage();
+            }
+
+            throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent,
+                    String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), request.getUri(), statusCode, statusMessage));
+        }
     }
 
 }
