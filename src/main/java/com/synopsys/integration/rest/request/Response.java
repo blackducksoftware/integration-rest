@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.synopsys.integration.exception.IntegrationException;
@@ -50,12 +51,18 @@ public class Response implements Closeable {
     public static final String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
     public static final String LAST_MODIFIED_HEADER_KEY = "Last-Modified";
 
+    private final HttpUriRequest request;
     private final CloseableHttpClient client;
     private final CloseableHttpResponse response;
 
-    public Response(final CloseableHttpClient client, final CloseableHttpResponse response) {
+    public Response(final HttpUriRequest request, final CloseableHttpClient client, final CloseableHttpResponse response) {
+        this.request = request;
         this.client = client;
         this.response = response;
+    }
+
+    public HttpUriRequest getRequest() {
+        return request;
     }
 
     public Integer getStatusCode() {
@@ -185,7 +192,7 @@ public class Response implements Closeable {
         return lastModifiedLong;
     }
 
-    public void throwExceptionForError(final Request request) throws IntegrationRestException {
+    public void throwExceptionForError() throws IntegrationRestException {
         if (isStatusCodeError()) {
             final Integer statusCode = getStatusCode();
             final String statusMessage = getStatusMessage();
@@ -197,7 +204,7 @@ public class Response implements Closeable {
             }
 
             throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent,
-                    String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), request.getUri(), statusCode, statusMessage));
+                    String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), request.getURI().toString(), statusCode, statusMessage));
         }
     }
 

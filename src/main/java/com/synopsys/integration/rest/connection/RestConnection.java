@@ -263,7 +263,7 @@ public class RestConnection {
             }
             logRequestHeaders(request);
             final CloseableHttpResponse closeableHttpResponse = client.execute(request);
-            final Response response = new Response(client, closeableHttpResponse);
+            final Response response = new Response(request, client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
             if (response.isStatusCodeError()) {
                 handleErrorResponse(request, response);
