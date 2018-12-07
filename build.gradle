@@ -9,12 +9,12 @@ buildscript {
 
 plugins { id 'groovy' }
 
-version = '0.4.0-SNAPSHOT'
+version = '0.4.0'
 
 apply plugin: 'com.blackducksoftware.integration.library'
 
 dependencies {
-    implementation 'com.blackducksoftware.integration:integration-common:15.0.0'
+    implementation 'com.blackducksoftware.integration:integration-common:15.1.0'
 
     testImplementation 'org.codehaus.groovy:groovy-all:2.4.12'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.9.0'
