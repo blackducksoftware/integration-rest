@@ -54,6 +54,18 @@ public class ProxyInfo extends Stringable implements Serializable {
         this.ntlmWorkstation = ntlmWorkstation;
     }
 
+    public boolean isBlank() {
+        boolean isBlank = true;
+
+        isBlank &= StringUtils.isBlank(host);
+        isBlank &= port <= 0;
+        isBlank &= null == proxyCredentials || proxyCredentials.isBlank();
+        isBlank &= StringUtils.isBlank(ntlmDomain);
+        isBlank &= StringUtils.isBlank(ntlmWorkstation);
+
+        return isBlank;
+    }
+
     public URLConnection openConnection(final URL url) throws IOException {
         final Proxy proxy = getProxy();
         return url.openConnection(proxy);
