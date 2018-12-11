@@ -23,6 +23,19 @@ class RestConnectionTestIT {
     private static RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper()
 
     @Test
+    void testNullHostForProxy() {
+        ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
+        proxyBuilder.host = null
+        ProxyInfo proxyInfo = proxyBuilder.build()
+        final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
+        restConnection.initialize()
+        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        restConnection.execute(request).withCloseable {
+            assertTrue(it.statusCodeOkay)
+        }
+    }
+
+    @Test
     void testTimeoutSet() {
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection()
         restConnection.timeout = 459

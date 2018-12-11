@@ -226,7 +226,7 @@ public class RestConnection {
     }
 
     private void addBuilderProxyInformation() throws IntegrationException {
-        if (!proxyInfo.equals(ProxyInfo.NO_PROXY_INFO)) {
+        if (!proxyInfo.isBlank()) {
             defaultRequestConfigBuilder.setProxy(getProxyHttpHost());
             try {
                 addProxyCredentials();
