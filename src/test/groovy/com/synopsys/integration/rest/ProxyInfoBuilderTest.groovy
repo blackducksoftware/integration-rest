@@ -49,12 +49,10 @@ class ProxyInfoBuilderTest {
     @Test
     void testProxyValid() {
         ProxyInfoBuilder builder = new ProxyInfoBuilder()
-        assert !builder.hasProxySettings()
         assert builder.isValid()
 
         builder.host = "proxyhost"
         builder.port = 25
-        assert builder.hasProxySettings()
         assert builder.isValid()
 
         builder.host = "proxyhost"
@@ -63,7 +61,6 @@ class ProxyInfoBuilderTest {
         builder.ntlmDomain = "domain"
         builder.ntlmWorkstation = "workstation"
 
-        assert builder.hasProxySettings()
         assert builder.isValid()
     }
 
@@ -72,19 +69,16 @@ class ProxyInfoBuilderTest {
         ProxyInfoBuilder builder = new ProxyInfoBuilder()
         builder.host = "proxyhost"
         builder.port = -1
-        assert builder.hasProxySettings()
         assert !builder.isValid()
 
         builder = new ProxyInfoBuilder()
         builder.host = ""
         builder.port = 25
-        assert builder.hasProxySettings()
         assert !builder.isValid()
 
         builder = new ProxyInfoBuilder()
         builder.host = "proxyhost"
         builder.port = 0
-        assert builder.hasProxySettings()
         assert !builder.isValid()
     }
 
@@ -94,7 +88,6 @@ class ProxyInfoBuilderTest {
         builder.host = "proxyhost"
         builder.port = 25
         builder.credentials = new Credentials("proxyUser", "proxyPassword")
-        assert builder.hasProxySettings()
         assert builder.isValid()
     }
 
@@ -104,7 +97,6 @@ class ProxyInfoBuilderTest {
         builder.host = ""
         builder.port = 25
         builder.credentials = new Credentials("proxyUser", "proxyPassword")
-        assert builder.hasProxySettings()
         assert !builder.isValid()
 
         builder = new ProxyInfoBuilder()
@@ -112,21 +104,18 @@ class ProxyInfoBuilderTest {
         builder.port = 25
         builder.ntlmDomain = "domain"
         builder.ntlmWorkstation = "workstation"
-        assert builder.hasProxySettings()
         assert !builder.isValid()
 
         builder = new ProxyInfoBuilder()
         builder.host = "proxyhost"
         builder.port = 25
         builder.ntlmDomain = 'domain'
-        assert builder.hasProxySettings()
         assert !builder.isValid()
 
         builder = new ProxyInfoBuilder()
         builder.host = "proxyhost"
         builder.port = 25
         builder.ntlmWorkstation = "workstation"
-        assert builder.hasProxySettings()
         assert !builder.isValid()
     }
 }
