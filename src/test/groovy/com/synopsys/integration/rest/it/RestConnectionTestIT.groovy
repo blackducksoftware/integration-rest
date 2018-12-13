@@ -28,7 +28,6 @@ class RestConnectionTestIT {
         proxyBuilder.host = null
         ProxyInfo proxyInfo = proxyBuilder.build()
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        restConnection.initialize()
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeOkay)
@@ -38,8 +37,8 @@ class RestConnectionTestIT {
     @Test
     void testTimeoutSet() {
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection()
-        restConnection.timeout = 459
-        assertEquals(459, restConnection.timeout)
+        restConnection.timeoutInSeconds = 459
+        assertEquals(459, restConnection.timeoutInSeconds)
     }
 
     @Test
@@ -49,7 +48,6 @@ class RestConnectionTestIT {
         proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_PASSTHROUGH"))
         ProxyInfo proxyInfo = proxyBuilder.build()
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        restConnection.initialize()
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeOkay)
@@ -68,7 +66,6 @@ class RestConnectionTestIT {
         proxyBuilder.credentials = credentialsBuilder.build()
         ProxyInfo proxyInfo = proxyBuilder.build()
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        restConnection.initialize()
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeOkay)
@@ -82,7 +79,6 @@ class RestConnectionTestIT {
         proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
         ProxyInfo proxyInfo = proxyBuilder.build()
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        restConnection.initialize()
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
             assertEquals(RestConstants.PROXY_AUTH_407, it.statusCode)
@@ -99,7 +95,6 @@ class RestConnectionTestIT {
         proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
         ProxyInfo proxyInfo = proxyBuilder.build()
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        restConnection.initialize()
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
             assertEquals(RestConstants.PROXY_AUTH_407, it.statusCode)
@@ -123,7 +118,6 @@ class RestConnectionTestIT {
         proxyBuilder.credentials = proxyCredentials
         ProxyInfo proxyInfo = proxyBuilder.build()
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        restConnection.initialize()
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeOkay)
@@ -137,7 +131,6 @@ class RestConnectionTestIT {
         proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
         ProxyInfo proxyInfo = proxyBuilder.build()
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        restConnection.initialize()
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
             assertEquals(RestConstants.PROXY_AUTH_407, it.statusCode)
@@ -159,7 +152,6 @@ class RestConnectionTestIT {
         proxyBuilder.ntlmWorkstation = restConnectionTestHelper.getProperty("TEST_PROXY_WORKSTATION_NTLM")
         ProxyInfo proxyInfo = proxyBuilder.build()
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        restConnection.initialize()
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeOkay)

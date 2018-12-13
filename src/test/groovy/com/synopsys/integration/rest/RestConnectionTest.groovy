@@ -94,7 +94,6 @@ class RestConnectionTest {
         RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.GET)
         requestBuilder.setUri(getValidUri())
         HttpUriRequest request = requestBuilder.build()
-        restConnection.initialize()
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(404))
         try {

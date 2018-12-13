@@ -72,7 +72,7 @@ public class RestConnection {
     protected final IntLogger logger;
     private final ProxyInfo proxyInfo;
 
-    private int timeout;
+    private int timeoutInSeconds;
     private boolean alwaysTrustServerCertificate;
 
     private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -80,15 +80,13 @@ public class RestConnection {
     private final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
     private final Map<String, String> commonRequestHeaders = new HashMap<>();
 
-    private boolean initialized = false;
-
-    public RestConnection(final IntLogger logger, final int timeout, final boolean alwaysTrustServerCertificate, final ProxyInfo proxyInfo) {
+    public RestConnection(final IntLogger logger, final int timeoutInSeconds, final boolean alwaysTrustServerCertificate, final ProxyInfo proxyInfo) {
         this.logger = logger;
         this.proxyInfo = proxyInfo;
-        this.timeout = timeout;
+        this.timeoutInSeconds = timeoutInSeconds;
         this.alwaysTrustServerCertificate = alwaysTrustServerCertificate;
 
-        if (0 >= timeout) {
+        if (0 >= timeoutInSeconds) {
             throw new IllegalArgumentException("The timeout must be greater than 0.");
         }
 
@@ -99,28 +97,25 @@ public class RestConnection {
         if (null == proxyInfo) {
             throw new IllegalArgumentException(ERROR_MSG_PROXY_INFO_NULL);
         }
-    }
 
-    public final void initialize() throws IntegrationException {
         addBuilderConnectionTimes();
         addBuilderProxyInformation();
         populateHttpClientBuilder(clientBuilder, defaultRequestConfigBuilder);
         addBuilderCredentialsProvider();
         addBuilderSSLContext();
-        initialized = true;
     }
 
     /**
      * Subclasses can add to the builders any additional fields they need to successfully initialize
      */
-    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) throws IntegrationException {
+    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) {
     }
 
     /**
      * Subclasses might need to do final processing to the http client (usually authentication).
      * This is called every time a request is made
      */
-    public void finalizeRequest(final HttpUriRequest request) throws IntegrationException {
+    public void finalizeRequest(final HttpUriRequest request) {
     }
 
     /**
@@ -199,9 +194,9 @@ public class RestConnection {
     }
 
     private void addBuilderConnectionTimes() {
-        defaultRequestConfigBuilder.setConnectTimeout(timeout * 1000);
-        defaultRequestConfigBuilder.setSocketTimeout(timeout * 1000);
-        defaultRequestConfigBuilder.setConnectionRequestTimeout(timeout * 1000);
+        defaultRequestConfigBuilder.setConnectTimeout(timeoutInSeconds * 1000);
+        defaultRequestConfigBuilder.setSocketTimeout(timeoutInSeconds * 1000);
+        defaultRequestConfigBuilder.setConnectionRequestTimeout(timeoutInSeconds * 1000);
     }
 
     private void addBuilderCredentialsProvider() {
@@ -209,7 +204,7 @@ public class RestConnection {
         clientBuilder.setDefaultRequestConfig(defaultRequestConfigBuilder.build());
     }
 
-    private void addBuilderSSLContext() throws IntegrationException {
+    private void addBuilderSSLContext() {
         try {
             final SSLContext sslContext;
             if (alwaysTrustServerCertificate) {
@@ -221,18 +216,14 @@ public class RestConnection {
             final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
             clientBuilder.setSSLSocketFactory(connectionFactory);
         } catch (final KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
-            throw new IntegrationException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 
-    private void addBuilderProxyInformation() throws IntegrationException {
+    private void addBuilderProxyInformation() {
         if (!proxyInfo.isBlank()) {
             defaultRequestConfigBuilder.setProxy(getProxyHttpHost());
-            try {
-                addProxyCredentials();
-            } catch (final IllegalArgumentException ex) {
-                throw new IntegrationException(ex);
-            }
+            addProxyCredentials();
         }
     }
 
@@ -248,10 +239,6 @@ public class RestConnection {
     }
 
     private Response handleClientExecution(final HttpUriRequest request) throws IntegrationException {
-        if (!initialized) {
-            initialize();
-        }
-
         finalizeRequest(request);
 
         try {
@@ -285,12 +272,12 @@ public class RestConnection {
         }
     }
 
-    public int getTimeout() {
-        return timeout;
+    public int getTimeoutInSeconds() {
+        return timeoutInSeconds;
     }
 
-    public void setTimeout(final int timeout) {
-        this.timeout = timeout;
+    public void setTimeoutInSeconds(final int timeoutInSeconds) {
+        this.timeoutInSeconds = timeoutInSeconds;
     }
 
     public boolean isAlwaysTrustServerCertificate() {
