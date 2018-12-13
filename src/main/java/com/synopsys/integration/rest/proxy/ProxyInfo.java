@@ -45,25 +45,19 @@ public class ProxyInfo extends Stringable implements Serializable {
     private final Credentials proxyCredentials;
     private final String ntlmDomain;
     private final String ntlmWorkstation;
+    private final boolean blank;
 
-    public ProxyInfo(final String host, final int port, final Credentials proxyCredentials, final String ntlmDomain, final String ntlmWorkstation) {
+    public ProxyInfo(final String host, final int port, final Credentials proxyCredentials, final String ntlmDomain, final String ntlmWorkstation, final boolean blank) {
         this.host = host;
         this.port = port;
         this.proxyCredentials = proxyCredentials;
         this.ntlmDomain = ntlmDomain;
         this.ntlmWorkstation = ntlmWorkstation;
+        this.blank = blank;
     }
 
     public boolean isBlank() {
-        boolean isBlank = true;
-
-        isBlank &= StringUtils.isBlank(host);
-        isBlank &= port <= 0;
-        isBlank &= null == proxyCredentials || proxyCredentials.isBlank();
-        isBlank &= StringUtils.isBlank(ntlmDomain);
-        isBlank &= StringUtils.isBlank(ntlmWorkstation);
-
-        return isBlank;
+        return blank;
     }
 
     public URLConnection openConnection(final URL url) throws IOException {
@@ -131,7 +125,7 @@ public class ProxyInfo extends Stringable implements Serializable {
         private static final long serialVersionUID = 7646573390510702513L;
 
         public NoProxyInfo() {
-            super("", 0, null, null, null);
+            super("", 0, null, null, null, true);
         }
 
         @Override

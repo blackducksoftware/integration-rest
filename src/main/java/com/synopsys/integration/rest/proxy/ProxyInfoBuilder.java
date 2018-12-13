@@ -38,12 +38,10 @@ public class ProxyInfoBuilder extends IntegrationBuilder<ProxyInfo> {
 
     @Override
     protected ProxyInfo buildWithoutValidation() {
-        final ProxyInfo proxyInfo = new ProxyInfo(host, port, credentials, ntlmDomain, ntlmWorkstation);
-        if (proxyInfo.isBlank()) {
+        if (isBlank()) {
             return ProxyInfo.NO_PROXY_INFO;
-        } else {
-            return proxyInfo;
         }
+        return new ProxyInfo(host, port, credentials, ntlmDomain, ntlmWorkstation, false);
     }
 
     @Override
@@ -58,6 +56,18 @@ public class ProxyInfoBuilder extends IntegrationBuilder<ProxyInfo> {
                 builderStatus.addErrorMessage("Proxy username and password must be set for the NTLM proxy.");
             }
         }
+    }
+
+    public boolean isBlank() {
+        boolean isBlank = true;
+
+        isBlank &= StringUtils.isBlank(host);
+        isBlank &= port <= 0;
+        isBlank &= null == credentials || credentials.isBlank();
+        isBlank &= StringUtils.isBlank(ntlmDomain);
+        isBlank &= StringUtils.isBlank(ntlmWorkstation);
+
+        return isBlank;
     }
 
     public String getHost() {
