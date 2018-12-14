@@ -139,10 +139,11 @@ public class CertificateHandler {
             }
 
             if (proxyInfo.shouldUseProxy()) {
-                defaultRequestConfigBuilder.setProxy(new HttpHost(proxyInfo.getHost(), proxyInfo.getPort()));
+                defaultRequestConfigBuilder.setProxy(new HttpHost(proxyInfo.getHost().orElse(null), proxyInfo.getPort()));
                 try {
-                    final org.apache.http.auth.Credentials creds = new NTCredentials(proxyInfo.getUsername(), proxyInfo.getPassword(), proxyInfo.getNtlmWorkstation(), proxyInfo.getNtlmDomain());
-                    credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost(), proxyInfo.getPort()), creds);
+                    final org.apache.http.auth.Credentials creds = new NTCredentials(proxyInfo.getUsername().orElse(null), proxyInfo.getPassword().orElse(null), proxyInfo.getNtlmWorkstation().orElse(null),
+                            proxyInfo.getNtlmDomain().orElse(null));
+                    credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost().orElse(null), proxyInfo.getPort()), creds);
                 } catch (final IllegalArgumentException ex) {
                     throw new IntegrationException(ex);
                 }

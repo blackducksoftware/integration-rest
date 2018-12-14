@@ -221,20 +221,13 @@ public class RestConnection {
     }
 
     private void addBuilderProxyInformation() {
-        if (!proxyInfo.isBlank()) {
-            defaultRequestConfigBuilder.setProxy(getProxyHttpHost());
-            addProxyCredentials();
-        }
-    }
-
-    private HttpHost getProxyHttpHost() {
-        return new HttpHost(proxyInfo.getHost(), proxyInfo.getPort());
-    }
-
-    private void addProxyCredentials() {
-        if (proxyInfo.hasAuthenticatedProxySettings()) {
-            final org.apache.http.auth.Credentials credentials = new NTCredentials(proxyInfo.getUsername(), proxyInfo.getPassword(), proxyInfo.getNtlmWorkstation(), proxyInfo.getNtlmDomain());
-            credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost(), proxyInfo.getPort()), credentials);
+        if (proxyInfo.shouldUseProxy()) {
+            defaultRequestConfigBuilder.setProxy(new HttpHost(proxyInfo.getHost().orElse(null), proxyInfo.getPort()));
+            if (proxyInfo.hasAuthenticatedProxySettings()) {
+                final org.apache.http.auth.Credentials credentials = new NTCredentials(proxyInfo.getUsername().orElse(null), proxyInfo.getPassword().orElse(null), proxyInfo.getNtlmWorkstation().orElse(null),
+                        proxyInfo.getNtlmDomain().orElse(null));
+                credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost().orElse(null), proxyInfo.getPort()), credentials);
+            }
         }
     }
 

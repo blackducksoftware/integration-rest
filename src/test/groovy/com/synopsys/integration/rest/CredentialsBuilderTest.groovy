@@ -15,8 +15,8 @@ class CredentialsBuilderTest {
         builder.password = password
         Credentials credentials = builder.build()
         String maskedPassword = credentials.getMaskedPassword()
-        assert username == credentials.username
-        assert password == credentials.password
+        assert username == credentials.username.get()
+        assert password == credentials.password.get()
         assert maskedPassword.length() == 24
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")

@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils
 import org.junit.jupiter.api.Test
 
 class ProxyInfoTest {
-
     private static String VALID_URL = "http://www.google.com"
 
     @Test
@@ -18,11 +17,11 @@ class ProxyInfoTest {
         String ntlmWorkstation = null
 
         ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost, proxyPort, credentials, ntlmDomain, ntlmWorkstation)
-        assert null == proxyInfo1.host
+        assert null == proxyInfo1.host.orElse(null)
         assert 0 == proxyInfo1.port
-        assert null == proxyInfo1.proxyCredentials
-        assert null == proxyInfo1.ntlmDomain
-        assert null == proxyInfo1.ntlmWorkstation
+        assert null == proxyInfo1.proxyCredentials.orElse(null)
+        assert null == proxyInfo1.ntlmDomain.orElse(null)
+        assert null == proxyInfo1.ntlmWorkstation.orElse(null)
 
         String username = "username"
         String password = "password"
@@ -33,14 +32,14 @@ class ProxyInfoTest {
         ntlmWorkstation = 'workstation'
 
         proxyInfo1 = new ProxyInfo(proxyHost, proxyPort, credentials, ntlmDomain, ntlmWorkstation)
-        String maskedPassword = proxyInfo1.getMaskedPassword()
-        assert proxyHost == proxyInfo1.host
+        String maskedPassword = proxyInfo1.getMaskedPassword().orElse(null)
+        assert proxyHost == proxyInfo1.host.orElse(null)
         assert proxyPort == proxyInfo1.port
-        assert credentials == proxyInfo1.proxyCredentials
-        assert ntlmDomain == proxyInfo1.ntlmDomain
-        assert ntlmWorkstation == proxyInfo1.ntlmWorkstation
+        assert credentials == proxyInfo1.proxyCredentials.orElse(null)
+        assert ntlmDomain == proxyInfo1.ntlmDomain.orElse(null)
+        assert ntlmWorkstation == proxyInfo1.ntlmWorkstation.orElse(null)
 
-        assert password == proxyInfo1.password
+        assert password == proxyInfo1.password.orElse(null)
         assert maskedPassword.length() == 24
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
@@ -72,11 +71,11 @@ class ProxyInfoTest {
         String ntlmWorkstation = 'workstation'
 
         ProxyInfo proxyInfo = new ProxyInfo(proxyHost, proxyPort, credentials, ntlmDomain, ntlmWorkstation)
-        assert null != proxyInfo.getProxy()
+        assert proxyInfo.getProxy().isPresent()
         assert Proxy.NO_PROXY != proxyInfo.getProxy()
 
         proxyInfo = ProxyInfo.NO_PROXY_INFO
-        assert null == proxyInfo.getProxy()
+        assert !proxyInfo.getProxy().isPresent()
     }
 
     @Test

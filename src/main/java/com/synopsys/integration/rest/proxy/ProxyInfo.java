@@ -24,120 +24,113 @@
 package com.synopsys.integration.rest.proxy;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.Optional;
 
 import com.synopsys.integration.rest.credentials.Credentials;
+import com.synopsys.integration.util.Buildable;
 import com.synopsys.integration.util.Stringable;
 
-public class ProxyInfo extends Stringable implements Serializable {
-    public final static ProxyInfo NO_PROXY_INFO = new NoProxyInfo();
+public class ProxyInfo extends Stringable implements Buildable {
+    public final static ProxyInfo NO_PROXY_INFO = new ProxyInfo();
 
-    private static final long serialVersionUID = -7476704373593358472L;
+    public static ProxyInfoBuilder newBuilder() {
+        return new ProxyInfoBuilder();
+    }
 
     private final String host;
     private final int port;
     private final Credentials proxyCredentials;
     private final String ntlmDomain;
     private final String ntlmWorkstation;
+    private final boolean blank;
 
-    public ProxyInfo(final String host, final int port, final Credentials proxyCredentials, final String ntlmDomain, final String ntlmWorkstation) {
+    ProxyInfo(final String host, final int port, final Credentials proxyCredentials, final String ntlmDomain, final String ntlmWorkstation) {
         this.host = host;
         this.port = port;
         this.proxyCredentials = proxyCredentials;
         this.ntlmDomain = ntlmDomain;
         this.ntlmWorkstation = ntlmWorkstation;
+        blank = false;
+    }
+
+    ProxyInfo() {
+        host = null;
+        port = 0;
+        proxyCredentials = null;
+        ntlmDomain = null;
+        ntlmWorkstation = null;
+        blank = true;
     }
 
     public boolean isBlank() {
-        boolean isBlank = true;
-
-        isBlank &= StringUtils.isBlank(host);
-        isBlank &= port <= 0;
-        isBlank &= null == proxyCredentials || proxyCredentials.isBlank();
-        isBlank &= StringUtils.isBlank(ntlmDomain);
-        isBlank &= StringUtils.isBlank(ntlmWorkstation);
-
-        return isBlank;
-    }
-
-    public URLConnection openConnection(final URL url) throws IOException {
-        final Proxy proxy = getProxy();
-        return url.openConnection(proxy);
-    }
-
-    public Proxy getProxy() {
-        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
+        return blank;
     }
 
     public boolean shouldUseProxy() {
-        return !NO_PROXY_INFO.equals(this);
+        return !isBlank();
     }
 
-    public String getHost() {
-        return host;
+    public Optional<URLConnection> openConnection(final URL url) throws IOException {
+        if (getProxy().isPresent()) {
+            return Optional.of(url.openConnection(getProxy().get()));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Proxy> getProxy() {
+        if (isBlank()) {
+            return Optional.empty();
+        }
+        return Optional.of(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
+    }
+
+    public Optional<String> getHost() {
+        return Optional.ofNullable(host);
     }
 
     public int getPort() {
         return port;
     }
 
-    public String getUsername() {
-        if (getProxyCredentials() == null) {
-            return null;
-        } else {
-            return getProxyCredentials().getUsername();
+    public Optional<String> getUsername() {
+        if (getProxyCredentials().isPresent()) {
+            return getProxyCredentials().get().getUsername();
         }
+        return Optional.empty();
     }
 
-    public String getPassword() {
-        if (getProxyCredentials() == null) {
-            return null;
-        } else {
-            return getProxyCredentials().getPassword();
+    public Optional<String> getPassword() {
+        if (getProxyCredentials().isPresent()) {
+            return getProxyCredentials().get().getPassword();
         }
+        return Optional.empty();
     }
 
-    public String getMaskedPassword() {
-        if (getProxyCredentials() == null) {
-            return null;
-        } else {
-            return getProxyCredentials().getMaskedPassword();
+    public Optional<String> getMaskedPassword() {
+        if (getProxyCredentials().isPresent()) {
+            return Optional.of(getProxyCredentials().get().getMaskedPassword());
         }
+        return Optional.empty();
     }
 
-    public String getNtlmDomain() {
-        return ntlmDomain;
+    public Optional<String> getNtlmDomain() {
+        return Optional.ofNullable(ntlmDomain);
     }
 
-    public String getNtlmWorkstation() {
-        return ntlmWorkstation;
+    public Optional<String> getNtlmWorkstation() {
+        return Optional.ofNullable(ntlmWorkstation);
     }
 
     public boolean hasAuthenticatedProxySettings() {
-        return proxyCredentials != null && StringUtils.isNotBlank(proxyCredentials.getUsername()) && StringUtils.isNotBlank(proxyCredentials.getPassword());
+        return null != proxyCredentials && !proxyCredentials.isBlank();
     }
 
-    private Credentials getProxyCredentials() {
-        return proxyCredentials;
-    }
-
-    private final static class NoProxyInfo extends ProxyInfo {
-        private static final long serialVersionUID = 7646573390510702513L;
-
-        public NoProxyInfo() {
-            super("", 0, null, null, null);
-        }
-
-        @Override
-        public Proxy getProxy() {
-            return null;
-        }
+    public Optional<Credentials> getProxyCredentials() {
+        return Optional.ofNullable(proxyCredentials);
     }
 
 }

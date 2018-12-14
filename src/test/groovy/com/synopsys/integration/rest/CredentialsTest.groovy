@@ -11,8 +11,8 @@ class CredentialsTest {
         final String password = "password"
         Credentials credentials = new Credentials(username, password)
         final String maskedPassword = credentials.getMaskedPassword()
-        assert username == credentials.username
-        assert password == credentials.password
+        assert username == credentials.username.get()
+        assert password == credentials.password.get()
         assert maskedPassword.length() == 24
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")

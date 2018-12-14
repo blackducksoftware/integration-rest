@@ -22,11 +22,11 @@ class ProxyInfoBuilderTest {
         builder.ntlmWorkstation = ntlmWorkstation
 
         ProxyInfo proxyInfo1 = builder.build()
-        assert proxyHost == proxyInfo1.host
+        assert proxyHost == proxyInfo1.host.orElse(null)
         assert proxyPort == proxyInfo1.port
 
-        assert ntlmDomain == proxyInfo1.ntlmDomain
-        assert ntlmWorkstation == proxyInfo1.ntlmWorkstation
+        assert ntlmDomain == proxyInfo1.ntlmDomain.orElse(null)
+        assert ntlmWorkstation == proxyInfo1.ntlmWorkstation.orElse(null)
     }
 
     @Test
@@ -39,11 +39,11 @@ class ProxyInfoBuilderTest {
         builder.port = proxyPort
 
         ProxyInfo proxyInfo1 = builder.build()
-        assert proxyHost == proxyInfo1.host
+        assert proxyHost == proxyInfo1.host.orElse(null)
         assert proxyPort == proxyInfo1.port
 
-        assert null == proxyInfo1.ntlmDomain
-        assert null == proxyInfo1.ntlmWorkstation
+        assert null == proxyInfo1.ntlmDomain.orElse(null)
+        assert null == proxyInfo1.ntlmWorkstation.orElse(null)
     }
 
     @Test
@@ -118,4 +118,25 @@ class ProxyInfoBuilderTest {
         builder.ntlmWorkstation = "workstation"
         assert !builder.isValid()
     }
+
+    @Test
+    void testBlankProxy() {
+        ProxyInfoBuilder proxyInfoBuilder = new ProxyInfoBuilder();
+        assert proxyInfoBuilder.isBlank()
+        assert proxyInfoBuilder.isValid()
+        assert ProxyInfo.NO_PROXY_INFO == proxyInfoBuilder.build()
+
+        proxyInfoBuilder.setCredentials(Credentials.NO_CREDENTIALS);
+
+        assert proxyInfoBuilder.isBlank()
+        assert proxyInfoBuilder.isValid()
+        assert ProxyInfo.NO_PROXY_INFO == proxyInfoBuilder.build()
+
+        proxyInfoBuilder.setCredentials(null)
+
+        assert proxyInfoBuilder.isBlank()
+        assert proxyInfoBuilder.isValid()
+        assert ProxyInfo.NO_PROXY_INFO == proxyInfoBuilder.build()
+    }
+
 }

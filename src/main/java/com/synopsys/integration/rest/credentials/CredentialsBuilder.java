@@ -44,6 +44,11 @@ public class CredentialsBuilder extends IntegrationBuilder<Credentials> {
         }
     }
 
+    public void setUsernameAndPassword(final String username, final String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     public String getUsername() {
         return username;
     }

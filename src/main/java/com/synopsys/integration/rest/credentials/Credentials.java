@@ -23,32 +23,36 @@
  */
 package com.synopsys.integration.rest.credentials;
 
-import java.io.Serializable;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.synopsys.integration.util.Buildable;
 import com.synopsys.integration.util.Stringable;
 
-public class Credentials extends Stringable implements Serializable {
+public class Credentials extends Stringable implements Buildable {
     public static final Credentials NO_CREDENTIALS = new Credentials(null, null);
 
-    private static final long serialVersionUID = 4601465049752304687L;
+    public static CredentialsBuilder newBuilder() {
+        return new CredentialsBuilder();
+    }
+
     private static final String MASKED_PASSWORD = "************************";
 
     private final String username;
     private final String password;
 
-    public Credentials(final String username, final String password) {
+    Credentials(final String username, final String password) {
         this.username = username;
         this.password = password;
     }
 
-    public String getUsername() {
-        return username;
+    public Optional<String> getUsername() {
+        return Optional.ofNullable(username);
     }
 
-    public String getPassword() {
-        return password;
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
 
     public String getMaskedPassword() {
