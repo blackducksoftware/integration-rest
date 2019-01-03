@@ -204,16 +204,35 @@ public class RestConnection {
         clientBuilder.setDefaultRequestConfig(defaultRequestConfigBuilder.build());
     }
 
+    //    private void addBuilderSSLContext() {
+    //        try {
+    //            final SSLContext sslContext;
+    //            if (alwaysTrustServerCertificate) {
+    //                sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
+    //            } else {
+    //                sslContext = SSLContexts.createDefault();
+    //            }
+    //            final HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
+    //            final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
+    //            clientBuilder.setSSLSocketFactory(connectionFactory);
+    //        } catch (final KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+    //            throw new IllegalArgumentException(e.getMessage(), e);
+    //        }
+    //    }
+
+    //FIXED?
     private void addBuilderSSLContext() {
         try {
             final SSLContext sslContext;
+            final HostnameVerifier hostnameVerifier;
             if (alwaysTrustServerCertificate) {
                 sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
+                hostnameVerifier = new NoopHostnameVerifier();
             } else {
                 sslContext = SSLContexts.createDefault();
+                hostnameVerifier = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
             }
-            final HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
-            final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
+            final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
             clientBuilder.setSSLSocketFactory(connectionFactory);
         } catch (final KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
