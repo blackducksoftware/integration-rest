@@ -4,7 +4,7 @@ import com.synopsys.integration.exception.IntegrationException
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
-import com.synopsys.integration.rest.connection.RestConnection
+import com.synopsys.integration.rest.client.IntHttpClient
 import com.synopsys.integration.rest.exception.IntegrationRestException
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.rest.request.Request
@@ -26,7 +26,7 @@ import java.nio.charset.Charset
 
 import static org.junit.jupiter.api.Assertions.fail
 
-class RestConnectionTest {
+class IntHttpClientTest {
     public static final int CONNECTION_TIMEOUT = 213
 
     private final MockWebServer server = new MockWebServer()
@@ -46,11 +46,11 @@ class RestConnectionTest {
         return server.url("www.synopsys.com").uri()
     }
 
-    private RestConnection getRestConnection() {
+    private IntHttpClient getRestConnection() {
         getRestConnection(new MockResponse().setResponseCode(200))
     }
 
-    private RestConnection getRestConnection(MockResponse response) {
+    private IntHttpClient getRestConnection(MockResponse response) {
         final Dispatcher dispatcher = new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -59,7 +59,7 @@ class RestConnectionTest {
         }
         server.setDispatcher(dispatcher)
 
-        return new RestConnection(logger, CONNECTION_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
+        return new IntHttpClient(logger, CONNECTION_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
     }
 
     @Test
@@ -67,17 +67,17 @@ class RestConnectionTest {
         int timeoutSeconds = 213
 
         try {
-            RestConnection restConnection = new RestConnection(logger, timeoutSeconds, true, null)
+            IntHttpClient restConnection = new IntHttpClient(logger, timeoutSeconds, true, null)
             restConnection.initialize()
             fail('Should have thrown exception')
         } catch (IllegalArgumentException e) {
-            assert RestConnection.ERROR_MSG_PROXY_INFO_NULL == e.getMessage()
+            assert IntHttpClient.ERROR_MSG_PROXY_INFO_NULL == e.getMessage()
         }
     }
 
     @Test
     void testHandleExecuteClientCallSuccessful() {
-        RestConnection restConnection = getRestConnection()
+        IntHttpClient restConnection = getRestConnection()
         restConnection.commonRequestHeaders.put("Common", "Header")
         RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.DELETE)
         requestBuilder.setUri(getValidUri())
@@ -90,7 +90,7 @@ class RestConnectionTest {
 
     @Test
     void testHandleExecuteClientCallFail() {
-        RestConnection restConnection = getRestConnection()
+        IntHttpClient restConnection = getRestConnection()
         RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.GET)
         requestBuilder.setUri(getValidUri())
         HttpUriRequest request = requestBuilder.build()
@@ -114,7 +114,7 @@ class RestConnectionTest {
 
     @Test
     void testCreateHttpRequestNoURI() {
-        RestConnection restConnection = new RestConnection(logger, 300, true, ProxyInfo.NO_PROXY_INFO)
+        IntHttpClient restConnection = new IntHttpClient(logger, 300, true, ProxyInfo.NO_PROXY_INFO)
         Request request = new Request.Builder().build()
         try {
             request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
@@ -126,7 +126,7 @@ class RestConnectionTest {
 
     @Test
     void testCreateHttpRequest() {
-        RestConnection restConnection = getRestConnection()
+        IntHttpClient restConnection = getRestConnection()
 
         final String uri = getValidUri()
         Map<String, String> queryParametes = [test: "one", query: "two"]

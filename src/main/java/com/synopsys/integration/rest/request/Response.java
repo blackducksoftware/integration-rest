@@ -55,7 +55,7 @@ public class Response implements Closeable {
     private final CloseableHttpClient client;
     private final CloseableHttpResponse response;
 
-    public Response(final HttpUriRequest request, final CloseableHttpClient client, final CloseableHttpResponse response) {
+    public Response(HttpUriRequest request, CloseableHttpClient client, CloseableHttpResponse response) {
         this.request = request;
         this.client = client;
         this.response = response;
@@ -74,7 +74,7 @@ public class Response implements Closeable {
     }
 
     public Boolean isStatusCodeOkay() {
-        final Integer statusCode = getStatusCode();
+        Integer statusCode = getStatusCode();
         if (statusCode != null) {
             return statusCode >= RestConstants.OK_200 && statusCode < RestConstants.MULT_CHOICE_300;
         } else {
@@ -98,7 +98,7 @@ public class Response implements Closeable {
         if (response.getEntity() != null) {
             try {
                 return response.getEntity().getContent();
-            } catch (final UnsupportedOperationException | IOException e) {
+            } catch (UnsupportedOperationException | IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }
         } else {
@@ -110,11 +110,11 @@ public class Response implements Closeable {
         return getContentString(Charsets.UTF_8);
     }
 
-    public String getContentString(final Charset encoding) throws IntegrationException {
+    public String getContentString(Charset encoding) throws IntegrationException {
         if (response.getEntity() != null) {
-            try (final InputStream inputStream = response.getEntity().getContent()) {
+            try (InputStream inputStream = response.getEntity().getContent()) {
                 return IOUtils.toString(inputStream, encoding);
-            } catch (final UnsupportedOperationException | IOException e) {
+            } catch (UnsupportedOperationException | IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }
         } else {
@@ -147,16 +147,16 @@ public class Response implements Closeable {
     }
 
     public Map<String, String> getHeaders() {
-        final Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<>();
         if (response.getAllHeaders() != null && response.getAllHeaders().length > 0) {
-            for (final Header header : response.getAllHeaders()) {
+            for (Header header : response.getAllHeaders()) {
                 headers.put(header.getName(), header.getValue());
             }
         }
         return headers;
     }
 
-    public String getHeaderValue(final String name) {
+    public String getHeaderValue(String name) {
         if (response.containsHeader(name)) {
             return response.getFirstHeader(name).getValue();
         }
@@ -174,17 +174,17 @@ public class Response implements Closeable {
     }
 
     public long getLastModified() throws IntegrationException {
-        final String lastModified = getHeaderValue(LAST_MODIFIED_HEADER_KEY);
+        String lastModified = getHeaderValue(Response.LAST_MODIFIED_HEADER_KEY);
         long lastModifiedLong = 0L;
 
         if (StringUtils.isNotBlank(lastModified)) {
             // Should parse the Date just like URLConnection did
             try {
-                final SimpleDateFormat format = new SimpleDateFormat(LAST_MODIFIED_FORMAT, Locale.US);
+                SimpleDateFormat format = new SimpleDateFormat(Response.LAST_MODIFIED_FORMAT, Locale.US);
                 format.setTimeZone(TimeZone.getTimeZone("UTC"));
-                final Date parsed = format.parse(lastModified);
+                Date parsed = format.parse(lastModified);
                 lastModifiedLong = parsed.getTime();
-            } catch (final ParseException e) {
+            } catch (ParseException e) {
                 throw new IntegrationException("Could not parse the last modified date : " + e.getMessage());
             }
         }
@@ -194,12 +194,12 @@ public class Response implements Closeable {
 
     public void throwExceptionForError() throws IntegrationRestException {
         if (isStatusCodeError()) {
-            final Integer statusCode = getStatusCode();
-            final String statusMessage = getStatusMessage();
+            Integer statusCode = getStatusCode();
+            String statusMessage = getStatusMessage();
             String httpResponseContent;
             try {
                 httpResponseContent = getContentString();
-            } catch (final IntegrationException e) {
+            } catch (IntegrationException e) {
                 httpResponseContent = e.getMessage();
             }
 

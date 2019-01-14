@@ -3,7 +3,7 @@ package com.synopsys.integration.rest.it
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
-import com.synopsys.integration.rest.connection.RestConnection
+import com.synopsys.integration.rest.client.IntHttpClient
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import okhttp3.OkHttpClient
 import org.apache.commons.lang3.math.NumberUtils
@@ -103,12 +103,12 @@ public class RestConnectionTestHelper {
         }
     }
 
-    RestConnection getRestConnection() {
+    IntHttpClient getRestConnection() {
         return getRestConnection(ProxyInfo.NO_PROXY_INFO)
     }
 
-    RestConnection getRestConnection(ProxyInfo proxyInfo) {
-        return new RestConnection(logger, getTimeout(), true, proxyInfo)
+    IntHttpClient getRestConnection(ProxyInfo proxyInfo) {
+        return new IntHttpClient(logger, getTimeout(), true, proxyInfo)
     }
 
 }

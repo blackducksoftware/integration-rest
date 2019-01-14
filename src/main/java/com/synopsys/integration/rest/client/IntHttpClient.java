@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.rest.connection;
+package com.synopsys.integration.rest.client;
 
 import java.io.IOException;
 import java.net.URI;
@@ -63,24 +63,24 @@ import com.synopsys.integration.rest.request.Request;
 import com.synopsys.integration.rest.request.Response;
 
 /**
- * The parent class of all rest connections.
+ * A basic, extendable http client.
  */
-public class RestConnection {
-    public static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null.";
+public class IntHttpClient {
+    public static final String ERROR_MSG_PROXY_INFO_NULL = "A IntHttpClient's proxy information cannot be null.";
     public static final int DEFAULT_TIMEOUT = 120;
 
     protected final IntLogger logger;
     private final ProxyInfo proxyInfo;
 
-    private int timeoutInSeconds;
-    private boolean alwaysTrustServerCertificate;
+    private final int timeoutInSeconds;
+    private final boolean alwaysTrustServerCertificate;
 
     private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
     private final HttpClientBuilder clientBuilder = HttpClientBuilder.create();
     private final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
     private final Map<String, String> commonRequestHeaders = new HashMap<>();
 
-    public RestConnection(final IntLogger logger, final int timeoutInSeconds, final boolean alwaysTrustServerCertificate, final ProxyInfo proxyInfo) {
+    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
         this.logger = logger;
         this.proxyInfo = proxyInfo;
         this.timeoutInSeconds = timeoutInSeconds;
@@ -95,7 +95,7 @@ public class RestConnection {
         }
 
         if (null == proxyInfo) {
-            throw new IllegalArgumentException(ERROR_MSG_PROXY_INFO_NULL);
+            throw new IllegalArgumentException(IntHttpClient.ERROR_MSG_PROXY_INFO_NULL);
         }
 
         addBuilderConnectionTimes();
@@ -108,67 +108,60 @@ public class RestConnection {
     /**
      * Subclasses can add to the builders any additional fields they need to successfully initialize
      */
-    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) {
-    }
-
-    /**
-     * Subclasses might need to do final processing to the http client (usually authentication).
-     * This is called every time a request is made
-     */
-    public void finalizeRequest(final HttpUriRequest request) {
+    public void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
     }
 
     /**
      * Subclasses might need to handle an error response and modify the request
      */
-    public void handleErrorResponse(final HttpUriRequest request, final Response response) {
+    public void handleErrorResponse(HttpUriRequest request, Response response) {
     }
 
-    public final RequestBuilder createRequestBuilder(final HttpMethod method) throws IntegrationException {
+    public final RequestBuilder createRequestBuilder(HttpMethod method) throws IntegrationException {
         return createRequestBuilder(method, null);
     }
 
-    public final RequestBuilder createRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IntegrationException {
+    public final RequestBuilder createRequestBuilder(HttpMethod method, Map<String, String> additionalHeaders) throws IntegrationException {
         if (method == null) {
             throw new IntegrationException("Missing field 'method'");
         }
-        final RequestBuilder requestBuilder = RequestBuilder.create(method.name());
+        RequestBuilder requestBuilder = RequestBuilder.create(method.name());
 
-        final Map<String, String> requestHeaders = new HashMap<>(commonRequestHeaders);
+        Map<String, String> requestHeaders = new HashMap<>(commonRequestHeaders);
         if (additionalHeaders != null && !additionalHeaders.isEmpty()) {
             requestHeaders.putAll(additionalHeaders);
         }
-        for (final Entry<String, String> header : requestHeaders.entrySet()) {
+        for (Entry<String, String> header : requestHeaders.entrySet()) {
             requestBuilder.addHeader(header.getKey(), header.getValue());
         }
 
         return requestBuilder;
     }
 
-    public Response execute(final Request request) throws IntegrationException {
-        final HttpUriRequest httpUriRequest = request.createHttpUriRequest(commonRequestHeaders);
+    public Response execute(Request request) throws IntegrationException {
+        HttpUriRequest httpUriRequest = request.createHttpUriRequest(commonRequestHeaders);
         return execute(httpUriRequest);
     }
 
-    public Response execute(final HttpUriRequest request) throws IntegrationException {
-        final long start = System.currentTimeMillis();
+    public Response execute(HttpUriRequest request) throws IntegrationException {
+        long start = System.currentTimeMillis();
         logger.trace("starting request: " + request.getURI().toString());
         try {
             return handleClientExecution(request);
         } finally {
-            final long end = System.currentTimeMillis();
+            long end = System.currentTimeMillis();
             logger.trace(String.format("completed request: %s (%d ms)", request.getURI().toString(), end - start));
         }
     }
 
-    public Optional<Response> executeGetRequestIfModifiedSince(final Request getRequest, final long timeToCheck) throws IntegrationException, IOException {
-        final Request headRequest = new Request.Builder(getRequest).method(HttpMethod.HEAD).build();
+    public Optional<Response> executeGetRequestIfModifiedSince(Request getRequest, long timeToCheck) throws IntegrationException, IOException {
+        Request headRequest = new Request.Builder(getRequest).method(HttpMethod.HEAD).build();
 
         long lastModifiedOnServer = 0L;
-        try (final Response headResponse = execute(headRequest.createHttpUriRequest(commonRequestHeaders))) {
+        try (Response headResponse = execute(headRequest.createHttpUriRequest(commonRequestHeaders))) {
             lastModifiedOnServer = headResponse.getLastModified();
             logger.debug(String.format("Last modified on server: %d", lastModifiedOnServer));
-        } catch (final IntegrationException e) {
+        } catch (IntegrationException e) {
             logger.error("Couldn't get the Last-Modified header from the server.");
             throw e;
         }
@@ -181,14 +174,14 @@ public class RestConnection {
         return Optional.of(execute(getRequest.createHttpUriRequest(commonRequestHeaders)));
     }
 
-    public final void logRequestHeaders(final HttpUriRequest request) {
-        final String requestName = request.getClass().getSimpleName();
+    public final void logRequestHeaders(HttpUriRequest request) {
+        String requestName = request.getClass().getSimpleName();
         logger.trace(requestName + " : " + request.toString());
         logHeaders(requestName, request.getAllHeaders());
     }
 
-    public final void logResponseHeaders(final HttpResponse response) {
-        final String responseName = response.getClass().getSimpleName();
+    public final void logResponseHeaders(HttpResponse response) {
+        String responseName = response.getClass().getSimpleName();
         logger.trace(responseName + " : " + response.toString());
         logHeaders(responseName, response.getAllHeaders());
     }
@@ -204,27 +197,10 @@ public class RestConnection {
         clientBuilder.setDefaultRequestConfig(defaultRequestConfigBuilder.build());
     }
 
-    //    private void addBuilderSSLContext() {
-    //        try {
-    //            final SSLContext sslContext;
-    //            if (alwaysTrustServerCertificate) {
-    //                sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
-    //            } else {
-    //                sslContext = SSLContexts.createDefault();
-    //            }
-    //            final HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
-    //            final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
-    //            clientBuilder.setSSLSocketFactory(connectionFactory);
-    //        } catch (final KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
-    //            throw new IllegalArgumentException(e.getMessage(), e);
-    //        }
-    //    }
-
-    //FIXED?
     private void addBuilderSSLContext() {
         try {
-            final SSLContext sslContext;
-            final HostnameVerifier hostnameVerifier;
+            SSLContext sslContext;
+            HostnameVerifier hostnameVerifier;
             if (alwaysTrustServerCertificate) {
                 sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
                 hostnameVerifier = new NoopHostnameVerifier();
@@ -232,9 +208,9 @@ public class RestConnection {
                 sslContext = SSLContexts.createDefault();
                 hostnameVerifier = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
             }
-            final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+            SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
             clientBuilder.setSSLSocketFactory(connectionFactory);
-        } catch (final KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+        } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
@@ -243,40 +219,38 @@ public class RestConnection {
         if (proxyInfo.shouldUseProxy()) {
             defaultRequestConfigBuilder.setProxy(new HttpHost(proxyInfo.getHost().orElse(null), proxyInfo.getPort()));
             if (proxyInfo.hasAuthenticatedProxySettings()) {
-                final org.apache.http.auth.Credentials credentials = new NTCredentials(proxyInfo.getUsername().orElse(null), proxyInfo.getPassword().orElse(null), proxyInfo.getNtlmWorkstation().orElse(null),
+                org.apache.http.auth.Credentials credentials = new NTCredentials(proxyInfo.getUsername().orElse(null), proxyInfo.getPassword().orElse(null), proxyInfo.getNtlmWorkstation().orElse(null),
                         proxyInfo.getNtlmDomain().orElse(null));
                 credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost().orElse(null), proxyInfo.getPort()), credentials);
             }
         }
     }
 
-    private Response handleClientExecution(final HttpUriRequest request) throws IntegrationException {
-        finalizeRequest(request);
-
+    private Response handleClientExecution(HttpUriRequest request) throws IntegrationException {
         try {
-            final CloseableHttpClient client = clientBuilder.build();
-            final URI uri = request.getURI();
-            final String urlString = request.getURI().toString();
+            CloseableHttpClient client = clientBuilder.build();
+            URI uri = request.getURI();
+            String urlString = request.getURI().toString();
             if (alwaysTrustServerCertificate && uri.getScheme().equalsIgnoreCase("https")) {
                 logger.debug("Automatically trusting the certificate for " + urlString);
             }
             logRequestHeaders(request);
-            final CloseableHttpResponse closeableHttpResponse = client.execute(request);
-            final Response response = new Response(request, client, closeableHttpResponse);
+            CloseableHttpResponse closeableHttpResponse = client.execute(request);
+            Response response = new Response(request, client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
             if (response.isStatusCodeError()) {
                 handleErrorResponse(request, response);
             }
             return response;
-        } catch (final IOException e) {
+        } catch (IOException e) {
             throw new IntegrationException(e.getMessage(), e);
         }
     }
 
-    private void logHeaders(final String requestOrResponseName, final Header[] headers) {
+    private void logHeaders(String requestOrResponseName, Header[] headers) {
         if (headers != null && headers.length > 0) {
             logger.trace(requestOrResponseName + " headers : ");
-            for (final Header header : headers) {
+            for (Header header : headers) {
                 logger.trace(String.format("Header %s : %s", header.getName(), header.getValue()));
             }
         } else {
@@ -288,16 +262,8 @@ public class RestConnection {
         return timeoutInSeconds;
     }
 
-    public void setTimeoutInSeconds(final int timeoutInSeconds) {
-        this.timeoutInSeconds = timeoutInSeconds;
-    }
-
     public boolean isAlwaysTrustServerCertificate() {
         return alwaysTrustServerCertificate;
-    }
-
-    public void setAlwaysTrustServerCertificate(final boolean alwaysTrustServerCertificate) {
-        this.alwaysTrustServerCertificate = alwaysTrustServerCertificate;
     }
 
     public ProxyInfo getProxyInfo() {
@@ -320,15 +286,15 @@ public class RestConnection {
         return commonRequestHeaders;
     }
 
-    public void addCommonRequestHeader(final String key, final String value) {
+    public void addCommonRequestHeader(String key, String value) {
         commonRequestHeaders.put(key, value);
     }
 
-    public void addCommonRequestHeaders(final Map<String, String> commonRequestHeaders) {
+    public void addCommonRequestHeaders(Map<String, String> commonRequestHeaders) {
         this.commonRequestHeaders.putAll(commonRequestHeaders);
     }
 
-    public String removeCommonRequestHeader(final String key) {
+    public String removeCommonRequestHeader(String key) {
         return commonRequestHeaders.remove(key);
     }
 
