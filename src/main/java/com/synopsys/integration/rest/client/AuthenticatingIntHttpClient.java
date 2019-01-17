@@ -23,6 +23,8 @@
  */
 package com.synopsys.integration.rest.client;
 
+import java.io.IOException;
+
 import org.apache.http.client.methods.HttpUriRequest;
 
 import com.synopsys.integration.exception.IntegrationException;
@@ -40,7 +42,15 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
 
     public abstract Response attemptAuthentication() throws IntegrationException;
 
-    public abstract void authenticateRequest(HttpUriRequest request) throws IntegrationException;
+    public final void authenticateRequest(HttpUriRequest request) throws IntegrationException {
+        try (Response response = attemptAuthentication()) {
+            completeAuthenticationRequest(request, response);
+        } catch (IOException e) {
+            throw new IntegrationException("The request could not be authenticated with the provided credentials: " + e.getMessage(), e);
+        }
+    }
+
+    protected abstract void completeAuthenticationRequest(HttpUriRequest request, Response response) throws IntegrationException;
 
     @Override
     public Response execute(HttpUriRequest request) throws IntegrationException {

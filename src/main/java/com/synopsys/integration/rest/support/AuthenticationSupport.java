@@ -47,18 +47,20 @@ import com.synopsys.integration.rest.client.AuthenticatingIntHttpClient;
 import com.synopsys.integration.rest.request.Response;
 
 public class AuthenticationSupport {
-    public Response attemptAuthentication(AuthenticatingIntHttpClient restConnection, String baseUrl, String authenticationUrl, Map<String, String> requestHeaders) throws IntegrationException {
-        RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.POST, requestHeaders);
-        return attemptAuthentication(restConnection, baseUrl, authenticationUrl, requestBuilder);
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+
+    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, String baseUrl, String authenticationUrl, Map<String, String> requestHeaders) throws IntegrationException {
+        RequestBuilder requestBuilder = authenticatingIntHttpClient.createRequestBuilder(HttpMethod.POST, requestHeaders);
+        return attemptAuthentication(authenticatingIntHttpClient, baseUrl, authenticationUrl, requestBuilder);
     }
 
-    public Response attemptAuthentication(AuthenticatingIntHttpClient restConnection, String baseUrl, String authenticationUrl, HttpEntity httpEntity) throws IntegrationException {
-        RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.POST);
+    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, String baseUrl, String authenticationUrl, HttpEntity httpEntity) throws IntegrationException {
+        RequestBuilder requestBuilder = authenticatingIntHttpClient.createRequestBuilder(HttpMethod.POST);
         requestBuilder.setEntity(httpEntity);
-        return attemptAuthentication(restConnection, baseUrl, authenticationUrl, requestBuilder);
+        return attemptAuthentication(authenticatingIntHttpClient, baseUrl, authenticationUrl, requestBuilder);
     }
 
-    public Response attemptAuthentication(AuthenticatingIntHttpClient restConnection, String baseUrl, String authenticationUrl, RequestBuilder requestBuilder) throws IntegrationException {
+    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, String baseUrl, String authenticationUrl, RequestBuilder requestBuilder) throws IntegrationException {
         URL authenticationURL;
         try {
             URL baseURL = new URL(baseUrl);
@@ -70,28 +72,28 @@ public class AuthenticationSupport {
         requestBuilder.setCharset(Charsets.UTF_8);
         requestBuilder.setUri(authenticationURL.toString());
         HttpUriRequest request = requestBuilder.build();
-        restConnection.logRequestHeaders(request);
+        authenticatingIntHttpClient.logRequestHeaders(request);
 
-        CloseableHttpClient closeableHttpClient = restConnection.getClientBuilder().build();
+        CloseableHttpClient closeableHttpClient = authenticatingIntHttpClient.getClientBuilder().build();
         CloseableHttpResponse closeableHttpResponse;
         try {
             closeableHttpResponse = closeableHttpClient.execute(request);
         } catch (IOException e) {
             throw new IntegrationException("Could not perform the authorization request: " + e.getMessage(), e);
         }
-        restConnection.logResponseHeaders(closeableHttpResponse);
+        authenticatingIntHttpClient.logResponseHeaders(closeableHttpResponse);
         return new Response(request, closeableHttpClient, closeableHttpResponse);
     }
 
-    public void handleErrorResponse(AuthenticatingIntHttpClient restConnection, HttpUriRequest request, Response response, String authorizationHeader) {
-        if (restConnection.isUnauthorizedOrForbidden(response) && request.containsHeader(authorizationHeader)) {
+    public void handleErrorResponse(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUriRequest request, Response response, String authorizationHeader) {
+        if (authenticatingIntHttpClient.isUnauthorizedOrForbidden(response) && request.containsHeader(authorizationHeader)) {
             request.removeHeaders(authorizationHeader);
-            restConnection.removeCommonRequestHeader(authorizationHeader);
+            authenticatingIntHttpClient.removeCommonRequestHeader(authorizationHeader);
         }
     }
 
-    public Optional<String> retrieveBearerToken(IntLogger logger, Gson gson, AuthenticatingIntHttpClient restConnection, String bearerTokenKey) {
-        try (Response response = restConnection.attemptAuthentication()) {
+    public Optional<String> retrieveBearerToken(IntLogger logger, Gson gson, AuthenticatingIntHttpClient authenticatingIntHttpClient, String bearerTokenKey) {
+        try (Response response = authenticatingIntHttpClient.attemptAuthentication()) {
             if (response.isStatusCodeOkay()) {
                 String bodyContent;
                 try (InputStream inputStream = response.getContent()) {
@@ -107,18 +109,29 @@ public class AuthenticationSupport {
         return Optional.empty();
     }
 
-    public void resolveBearerToken(IntLogger logger, AuthenticatingIntHttpClient restConnection, HttpUriRequest request, String authorizationHeader, Optional<String> bearerToken) {
-        Optional<String> headerValue = bearerToken.map(token -> "Bearer " + token);
-        resolveToken(logger, restConnection, request, authorizationHeader, headerValue, "No Bearer token found when authenticating");
+    public void handleTokenErrorResponse(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUriRequest request, Response response) {
+        handleErrorResponse(authenticatingIntHttpClient, request, response, AuthenticationSupport.AUTHORIZATION_HEADER);
     }
 
-    public void resolveToken(IntLogger logger, AuthenticatingIntHttpClient restConnection, HttpUriRequest request, String headerName, Optional<String> headerValue, String logMessage) {
-        if (headerValue.isPresent()) {
-            restConnection.addCommonRequestHeader(headerName, headerValue.get());
-            request.addHeader(headerName, headerValue.get());
-        } else {
-            logger.error(logMessage);
+    public boolean isTokenAlreadyAuthenticated(HttpUriRequest request) {
+        return request.containsHeader(AuthenticationSupport.AUTHORIZATION_HEADER);
+    }
+
+    public void completeTokenAuthenticationRequest(HttpUriRequest request, Response response, IntLogger logger, Gson gson, AuthenticatingIntHttpClient authenticatingIntHttpClient, String bearerTokenResponseKey) {
+        if (response.isStatusCodeOkay()) {
+            Optional<String> bearerToken = retrieveBearerToken(logger, gson, authenticatingIntHttpClient, bearerTokenResponseKey);
+            if (bearerToken.isPresent()) {
+                String headerValue = "Bearer " + bearerToken.get();
+                addAuthenticationHeader(authenticatingIntHttpClient, request, AuthenticationSupport.AUTHORIZATION_HEADER, headerValue);
+            } else {
+                logger.error("No Bearer token found when authenticating.");
+            }
         }
+    }
+
+    public void addAuthenticationHeader(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUriRequest request, String headerName, String headerValue) {
+        authenticatingIntHttpClient.addCommonRequestHeader(headerName, headerValue);
+        request.addHeader(headerName, headerValue);
     }
 
 }
