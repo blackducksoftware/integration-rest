@@ -68,7 +68,7 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
         if (notOkay && retryCount < 2) {
             return retryExecute(request, retryCount + 1);
         } else if (notOkay) {
-            throw new IntegrationException("Failed to reconnect: " + response.getStatusCode());
+            response.throwExceptionForError();
         }
 
         return response;
