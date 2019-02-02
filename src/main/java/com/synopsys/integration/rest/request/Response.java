@@ -41,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.synopsys.integration.exception.IntegrationException;
@@ -202,9 +203,13 @@ public class Response implements Closeable {
             } catch (IntegrationException e) {
                 httpResponseContent = e.getMessage();
             }
-
-            throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent,
-                    String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), request.getURI().toString(), statusCode, statusMessage));
+            String statusCodeDescription = "Unknown";
+            if (null != statusCode) {
+                statusCodeDescription = EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode, Locale.ENGLISH);
+            }
+            String messageFormat = "There was a problem trying to %s %s, response was %s %s, reason phrase was %s.";
+            String message = String.format(messageFormat, request.getMethod(), request.getURI().toString(), statusCode, statusCodeDescription, statusMessage);
+            throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent, message);
         }
     }
 
