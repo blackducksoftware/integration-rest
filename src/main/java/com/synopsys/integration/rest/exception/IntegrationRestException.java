@@ -23,8 +23,6 @@
  */
 package com.synopsys.integration.rest.exception;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.synopsys.integration.exception.IntegrationException;
 
 public class IntegrationRestException extends IntegrationException {
@@ -34,29 +32,29 @@ public class IntegrationRestException extends IntegrationException {
     private final String httpStatusMessage;
     private final String httpResponseContent;
 
-    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String httpResponseContent, final String message, final Throwable cause, final boolean enableSuppression,
-            final boolean writableStackTrace) {
+    public IntegrationRestException(int httpStatusCode, String httpStatusMessage, String httpResponseContent, String message, Throwable cause, boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
         this.httpStatusCode = httpStatusCode;
         this.httpStatusMessage = httpStatusMessage;
         this.httpResponseContent = httpResponseContent;
     }
 
-    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String httpResponseContent, final String message, final Throwable cause) {
+    public IntegrationRestException(int httpStatusCode, String httpStatusMessage, String httpResponseContent, String message, Throwable cause) {
         super(message, cause);
         this.httpStatusCode = httpStatusCode;
         this.httpStatusMessage = httpStatusMessage;
         this.httpResponseContent = httpResponseContent;
     }
 
-    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String httpResponseContent, final String message) {
+    public IntegrationRestException(int httpStatusCode, String httpStatusMessage, String httpResponseContent, String message) {
         super(message);
         this.httpStatusCode = httpStatusCode;
         this.httpStatusMessage = httpStatusMessage;
         this.httpResponseContent = httpResponseContent;
     }
 
-    public IntegrationRestException(final int httpStatusCode, final String httpStatusMessage, final String httpResponseContent, final Throwable cause) {
+    public IntegrationRestException(int httpStatusCode, String httpStatusMessage, String httpResponseContent, Throwable cause) {
         super(cause);
         this.httpStatusCode = httpStatusCode;
         this.httpStatusMessage = httpStatusMessage;
