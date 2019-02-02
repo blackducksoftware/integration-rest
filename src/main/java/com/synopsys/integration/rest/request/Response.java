@@ -203,12 +203,19 @@ public class Response implements Closeable {
             } catch (IntegrationException e) {
                 httpResponseContent = e.getMessage();
             }
+
             String statusCodeDescription = "Unknown";
             if (null != statusCode) {
                 statusCodeDescription = EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode, Locale.ENGLISH);
             }
-            String messageFormat = "There was a problem trying to %s %s, response was %s %s, reason phrase was %s.";
-            String message = String.format(messageFormat, request.getMethod(), request.getURI().toString(), statusCode, statusCodeDescription, statusMessage);
+
+            String reasonPhraseDescription = "";
+            if (StringUtils.isNotBlank(statusMessage)) {
+                reasonPhraseDescription = String.format(", reason phrase was %s", statusMessage);
+            }
+
+            String messageFormat = "There was a problem trying to %s %s, response was %s %s%s.";
+            String message = String.format(messageFormat, request.getMethod(), request.getURI().toString(), statusCode, statusCodeDescription, reasonPhraseDescription);
             throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent, message);
         }
     }

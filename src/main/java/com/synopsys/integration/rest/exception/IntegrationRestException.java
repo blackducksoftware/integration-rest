@@ -75,20 +75,4 @@ public class IntegrationRestException extends IntegrationException {
         return httpResponseContent;
     }
 
-    @Override
-    public String getMessage() {
-        String message = "";
-        if (StringUtils.isNotBlank(super.getMessage())) {
-            message = super.getMessage();
-        }
-        if (httpStatusCode > 0) {
-            message = message + ": " + httpStatusCode;
-        }
-        if (StringUtils.isNotBlank(httpStatusMessage)) {
-            message = message + ": " + httpStatusMessage;
-        }
-
-        return message;
-    }
-
 }
