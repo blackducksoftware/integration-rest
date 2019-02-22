@@ -43,18 +43,27 @@ import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.cookie.CookieSpecRegistry;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.cookie.BestMatchSpecFactory;
+import org.apache.http.impl.cookie.BrowserCompatSpecFactory;
+import org.apache.http.impl.cookie.IgnoreSpecFactory;
+import org.apache.http.impl.cookie.NetscapeDraftSpecFactory;
+import org.apache.http.impl.cookie.RFC2109SpecFactory;
+import org.apache.http.impl.cookie.RFC2965SpecFactory;
 
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
@@ -78,10 +87,10 @@ public class IntHttpClient {
 
     private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
     private final HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-    private final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
+    private final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD);
     private final Map<String, String> commonRequestHeaders = new HashMap<>();
 
-    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
+    public IntHttpClient(final IntLogger logger, final int timeoutInSeconds, final boolean alwaysTrustServerCertificate, final ProxyInfo proxyInfo) {
         this.logger = logger;
         this.proxyInfo = proxyInfo;
         this.timeoutInSeconds = timeoutInSeconds;
@@ -99,6 +108,30 @@ public class IntHttpClient {
             throw new IllegalArgumentException(IntHttpClient.ERROR_MSG_PROXY_INFO_NULL);
         }
 
+        final CookieSpecRegistry registry = new CookieSpecRegistry();
+        registry.register(
+            "default",
+            new BestMatchSpecFactory());
+        registry.register(
+            CookiePolicy.BEST_MATCH,
+            new BestMatchSpecFactory());
+        registry.register(
+            CookiePolicy.BROWSER_COMPATIBILITY,
+            new BrowserCompatSpecFactory());
+        registry.register(
+            CookiePolicy.NETSCAPE,
+            new NetscapeDraftSpecFactory());
+        registry.register(
+            CookiePolicy.RFC_2109,
+            new RFC2109SpecFactory());
+        registry.register(
+            CookiePolicy.RFC_2965,
+            new RFC2965SpecFactory());
+        registry.register(
+            CookiePolicy.IGNORE_COOKIES,
+            new IgnoreSpecFactory());
+        clientBuilder.setDefaultCookieSpecRegistry(registry);
+
         addBuilderConnectionTimes();
         addBuilderProxyInformation();
         populateHttpClientBuilder(clientBuilder, defaultRequestConfigBuilder);
@@ -109,60 +142,60 @@ public class IntHttpClient {
     /**
      * Subclasses can add to the builders any additional fields they need to successfully initialize
      */
-    public void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) {
     }
 
     /**
      * Subclasses might need to handle an error response and modify the request
      */
-    public void handleErrorResponse(HttpUriRequest request, Response response) {
+    public void handleErrorResponse(final HttpUriRequest request, final Response response) {
     }
 
-    public final RequestBuilder createRequestBuilder(HttpMethod method) throws IntegrationException {
+    public final RequestBuilder createRequestBuilder(final HttpMethod method) throws IntegrationException {
         return createRequestBuilder(method, null);
     }
 
-    public final RequestBuilder createRequestBuilder(HttpMethod method, Map<String, String> additionalHeaders) throws IntegrationException {
+    public final RequestBuilder createRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IntegrationException {
         if (method == null) {
             throw new IntegrationException("Missing field 'method'");
         }
-        RequestBuilder requestBuilder = RequestBuilder.create(method.name());
+        final RequestBuilder requestBuilder = RequestBuilder.create(method.name());
 
-        Map<String, String> requestHeaders = new HashMap<>(commonRequestHeaders);
+        final Map<String, String> requestHeaders = new HashMap<>(commonRequestHeaders);
         if (additionalHeaders != null && !additionalHeaders.isEmpty()) {
             requestHeaders.putAll(additionalHeaders);
         }
-        for (Entry<String, String> header : requestHeaders.entrySet()) {
+        for (final Entry<String, String> header : requestHeaders.entrySet()) {
             requestBuilder.addHeader(header.getKey(), header.getValue());
         }
 
         return requestBuilder;
     }
 
-    public Response execute(Request request) throws IntegrationException {
-        HttpUriRequest httpUriRequest = request.createHttpUriRequest(commonRequestHeaders);
+    public Response execute(final Request request) throws IntegrationException {
+        final HttpUriRequest httpUriRequest = request.createHttpUriRequest(commonRequestHeaders);
         return execute(httpUriRequest);
     }
 
-    public Response execute(HttpUriRequest request) throws IntegrationException {
-        long start = System.currentTimeMillis();
+    public Response execute(final HttpUriRequest request) throws IntegrationException {
+        final long start = System.currentTimeMillis();
         logger.trace("starting request: " + request.getURI().toString());
         try {
             return handleClientExecution(request);
         } finally {
-            long end = System.currentTimeMillis();
+            final long end = System.currentTimeMillis();
             logger.trace(String.format("completed request: %s (%d ms)", request.getURI().toString(), end - start));
         }
     }
 
-    public Optional<Response> executeGetRequestIfModifiedSince(Request getRequest, long timeToCheck) throws IntegrationException, IOException {
-        Request headRequest = new Request.Builder(getRequest).method(HttpMethod.HEAD).build();
+    public Optional<Response> executeGetRequestIfModifiedSince(final Request getRequest, final long timeToCheck) throws IntegrationException, IOException {
+        final Request headRequest = new Request.Builder(getRequest).method(HttpMethod.HEAD).build();
 
         long lastModifiedOnServer = 0L;
-        try (Response headResponse = execute(headRequest.createHttpUriRequest(commonRequestHeaders))) {
+        try (final Response headResponse = execute(headRequest.createHttpUriRequest(commonRequestHeaders))) {
             lastModifiedOnServer = headResponse.getLastModified();
             logger.debug(String.format("Last modified on server: %d", lastModifiedOnServer));
-        } catch (IntegrationException e) {
+        } catch (final IntegrationException e) {
             logger.error("Couldn't get the Last-Modified header from the server.");
             throw e;
         }
@@ -175,14 +208,14 @@ public class IntHttpClient {
         return Optional.of(execute(getRequest.createHttpUriRequest(commonRequestHeaders)));
     }
 
-    public final void logRequestHeaders(HttpUriRequest request) {
-        String requestName = request.getClass().getSimpleName();
+    public final void logRequestHeaders(final HttpUriRequest request) {
+        final String requestName = request.getClass().getSimpleName();
         logger.trace(requestName + " : " + request.toString());
         logHeaders(requestName, request.getAllHeaders());
     }
 
-    public final void logResponseHeaders(HttpResponse response) {
-        String responseName = response.getClass().getSimpleName();
+    public final void logResponseHeaders(final HttpResponse response) {
+        final String responseName = response.getClass().getSimpleName();
         logger.trace(responseName + " : " + response.toString());
         logHeaders(responseName, response.getAllHeaders());
     }
@@ -200,16 +233,16 @@ public class IntHttpClient {
 
     private void addBuilderSSLContext() {
         try {
-            SSLContext sslContext;
-            X509HostnameVerifier hostnameVerifier;
+            final SSLContext sslContext;
+            final X509HostnameVerifier hostnameVerifier;
             if (alwaysTrustServerCertificate) {
-                TrustStrategy trustAllStrategy = new TrustStrategy() {
+                final TrustStrategy trustAllStrategy = new TrustStrategy() {
                     @Override
-                    public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                    public boolean isTrusted(final X509Certificate[] x509Certificates, final String s) throws CertificateException {
                         return true;
                     }
                 };
-                SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
+                final SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
                 sslContextBuilder.loadTrustMaterial(null, trustAllStrategy);
                 sslContext = sslContextBuilder.build();
                 hostnameVerifier = SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
@@ -217,9 +250,10 @@ public class IntHttpClient {
                 sslContext = SSLContexts.createDefault();
                 hostnameVerifier = SSLConnectionSocketFactory.STRICT_HOSTNAME_VERIFIER;
             }
-            SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+
+            final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
             clientBuilder.setSSLSocketFactory(connectionFactory);
-        } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+        } catch (final KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
@@ -228,38 +262,38 @@ public class IntHttpClient {
         if (proxyInfo.shouldUseProxy()) {
             defaultRequestConfigBuilder.setProxy(new HttpHost(proxyInfo.getHost().orElse(null), proxyInfo.getPort()));
             if (proxyInfo.hasAuthenticatedProxySettings()) {
-                org.apache.http.auth.Credentials credentials = new NTCredentials(proxyInfo.getUsername().orElse(null), proxyInfo.getPassword().orElse(null), proxyInfo.getNtlmWorkstation().orElse(null),
-                        proxyInfo.getNtlmDomain().orElse(null));
+                final org.apache.http.auth.Credentials credentials = new NTCredentials(proxyInfo.getUsername().orElse(null), proxyInfo.getPassword().orElse(null), proxyInfo.getNtlmWorkstation().orElse(null),
+                    proxyInfo.getNtlmDomain().orElse(null));
                 credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost().orElse(null), proxyInfo.getPort()), credentials);
             }
         }
     }
 
-    private Response handleClientExecution(HttpUriRequest request) throws IntegrationException {
+    private Response handleClientExecution(final HttpUriRequest request) throws IntegrationException {
         try {
-            CloseableHttpClient client = clientBuilder.build();
-            URI uri = request.getURI();
-            String urlString = request.getURI().toString();
+            final CloseableHttpClient client = clientBuilder.build();
+            final URI uri = request.getURI();
+            final String urlString = request.getURI().toString();
             if (alwaysTrustServerCertificate && uri.getScheme().equalsIgnoreCase("https")) {
                 logger.debug("Automatically trusting the certificate for " + urlString);
             }
             logRequestHeaders(request);
-            CloseableHttpResponse closeableHttpResponse = client.execute(request);
-            Response response = new Response(request, client, closeableHttpResponse);
+            final CloseableHttpResponse closeableHttpResponse = client.execute(request);
+            final Response response = new Response(request, client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
             if (response.isStatusCodeError()) {
                 handleErrorResponse(request, response);
             }
             return response;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IntegrationException(e.getMessage(), e);
         }
     }
 
-    private void logHeaders(String requestOrResponseName, Header[] headers) {
+    private void logHeaders(final String requestOrResponseName, final Header[] headers) {
         if (headers != null && headers.length > 0) {
             logger.trace(requestOrResponseName + " headers : ");
-            for (Header header : headers) {
+            for (final Header header : headers) {
                 logger.trace(String.format("Header %s : %s", header.getName(), header.getValue()));
             }
         } else {
@@ -295,15 +329,15 @@ public class IntHttpClient {
         return commonRequestHeaders;
     }
 
-    public void addCommonRequestHeader(String key, String value) {
+    public void addCommonRequestHeader(final String key, final String value) {
         commonRequestHeaders.put(key, value);
     }
 
-    public void addCommonRequestHeaders(Map<String, String> commonRequestHeaders) {
+    public void addCommonRequestHeaders(final Map<String, String> commonRequestHeaders) {
         this.commonRequestHeaders.putAll(commonRequestHeaders);
     }
 
-    public String removeCommonRequestHeader(String key) {
+    public String removeCommonRequestHeader(final String key) {
         return commonRequestHeaders.remove(key);
     }
 
