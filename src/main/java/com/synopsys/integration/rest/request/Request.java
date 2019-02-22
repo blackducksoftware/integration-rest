@@ -54,7 +54,7 @@ public class Request extends Stringable {
     private final Map<String, String> additionalHeaders;
     private final BodyContent bodyContent;
 
-    private Request(final Builder builder) {
+    private Request(Builder builder) {
         uri = builder.getUri();
         method = builder.getMethod();
         mimeType = builder.getMimeType();
@@ -64,7 +64,7 @@ public class Request extends Stringable {
         bodyContent = builder.getBodyContent();
     }
 
-    public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, Set<String>> queryParameters, final Map<String, String> additionalHeaders, final BodyContent bodyContent) {
+    public Request(String uri, HttpMethod method, String mimeType, Charset bodyEncoding, Map<String, Set<String>> queryParameters, Map<String, String> additionalHeaders, BodyContent bodyContent) {
         this.uri = uri;
         this.method = method;
         this.mimeType = mimeType;
@@ -86,7 +86,7 @@ public class Request extends Stringable {
     }
 
     public Map<String, Set<String>> getPopulatedQueryParameters() {
-        final Map<String, Set<String>> populatedQueryParameters = new HashMap<>();
+        Map<String, Set<String>> populatedQueryParameters = new HashMap<>();
         if (getQueryParameters() != null && !getQueryParameters().isEmpty()) {
             populatedQueryParameters.putAll(getQueryParameters());
         }
@@ -117,14 +117,14 @@ public class Request extends Stringable {
         return bodyContent;
     }
 
-    public HttpUriRequest createHttpUriRequest(final Map<String, String> commonRequestHeaders) throws IntegrationException {
-        final Request request = this;
+    public HttpUriRequest createHttpUriRequest(Map<String, String> commonRequestHeaders) throws IntegrationException {
+        Request request = this;
 
         if (request.getMethod() == null) {
             throw new IntegrationException("Missing the HttpMethod");
         }
         try {
-            final URIBuilder uriBuilder;
+            URIBuilder uriBuilder;
             if (StringUtils.isNotBlank(request.getUri())) {
                 uriBuilder = new URIBuilder(request.getUri());
             } else {
@@ -138,22 +138,21 @@ public class Request extends Stringable {
             if (request.getBodyEncoding() != null) {
                 bodyEncoding = request.getBodyEncoding();
             }
-            final RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
+            RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
             if (HttpMethod.GET == request.getMethod() && (request.getAdditionalHeaders() == null || request.getAdditionalHeaders().isEmpty() || !request.getAdditionalHeaders().containsKey(HttpHeaders.ACCEPT))) {
                 requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
             }
-            requestBuilder.setCharset(bodyEncoding);
             if (request.getAdditionalHeaders() != null && !request.getAdditionalHeaders().isEmpty()) {
-                for (final Map.Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
+                for (Map.Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
                     requestBuilder.addHeader(header.getKey(), header.getValue());
                 }
             }
             if (!commonRequestHeaders.isEmpty()) {
-                for (final Map.Entry<String, String> header : commonRequestHeaders.entrySet()) {
+                for (Map.Entry<String, String> header : commonRequestHeaders.entrySet()) {
                     requestBuilder.addHeader(header.getKey(), header.getValue());
                 }
             }
-            final Map<String, Set<String>> populatedQueryParameters = request.getPopulatedQueryParameters();
+            Map<String, Set<String>> populatedQueryParameters = request.getPopulatedQueryParameters();
             if (!populatedQueryParameters.isEmpty()) {
                 populatedQueryParameters.forEach((paramKey, paramValues) -> {
                     paramValues.forEach((paramValue) -> {
@@ -162,12 +161,12 @@ public class Request extends Stringable {
                 });
             }
             requestBuilder.setUri(uriBuilder.build());
-            final HttpEntity entity = request.createHttpEntity();
+            HttpEntity entity = request.createHttpEntity();
             if (entity != null) {
                 requestBuilder.setEntity(entity);
             }
             return requestBuilder.build();
-        } catch (final URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new IntegrationException(e.getMessage(), e);
         }
     }
@@ -181,7 +180,7 @@ public class Request extends Stringable {
         private Map<String, String> additionalHeaders;
         private BodyContent bodyContent;
 
-        public Builder(final Request request) {
+        public Builder(Request request) {
             uri = request.uri;
             method = request.method;
             mimeType = request.mimeType;
@@ -195,7 +194,7 @@ public class Request extends Stringable {
             bodyContent = request.bodyContent;
         }
 
-        public Builder(final String uri) {
+        public Builder(String uri) {
             this.uri = uri;
             method = HttpMethod.GET;
             mimeType = ContentType.APPLICATION_JSON.getMimeType();
@@ -206,32 +205,32 @@ public class Request extends Stringable {
             this((String) null);
         }
 
-        public Builder uri(final String uri) {
+        public Builder uri(String uri) {
             this.uri = uri;
             return this;
         }
 
-        public Builder method(final HttpMethod method) {
+        public Builder method(HttpMethod method) {
             this.method = method;
             return this;
         }
 
-        public Builder mimeType(final String mimeType) {
+        public Builder mimeType(String mimeType) {
             this.mimeType = mimeType;
             return this;
         }
 
-        public Builder bodyEncoding(final Charset bodyEncoding) {
+        public Builder bodyEncoding(Charset bodyEncoding) {
             this.bodyEncoding = bodyEncoding;
             return this;
         }
 
-        public Builder queryParameters(final Map<String, Set<String>> queryParameters) {
+        public Builder queryParameters(Map<String, Set<String>> queryParameters) {
             this.queryParameters = queryParameters;
             return this;
         }
 
-        public Builder addQueryParameter(final String key, final String value) {
+        public Builder addQueryParameter(String key, String value) {
             if (queryParameters == null) {
                 queryParameters = new HashMap<>();
             }
@@ -239,12 +238,12 @@ public class Request extends Stringable {
             return this;
         }
 
-        public Builder additionalHeaders(final Map<String, String> additionalHeaders) {
+        public Builder additionalHeaders(Map<String, String> additionalHeaders) {
             this.additionalHeaders = additionalHeaders;
             return this;
         }
 
-        public Builder addAdditionalHeader(final String key, final String value) {
+        public Builder addAdditionalHeader(String key, String value) {
             if (additionalHeaders == null) {
                 additionalHeaders = new HashMap<>();
             }
@@ -252,7 +251,7 @@ public class Request extends Stringable {
             return this;
         }
 
-        public Builder bodyContent(final BodyContent bodyContent) {
+        public Builder bodyContent(BodyContent bodyContent) {
             this.bodyContent = bodyContent;
             return this;
         }

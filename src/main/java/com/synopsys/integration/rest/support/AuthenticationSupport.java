@@ -69,7 +69,6 @@ public class AuthenticationSupport {
             throw new IntegrationException("Error constructing the authentication URL: " + e.getMessage(), e);
         }
 
-        requestBuilder.setCharset(Charsets.UTF_8);
         requestBuilder.setUri(authenticationURL.toString());
         HttpUriRequest request = requestBuilder.build();
         authenticatingIntHttpClient.logRequestHeaders(request);

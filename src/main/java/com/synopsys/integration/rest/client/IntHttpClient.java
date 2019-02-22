@@ -28,12 +28,13 @@ import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.Header;
@@ -46,14 +47,14 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustAllStrategy;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.SSLContexts;
 
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
@@ -200,13 +201,21 @@ public class IntHttpClient {
     private void addBuilderSSLContext() {
         try {
             SSLContext sslContext;
-            HostnameVerifier hostnameVerifier;
+            X509HostnameVerifier hostnameVerifier;
             if (alwaysTrustServerCertificate) {
-                sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
-                hostnameVerifier = new NoopHostnameVerifier();
+                TrustStrategy trustAllStrategy = new TrustStrategy() {
+                    @Override
+                    public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                        return true;
+                    }
+                };
+                SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
+                sslContextBuilder.loadTrustMaterial(null, trustAllStrategy);
+                sslContext = sslContextBuilder.build();
+                hostnameVerifier = SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
             } else {
                 sslContext = SSLContexts.createDefault();
-                hostnameVerifier = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
+                hostnameVerifier = SSLConnectionSocketFactory.STRICT_HOSTNAME_VERIFIER;
             }
             SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
             clientBuilder.setSSLSocketFactory(connectionFactory);
