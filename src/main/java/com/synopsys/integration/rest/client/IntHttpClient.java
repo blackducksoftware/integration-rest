@@ -110,6 +110,9 @@ public class IntHttpClient {
 
         final CookieSpecRegistry registry = new CookieSpecRegistry();
         registry.register(
+            "standard",
+            new BestMatchSpecFactory());
+        registry.register(
             "default",
             new BestMatchSpecFactory());
         registry.register(
