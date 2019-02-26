@@ -28,41 +28,44 @@ import org.apache.commons.lang3.StringUtils;
 import com.synopsys.integration.util.BuilderStatus;
 import com.synopsys.integration.util.IntegrationBuilder;
 
-public class CredentialsBuilder extends IntegrationBuilder<Credentials> {
-    private String username;
-    private String password;
-
+public class CredentialsBuilder extends IntegrationBuilder<Credentials, CredentialsBuilder.Property> {
     @Override
     protected Credentials buildWithoutValidation() {
-        return new Credentials(username, password);
+        return new Credentials(getUsername(), getPassword());
     }
 
     @Override
     protected void validate(final BuilderStatus builderStatus) {
-        if (StringUtils.isAnyBlank(username, password) && !StringUtils.isAllBlank(username, password)) {
+        if (StringUtils.isAnyBlank(getUsername(), getPassword()) && !StringUtils.isAllBlank(getUsername(), getPassword())) {
             builderStatus.addErrorMessage("The username and password must both be populated or both be empty.");
         }
     }
 
     public void setUsernameAndPassword(final String username, final String password) {
-        this.username = username;
-        this.password = password;
+        setUsername(username);
+        setPassword(password);
     }
 
     public String getUsername() {
-        return username;
+        return get(Property.USERNAME);
     }
 
     public void setUsername(final String username) {
-        this.username = username;
+        put(Property.USERNAME, username);
     }
 
     public String getPassword() {
-        return password;
+        return get(Property.PASSWORD);
     }
 
     public void setPassword(final String password) {
-        this.password = password;
+        put(Property.PASSWORD, password);
+    }
+
+    public enum Property {
+        USERNAME,
+        PASSWORD;
+
     }
 
 }
