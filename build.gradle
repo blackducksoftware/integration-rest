@@ -9,7 +9,7 @@ buildscript {
 
 plugins { id 'groovy' }
 
-version = '0.0.1_nexus2-SNAPSHOT'
+version = '0.0.1_nexus2'
 
 apply plugin: 'com.blackducksoftware.integration.library'
 
