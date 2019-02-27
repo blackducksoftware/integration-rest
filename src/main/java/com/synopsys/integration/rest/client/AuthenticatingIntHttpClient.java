@@ -79,4 +79,34 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
         return null == statusCode || statusCode == RestConstants.UNAUTHORIZED_401 || statusCode == RestConstants.FORBIDDEN_403;
     }
 
+    public boolean canConnect() {
+        ConnectionResult connectionResult = attemptConnection();
+        return connectionResult.isSuccess();
+    }
+
+    public ConnectionResult attemptConnection() {
+        String errorMessage = null;
+        int httpStatusCode = 0;
+
+        try {
+            try (Response response = attemptAuthentication()) {
+                // if you get an error response, you know that a connection could not be made
+                httpStatusCode = response.getStatusCode();
+                if (response.isStatusCodeError()) {
+                    errorMessage = response.getContentString();
+                }
+            }
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+
+        if (null != errorMessage) {
+            logger.error(errorMessage);
+            return ConnectionResult.FAILURE(httpStatusCode, errorMessage);
+        }
+
+        logger.info("A successful connection was made.");
+        return ConnectionResult.SUCCESS(httpStatusCode);
+    }
+
 }
