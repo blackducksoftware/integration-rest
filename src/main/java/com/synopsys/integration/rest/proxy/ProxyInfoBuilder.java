@@ -25,9 +25,9 @@ package com.synopsys.integration.rest.proxy;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.synopsys.integration.builder.BuilderStatus;
+import com.synopsys.integration.builder.IntegrationBuilder;
 import com.synopsys.integration.rest.credentials.Credentials;
-import com.synopsys.integration.util.BuilderStatus;
-import com.synopsys.integration.util.IntegrationBuilder;
 
 public class ProxyInfoBuilder extends IntegrationBuilder<ProxyInfo> {
     private String host;

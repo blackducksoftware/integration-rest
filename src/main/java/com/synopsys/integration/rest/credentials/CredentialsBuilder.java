@@ -25,47 +25,44 @@ package com.synopsys.integration.rest.credentials;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.synopsys.integration.util.BuilderStatus;
-import com.synopsys.integration.util.IntegrationBuilder;
+import com.synopsys.integration.builder.BuilderStatus;
+import com.synopsys.integration.builder.IntegrationBuilder;
 
-public class CredentialsBuilder extends IntegrationBuilder<Credentials, CredentialsBuilder.Property> {
+public class CredentialsBuilder extends IntegrationBuilder<Credentials> {
+    private String username;
+    private String password;
+
     @Override
     protected Credentials buildWithoutValidation() {
-        return new Credentials(getUsername(), getPassword());
+        return new Credentials(username, password);
     }
 
     @Override
     protected void validate(final BuilderStatus builderStatus) {
-        if (StringUtils.isAnyBlank(getUsername(), getPassword()) && !StringUtils.isAllBlank(getUsername(), getPassword())) {
+        if (StringUtils.isAnyBlank(username, password) && !StringUtils.isAllBlank(username, password)) {
             builderStatus.addErrorMessage("The username and password must both be populated or both be empty.");
         }
     }
 
     public void setUsernameAndPassword(final String username, final String password) {
-        setUsername(username);
-        setPassword(password);
+        this.username = username;
+        this.password = password;
     }
 
     public String getUsername() {
-        return get(Property.USERNAME);
+        return username;
     }
 
     public void setUsername(final String username) {
-        put(Property.USERNAME, username);
+        this.username = username;
     }
 
     public String getPassword() {
-        return get(Property.PASSWORD);
+        return password;
     }
 
     public void setPassword(final String password) {
-        put(Property.PASSWORD, password);
-    }
-
-    public enum Property {
-        USERNAME,
-        PASSWORD;
-
+        this.password = password;
     }
 
 }

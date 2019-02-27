@@ -30,8 +30,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Optional;
 
+import com.synopsys.integration.builder.Buildable;
 import com.synopsys.integration.rest.credentials.Credentials;
-import com.synopsys.integration.util.Buildable;
 import com.synopsys.integration.util.Stringable;
 
 public class ProxyInfo extends Stringable implements Buildable {

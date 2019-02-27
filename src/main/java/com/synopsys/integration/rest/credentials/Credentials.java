@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.synopsys.integration.util.Buildable;
+import com.synopsys.integration.builder.Buildable;
 import com.synopsys.integration.util.Stringable;
 
 public class Credentials extends Stringable implements Buildable {
