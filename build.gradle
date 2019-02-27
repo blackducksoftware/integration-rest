@@ -12,12 +12,12 @@ plugins { id 'groovy' }
 project.ext.moduleName = 'com.synopsys.integration.integration-rest'
 project.ext.junitShowStandardStreams = 'true'
 
-version = '0.10.0-SNAPSHOT'
+version = '0.10.0'
 
 apply plugin: 'com.blackducksoftware.integration.library'
 
 dependencies {
-    api 'com.blackducksoftware.integration:integration-common:16.0.0-SNAPSHOT'
+    api 'com.blackducksoftware.integration:integration-common:16.0.0'
 
     testImplementation 'org.codehaus.groovy:groovy-all:2.4.12'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.9.0'
