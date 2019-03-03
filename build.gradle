@@ -12,7 +12,7 @@ plugins { id 'groovy' }
 project.ext.moduleName = 'com.synopsys.integration.integration-rest'
 project.ext.junitShowStandardStreams = 'true'
 
-version = '0.10.0'
+version = '0.10.1-SNAPSHOT'
 description = 'A library wrapping http communication for integrations.'
 
 apply plugin: 'com.blackducksoftware.integration.library'
