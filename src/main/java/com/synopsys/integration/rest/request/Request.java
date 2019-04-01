@@ -39,12 +39,19 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 
+import com.synopsys.integration.builder.Buildable;
+import com.synopsys.integration.builder.BuilderStatus;
+import com.synopsys.integration.builder.IntegrationBuilder;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.body.BodyContent;
 import com.synopsys.integration.util.Stringable;
 
-public class Request extends Stringable {
+public class Request extends Stringable implements Buildable {
+    public static Request.Builder newBuilder() {
+        return new Request.Builder();
+    }
+
     private final String uri;
     private final HttpMethod method;
     private final String mimeType;
@@ -52,16 +59,6 @@ public class Request extends Stringable {
     private final Map<String, Set<String>> queryParameters;
     private final Map<String, String> additionalHeaders;
     private final BodyContent bodyContent;
-
-    private Request(final Builder builder) {
-        uri = builder.getUri();
-        method = builder.getMethod();
-        mimeType = builder.getMimeType();
-        bodyEncoding = builder.getBodyEncoding();
-        queryParameters = builder.getQueryParameters();
-        additionalHeaders = builder.getAdditionalHeaders();
-        bodyContent = builder.getBodyContent();
-    }
 
     public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, Set<String>> queryParameters, final Map<String, String> additionalHeaders, final BodyContent bodyContent) {
         this.uri = uri;
@@ -171,7 +168,7 @@ public class Request extends Stringable {
         }
     }
 
-    public static class Builder {
+    public static class Builder extends IntegrationBuilder<Request> {
         private String uri;
         private HttpMethod method;
         private String mimeType;
@@ -203,6 +200,23 @@ public class Request extends Stringable {
 
         public Builder() {
             this((String) null);
+        }
+
+        @Override
+        protected Request buildWithoutValidation() {
+            return new Request(
+                    getUri(),
+                    getMethod(),
+                    getMimeType(),
+                    getBodyEncoding(),
+                    getQueryParameters(),
+                    getAdditionalHeaders(),
+                    getBodyContent());
+        }
+
+        @Override
+        protected void validate(final BuilderStatus builderStatus) {
+
         }
 
         public Builder uri(final String uri) {
@@ -254,10 +268,6 @@ public class Request extends Stringable {
         public Builder bodyContent(final BodyContent bodyContent) {
             this.bodyContent = bodyContent;
             return this;
-        }
-
-        public Request build() {
-            return new Request(this);
         }
 
         public String getUri() {
