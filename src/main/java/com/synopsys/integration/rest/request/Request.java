@@ -70,6 +70,10 @@ public class Request extends Stringable implements Buildable {
         this.bodyContent = bodyContent;
     }
 
+    public Request(Builder builder) {
+        this(builder.uri, builder.method, builder.mimeType, builder.bodyEncoding, builder.queryParameters, builder.additionalHeaders, builder.bodyContent);
+    }
+
     public HttpEntity createHttpEntity() {
         if (bodyContent == null) {
             return null;
