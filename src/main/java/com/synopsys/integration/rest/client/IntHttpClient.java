@@ -201,6 +201,7 @@ public class IntHttpClient {
             SSLContext sslContext;
             HostnameVerifier hostnameVerifier;
             if (alwaysTrustServerCertificate) {
+                logger.warn("Automatically trusting server certificates - not recommended for production use.");
                 sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
                 hostnameVerifier = new NoopHostnameVerifier();
             } else {
@@ -228,11 +229,6 @@ public class IntHttpClient {
     private Response handleClientExecution(HttpUriRequest request) throws IntegrationException {
         try {
             CloseableHttpClient client = clientBuilder.build();
-            URI uri = request.getURI();
-            String urlString = request.getURI().toString();
-            if (alwaysTrustServerCertificate && uri.getScheme().equalsIgnoreCase("https")) {
-                logger.debug("Automatically trusting the certificate for " + urlString);
-            }
             logRequestHeaders(request);
             CloseableHttpResponse closeableHttpResponse = client.execute(request);
             Response response = new Response(request, client, closeableHttpResponse);
