@@ -62,7 +62,13 @@ public class AuthenticationSupport {
     public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, String baseUrl, String authenticationUrl, RequestBuilder requestBuilder) throws IntegrationException {
         URL authenticationURL;
         try {
+            if (!baseUrl.endsWith("/")) {
+                baseUrl = baseUrl + "/";
+            }
             URL baseURL = new URL(baseUrl);
+            if (authenticationUrl.startsWith("/")) {
+                authenticationUrl = authenticationUrl.substring(1);
+            }
             authenticationURL = new URL(baseURL, authenticationUrl);
         } catch (MalformedURLException e) {
             throw new IntegrationException("Error constructing the authentication URL: " + e.getMessage(), e);
