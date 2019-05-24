@@ -46,7 +46,9 @@ public class IntJsonTransformer {
 
     public <R extends IntRestResponse> R getResponse(Response response, Type responseType) throws IntegrationException {
         final String json = response.getContentString();
-        return getComponentAs(json, responseType);
+        final R transformedResponse = getComponentAs(json, responseType);
+        transformedResponse.setGson(gson);
+        return transformedResponse;
     }
 
     public <C extends IntRestComponent> C getComponentAs(String json, Type responseType) throws IntegrationException {
@@ -63,7 +65,11 @@ public class IntJsonTransformer {
         final String json = gson.toJson(jsonObject);
         try {
             addJsonAsField(jsonObject);
-            return gson.fromJson(jsonObject, responseType);
+            C transformedResponse = gson.fromJson(jsonObject, responseType);
+            transformedResponse.setJsonElement(jsonObject);
+
+            // TODO find a way to transform JsonPatch field from responses
+            return transformedResponse;
         } catch (final JsonSyntaxException e) {
             logger.error(String.format("Could not parse the provided jsonElement with Gson:%s%s", System.lineSeparator(), json));
             throw new IntegrationException(e.getMessage(), e);
@@ -75,7 +81,6 @@ public class IntJsonTransformer {
             final JsonObject innerObject = jsonElement.getAsJsonObject();
             final String innerObjectJson = gson.toJson(innerObject);
             innerObject.addProperty(IntRestComponent.FIELD_NAME_JSON, innerObjectJson);
-            innerObject.addProperty(IntRestComponent.FIELD_NAME_JSON_ELEMENT, innerObjectJson);
             for (final Map.Entry<String, JsonElement> innerObjectFields : innerObject.entrySet()) {
                 addJsonAsField(innerObjectFields.getValue());
             }

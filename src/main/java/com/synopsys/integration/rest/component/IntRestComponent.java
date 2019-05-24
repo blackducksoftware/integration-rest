@@ -30,9 +30,8 @@ import com.synopsys.integration.util.Stringable;
  */
 public class IntRestComponent extends Stringable {
     public static final String FIELD_NAME_JSON = "json";
-    public static final String FIELD_NAME_JSON_ELEMENT = "jsonElement";
 
-    private transient String json;
+    private String json;
     private transient JsonElement jsonElement;
 
     public String getJson() {
