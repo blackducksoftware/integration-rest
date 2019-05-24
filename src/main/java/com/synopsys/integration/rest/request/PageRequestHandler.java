@@ -20,13 +20,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.rest.response;
+package com.synopsys.integration.rest.request;
 
-import java.util.List;
-import java.util.function.BiFunction;
+import java.util.Collection;
 
 import com.synopsys.integration.rest.component.IntRestResponse;
 
-public interface PageResponseCreator<T extends IntRestResponse> extends BiFunction<Integer, List<T>, PageResponse<T>> {
+public interface PageRequestHandler {
+    /**
+     * @return A request for a page of data starting from the offset and ending at the offset + limit
+     */
+    Request createPageRequest(final Request.Builder requestBuilder, int offset, int limit);
+
+    /**
+     * @return The total number of objects that can be retrieved from the endpoint from which this response originated
+     */
+    <R extends IntRestResponse> int getTotalResponseCount(R response);
+
+    /**
+     * @return The number of objects in the current page of data
+     */
+    <R extends IntRestResponse> int getCurrentResponseCount(R response);
+
+    /**
+     * @return One response object representing the unification of all pages of data
+     */
+    <R extends IntRestResponse> R combineResponses(Collection<R> pagedResponses);
 
 }

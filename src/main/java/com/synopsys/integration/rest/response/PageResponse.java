@@ -26,8 +26,21 @@ import java.util.List;
 
 import com.synopsys.integration.rest.component.IntRestResponse;
 
-public interface PageResponse<T extends IntRestResponse> {
-    int getCount();
+public class PageResponse<R extends IntRestResponse> {
+    private int count;
+    private List<R> items;
 
-    List<T> getItems();
+    public PageResponse(final int count, final List<R> items) {
+        this.count = count;
+        this.items = items;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public List<R> getItems() {
+        return items;
+    }
+
 }

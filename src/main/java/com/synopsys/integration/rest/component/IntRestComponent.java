@@ -22,11 +22,33 @@
  */
 package com.synopsys.integration.rest.component;
 
+import com.google.gson.JsonElement;
 import com.synopsys.integration.util.Stringable;
 
 /**
  * A base class for any object that can interact with a REST API.
  */
 public class IntRestComponent extends Stringable {
+    public static final String FIELD_NAME_JSON = "json";
+    public static final String FIELD_NAME_JSON_ELEMENT = "jsonElement";
+
+    private transient String json;
+    private transient JsonElement jsonElement;
+
+    public String getJson() {
+        return json;
+    }
+
+    public void setJson(final String json) {
+        this.json = json;
+    }
+
+    public JsonElement getJsonElement() {
+        return jsonElement;
+    }
+
+    public void setJsonElement(final JsonElement jsonElement) {
+        this.jsonElement = jsonElement;
+    }
 
 }
