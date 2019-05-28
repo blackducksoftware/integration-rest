@@ -23,7 +23,6 @@
 package com.synopsys.integration.rest.client;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -35,6 +34,7 @@ import java.util.Optional;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -54,12 +54,16 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 
+import com.jayway.jsonpath.JsonPath;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.HttpMethod;
+import com.synopsys.integration.rest.exception.ApiException;
+import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Request;
 import com.synopsys.integration.rest.request.Response;
+import com.synopsys.integration.rest.response.ErrorResponse;
 
 /**
  * A basic, extendable http client.
@@ -220,7 +224,7 @@ public class IntHttpClient {
             defaultRequestConfigBuilder.setProxy(new HttpHost(proxyInfo.getHost().orElse(null), proxyInfo.getPort()));
             if (proxyInfo.hasAuthenticatedProxySettings()) {
                 org.apache.http.auth.Credentials credentials = new NTCredentials(proxyInfo.getUsername().orElse(null), proxyInfo.getPassword().orElse(null), proxyInfo.getNtlmWorkstation().orElse(null),
-                        proxyInfo.getNtlmDomain().orElse(null));
+                    proxyInfo.getNtlmDomain().orElse(null));
                 credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost().orElse(null), proxyInfo.getPort()), credentials);
             }
         }
@@ -251,6 +255,41 @@ public class IntHttpClient {
         } else {
             logger.trace(requestOrResponseName + " does not have any headers.");
         }
+    }
+
+    public void throwExceptionForError(Response response) throws IntegrationException {
+        try {
+            response.throwExceptionForError();
+        } catch (IntegrationRestException e) {
+            throw transformException(e);
+        }
+    }
+
+    private IntegrationException transformException(IntegrationRestException e) {
+        String httpResponseContent = e.getHttpResponseContent();
+        Optional<ErrorResponse> optionalErrorResponse = extractErrorResponse(httpResponseContent);
+        if (optionalErrorResponse.isPresent()) {
+            ErrorResponse errorResponse = optionalErrorResponse.get();
+            String apiExceptionErrorMessage = String.format("%s [HTTP Error]: %s", errorResponse.getErrorMessage(), e.getMessage());
+            return new ApiException(e, apiExceptionErrorMessage, errorResponse.getErrorCode());
+        } else {
+            return e;
+        }
+    }
+
+    public Optional<ErrorResponse> extractErrorResponse(String responseContent) {
+        if (StringUtils.isNotBlank(responseContent)) {
+            try {
+                String errorMessage = JsonPath.read(responseContent, "$.errorMessage");
+                String errorCode = JsonPath.read(responseContent, "$.errorCode");
+                if (!StringUtils.isAllBlank(errorMessage, errorCode)) {
+                    return Optional.of(new ErrorResponse(errorMessage, errorCode));
+                }
+            } catch (Exception ignored) {
+                //ignored
+            }
+        }
+        return Optional.empty();
     }
 
     public int getTimeoutInSeconds() {
