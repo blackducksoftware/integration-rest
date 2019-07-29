@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
         maven { url 'https://plugins.gradle.org/m2/' }
     }
@@ -18,7 +17,7 @@ description = 'A library wrapping http communication for integrations.'
 apply plugin: 'com.blackducksoftware.integration.library'
 
 dependencies {
-    api 'com.blackducksoftware.integration:integration-common:17.1.0'
+    api 'com.blackducksoftware.integration:integration-common:17.2.0'
 
     testImplementation 'org.codehaus.groovy:groovy-all:2.4.12'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.9.0'

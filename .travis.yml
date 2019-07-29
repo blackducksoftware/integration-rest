@@ -12,12 +12,12 @@ addons:
       secure: "KHoyhnkEILnDACAU97XkXZ7gaLjuYRav3ihAH9TeuaF4aSxv75zPy6QbnI4tAHniFhZz3yn1jD6cV4+HcChSEv/fxags79u5qjLTAeyHG8d0edZAXgEz9OXjr0Vjq/ANOsQzdsA5IFEE2vIdMHdiUbF/wkFJ/kd5P1fbXJIZHLJqr+AZBIX1TZuUCmElx+2Jb6k/zkLbV+cqRYTGd+7DxdW81xSmZQt4d86WW8+83tLCnJAkwip33Wa2aTsdhAD0dQd6djXS/Ndu9xstt040Loiop+iXPhwcHQGjR28fQylMXNEKJfa7+iTf7oKov5e3FzZRC85FmcmKsf7RTJ6kZz7yzB2Ss6b+kA37tz1bWrJcSpXRP3eNGs+4kMOhAzpB1nFBB/5zH4S90AR6Nca1LU2guvvq+Wn4Lnuo6rGQkgrK/QRu7TCV16zOcs9ChIxI9H9OBEKXUoLl6iDqMpl18D7khkOYEx4ffbc/eYCNexpTkZYRJ9aW1eHydW2mF6yIPwliNzJyhBZXVMDyFWT+cFMV6slDY/04OjEM5+NkWADyfca18xMclZQRpf6gsuRxI6kdzqBQ5WkBDo+YPk/gp45P4XX1HX27+yLM+y1zkYREzTW4QT1CjOI/Xd7DBqmX7O1b05yG6yo1ZvFE41x5R0jhB3D//z5jllpXDPItsOo="
 
 jdk:
-- oraclejdk8
+- openjdk8
 
 notifications:
   email:
     recipients:
-    - bdsoss@blackducksoftware.com
+    - starlabs@blackducksoftware.com
 
 script:
 - "./gradlew clean build jacocoTestReport coveralls sonarqube"
