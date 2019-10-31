@@ -1,8 +1,8 @@
 /**
  * integration-rest
- *
+ * <p>
  * Copyright (c) 2019 Synopsys, Inc.
- *
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -10,9 +10,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,15 +22,14 @@
  */
 package com.synopsys.integration.rest.client;
 
-import java.io.IOException;
-
-import org.apache.http.client.methods.HttpUriRequest;
-
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Response;
+import org.apache.http.client.methods.HttpUriRequest;
+
+import java.io.IOException;
 
 public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
     public AuthenticatingIntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
@@ -85,6 +84,7 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
 
     public ConnectionResult attemptConnection() {
         String errorMessage = null;
+        Exception exception = null;
         int httpStatusCode = 0;
 
         try {
@@ -97,11 +97,12 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
             }
         } catch (Exception e) {
             errorMessage = e.getMessage();
+            exception = e;
         }
 
         if (null != errorMessage) {
             logger.error(errorMessage);
-            return ConnectionResult.FAILURE(httpStatusCode, errorMessage);
+            return ConnectionResult.FAILURE(httpStatusCode, errorMessage, exception);
         }
 
         logger.info("A successful connection was made.");
