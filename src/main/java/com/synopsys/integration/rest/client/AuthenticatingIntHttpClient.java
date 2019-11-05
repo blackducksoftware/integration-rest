@@ -22,14 +22,15 @@
  */
 package com.synopsys.integration.rest.client;
 
+import java.io.IOException;
+
+import org.apache.http.client.methods.HttpUriRequest;
+
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Response;
-import org.apache.http.client.methods.HttpUriRequest;
-
-import java.io.IOException;
 
 public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
     public AuthenticatingIntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
@@ -64,6 +65,7 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
         boolean notOkay = isUnauthorizedOrForbidden(response);
 
         if (notOkay && retryCount < 2) {
+            authenticateRequest(request);
             return retryExecute(request, retryCount + 1);
         } else if (notOkay) {
             response.throwExceptionForError();
