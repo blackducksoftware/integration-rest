@@ -230,7 +230,7 @@ public class IntHttpClient {
         }
     }
 
-    private Response handleClientExecution(HttpUriRequest request) throws IntegrationException {
+    protected Response handleClientExecution(HttpUriRequest request) throws IntegrationException {
         try {
             CloseableHttpClient client = clientBuilder.build();
             logRequestHeaders(request);
