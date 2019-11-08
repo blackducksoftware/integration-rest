@@ -23,8 +23,12 @@
 package com.synopsys.integration.rest.client;
 
 import java.io.IOException;
+import java.util.Map;
 
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
@@ -35,6 +39,11 @@ import com.synopsys.integration.rest.request.Response;
 public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
     public AuthenticatingIntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
         super(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo);
+    }
+
+    public AuthenticatingIntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+        RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
+        super(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders);
     }
 
     public abstract boolean isAlreadyAuthenticated(HttpUriRequest request);
