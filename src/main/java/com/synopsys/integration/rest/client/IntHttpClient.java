@@ -78,16 +78,25 @@ public class IntHttpClient {
     private final int timeoutInSeconds;
     private final boolean alwaysTrustServerCertificate;
 
-    private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-    private final HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-    private final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
-    private final Map<String, String> commonRequestHeaders = new HashMap<>();
+    private final CredentialsProvider credentialsProvider;
+    private final HttpClientBuilder clientBuilder;
+    private final RequestConfig.Builder defaultRequestConfigBuilder;
+    private final Map<String, String> commonRequestHeaders;
 
     public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
+        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>());
+    }
+
+    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+        RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
         this.logger = logger;
         this.proxyInfo = proxyInfo;
         this.timeoutInSeconds = timeoutInSeconds;
         this.alwaysTrustServerCertificate = alwaysTrustServerCertificate;
+        this.credentialsProvider = credentialsProvider;
+        this.clientBuilder = clientBuilder;
+        this.defaultRequestConfigBuilder = defaultRequestConfigBuilder;
+        this.commonRequestHeaders = commonRequestHeaders;
 
         if (0 >= timeoutInSeconds) {
             throw new IllegalArgumentException("The timeout must be greater than 0.");
