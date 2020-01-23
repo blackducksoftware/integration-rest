@@ -11,7 +11,7 @@ plugins { id 'groovy' }
 project.ext.moduleName = 'com.synopsys.integration.integration-rest'
 project.ext.junitShowStandardStreams = 'true'
 
-version = '1.0.0-SNAPSHOT'
+version = '1.0.0'
 description = 'A library wrapping http communication for integrations.'
 
 apply plugin: 'com.synopsys.integration.library'
