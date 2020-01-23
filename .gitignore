@@ -13,3 +13,5 @@ out/
 # build tool
 .gradle/
 build/
+
+src/test/resources/test.properties
