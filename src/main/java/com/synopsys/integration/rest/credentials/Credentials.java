@@ -22,6 +22,8 @@
  */
 package com.synopsys.integration.rest.credentials;
 
+import java.io.Serializable;
+
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.synopsys.integration.builder.Buildable;
 import com.synopsys.integration.util.Stringable;
 
-public class Credentials extends Stringable implements Buildable {
+public class Credentials extends Stringable implements Buildable, Serializable {
     public static final Credentials NO_CREDENTIALS = new Credentials(null, null);
 
     public static CredentialsBuilder newBuilder() {

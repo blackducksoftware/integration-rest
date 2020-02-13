@@ -22,6 +22,7 @@
  */
 package com.synopsys.integration.rest.proxy;
 
+import java.io.Serializable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -33,7 +34,7 @@ import com.synopsys.integration.builder.Buildable;
 import com.synopsys.integration.rest.credentials.Credentials;
 import com.synopsys.integration.util.Stringable;
 
-public class ProxyInfo extends Stringable implements Buildable {
+public class ProxyInfo extends Stringable implements Buildable, Serializable {
     public final static ProxyInfo NO_PROXY_INFO = new ProxyInfo();
 
     public static ProxyInfoBuilder newBuilder() {
