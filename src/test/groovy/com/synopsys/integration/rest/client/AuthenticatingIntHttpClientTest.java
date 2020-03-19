@@ -125,7 +125,7 @@ class AuthenticatingIntHttpClientTest {
         final HttpUriRequest request = Mockito.mock(HttpUriRequest.class);
         Mockito.when(request.getURI()).thenReturn(new URI("http://synopsys.com"));
         final Response response = authenticatingIntHttpClient.execute(request);
-        Assertions.assertEquals(new Integer(RestConstants.OK_200), response.getStatusCode(), "Expected the initial authentication to be successful.");
+        Assertions.assertEquals(RestConstants.OK_200, response.getStatusCode(), "Expected the initial authentication to be successful.");
     }
 
     @Test
@@ -136,6 +136,6 @@ class AuthenticatingIntHttpClientTest {
         Mockito.when(request.getURI()).thenReturn(new URI("http://synopsys.com"));
 
         final Response failedResponse = authenticatingIntHttpClient.execute(request);
-        Assertions.assertEquals(new Integer(RestConstants.OK_200), failedResponse.getStatusCode(), "Expected an authenticated but expired request to be successful because the authentication should have been reattempted.");
+        Assertions.assertEquals(RestConstants.OK_200, failedResponse.getStatusCode(), "Expected an authenticated but expired request to be successful because the authentication should have been reattempted.");
     }
 }
