@@ -1,6 +1,6 @@
 package com.synopsys.integration.rest
 
-import com.synopsys.integration.rest.request.Response
+import com.synopsys.integration.rest.response.Response
 import org.apache.commons.codec.Charsets
 import org.apache.http.Header
 import org.apache.http.HttpEntity

@@ -220,7 +220,7 @@ public class Request extends Stringable implements Buildable {
 
         @Override
         protected void validate(final BuilderStatus builderStatus) {
-
+            // currently, all Request instances are valid
         }
 
         public Builder uri(final String uri) {

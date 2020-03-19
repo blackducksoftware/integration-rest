@@ -32,7 +32,7 @@ import com.synopsys.integration.rest.client.IntHttpClient;
 import com.synopsys.integration.rest.component.IntRestResponse;
 import com.synopsys.integration.rest.request.PageRequestHandler;
 import com.synopsys.integration.rest.request.Request;
-import com.synopsys.integration.rest.request.Response;
+import com.synopsys.integration.rest.response.Response;
 
 public class IntResponseTransformer {
     private final IntHttpClient intHttpClient;
