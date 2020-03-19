@@ -1,6 +1,6 @@
 package com.synopsys.integration.rest
 
-import com.synopsys.integration.rest.request.Response
+import com.synopsys.integration.rest.response.Response
 import org.apache.commons.codec.Charsets
 import org.apache.http.Header
 import org.apache.http.HttpEntity
@@ -19,20 +19,10 @@ class ResponseTest {
     @Test
     void testGetStatusCode() throws Exception {
         HttpUriRequest httpUriRequest = [] as HttpUriRequest
-        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
-        CloseableHttpResponse closeableHttpResponse = [getStatusLine: { return null }, close: {}] as CloseableHttpResponse
-        Response response = null
-        try {
-            response = new Response(httpUriRequest, closeableHttpClient, closeableHttpResponse)
-            assertNull(response.getStatusCode())
-        } finally {
-            if (response != null) {
-                response.close()
-            }
-        }
         StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("test", 1, 0), 200, "Everything went well")
-        closeableHttpClient = [close: {}] as CloseableHttpClient
-        closeableHttpResponse = [getStatusLine: { -> return statusLine }, close: {}] as CloseableHttpResponse
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
+        CloseableHttpResponse closeableHttpResponse = [getStatusLine: { -> return statusLine }, close: {}] as CloseableHttpResponse
+        Response response = null
         try {
             response = new Response(httpUriRequest, closeableHttpClient, closeableHttpResponse)
             assertEquals(200, response.getStatusCode())
@@ -46,20 +36,10 @@ class ResponseTest {
     @Test
     void testGetStatusMessage() throws Exception {
         HttpUriRequest httpUriRequest = [] as HttpUriRequest
-        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
-        CloseableHttpResponse closeableHttpResponse = [getStatusLine: { return null }, close: {}] as CloseableHttpResponse
-        Response response = null
-        try {
-            response = new Response(httpUriRequest, closeableHttpClient, closeableHttpResponse)
-            assertNull(response.getStatusMessage())
-        } finally {
-            if (response != null) {
-                response.close()
-            }
-        }
         StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("test", 1, 0), 200, "Everything went well")
-        closeableHttpClient = [close: {}] as CloseableHttpClient
-        closeableHttpResponse = [getStatusLine: { -> return statusLine }, close: {}] as CloseableHttpResponse
+        CloseableHttpClient closeableHttpClient = [close: {}] as CloseableHttpClient
+        CloseableHttpResponse closeableHttpResponse = [getStatusLine: { -> return statusLine }, close: {}] as CloseableHttpResponse
+        Response response = null
         try {
             response = new Response(httpUriRequest, closeableHttpClient, closeableHttpResponse)
             assertEquals("Everything went well", response.getStatusMessage())

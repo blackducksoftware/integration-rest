@@ -20,7 +20,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.rest.request;
+package com.synopsys.integration.rest.response;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -65,33 +65,20 @@ public class Response implements Closeable {
         return request;
     }
 
-    public Integer getStatusCode() {
-        if (response.getStatusLine() != null) {
-            return response.getStatusLine().getStatusCode();
-        } else {
-            return null;
-        }
+    public int getStatusCode() {
+        return response.getStatusLine().getStatusCode();
     }
 
-    public Boolean isStatusCodeOkay() {
-        Integer statusCode = getStatusCode();
-        if (statusCode != null) {
-            return statusCode >= RestConstants.OK_200 && statusCode < RestConstants.MULT_CHOICE_300;
-        } else {
-            return null;
-        }
+    public boolean isStatusCodeSuccess() {
+        return getStatusCode() >= RestConstants.OK_200 && getStatusCode() < RestConstants.MULT_CHOICE_300;
     }
 
-    public Boolean isStatusCodeError() {
-        return !isStatusCodeOkay();
+    public boolean isStatusCodeError() {
+        return getStatusCode() >= RestConstants.BAD_REQUEST_400;
     }
 
     public String getStatusMessage() {
-        if (response.getStatusLine() != null) {
-            return response.getStatusLine().getReasonPhrase();
-        } else {
-            return null;
-        }
+        return response.getStatusLine().getReasonPhrase();
     }
 
     public InputStream getContent() throws IntegrationException {
@@ -194,7 +181,7 @@ public class Response implements Closeable {
 
     public void throwExceptionForError() throws IntegrationRestException {
         if (isStatusCodeError()) {
-            Integer statusCode = getStatusCode();
+            int statusCode = getStatusCode();
             String statusMessage = getStatusMessage();
             String httpResponseContent;
             try {
@@ -203,10 +190,7 @@ public class Response implements Closeable {
                 httpResponseContent = e.getMessage();
             }
 
-            String statusCodeDescription = "Unknown";
-            if (null != statusCode) {
-                statusCodeDescription = EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode, Locale.ENGLISH);
-            }
+            String statusCodeDescription = EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode, Locale.ENGLISH);
 
             String reasonPhraseDescription = "";
             if (StringUtils.isNotBlank(statusMessage)) {

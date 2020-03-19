@@ -8,7 +8,7 @@ import com.synopsys.integration.rest.client.IntHttpClient
 import com.synopsys.integration.rest.exception.IntegrationRestException
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.rest.request.Request
-import com.synopsys.integration.rest.request.Response
+import com.synopsys.integration.rest.response.Response
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer

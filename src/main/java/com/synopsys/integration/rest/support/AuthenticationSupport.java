@@ -43,7 +43,7 @@ import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.client.AuthenticatingIntHttpClient;
-import com.synopsys.integration.rest.request.Response;
+import com.synopsys.integration.rest.response.Response;
 
 public class AuthenticationSupport {
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -99,7 +99,7 @@ public class AuthenticationSupport {
 
     public Optional<String> retrieveBearerToken(IntLogger logger, Gson gson, AuthenticatingIntHttpClient authenticatingIntHttpClient, String bearerTokenKey) {
         try (Response response = authenticatingIntHttpClient.attemptAuthentication()) {
-            if (response.isStatusCodeOkay()) {
+            if (response.isStatusCodeSuccess()) {
                 String bodyContent;
                 try (InputStream inputStream = response.getContent()) {
                     bodyContent = IOUtils.toString(inputStream, Charsets.UTF_8);
@@ -123,7 +123,7 @@ public class AuthenticationSupport {
     }
 
     public void completeTokenAuthenticationRequest(HttpUriRequest request, Response response, IntLogger logger, Gson gson, AuthenticatingIntHttpClient authenticatingIntHttpClient, String bearerTokenResponseKey) {
-        if (response.isStatusCodeOkay()) {
+        if (response.isStatusCodeSuccess()) {
             Optional<String> bearerToken = retrieveBearerToken(logger, gson, authenticatingIntHttpClient, bearerTokenResponseKey);
             if (bearerToken.isPresent()) {
                 String headerValue = "Bearer " + bearerToken.get();

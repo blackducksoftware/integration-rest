@@ -62,7 +62,7 @@ import com.synopsys.integration.rest.exception.ApiException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Request;
-import com.synopsys.integration.rest.request.Response;
+import com.synopsys.integration.rest.response.Response;
 import com.synopsys.integration.rest.response.ErrorResponse;
 
 /**
@@ -117,16 +117,12 @@ public class IntHttpClient {
         addBuilderSSLContext();
     }
 
-    /**
-     * Subclasses can add to the builders any additional fields they need to successfully initialize
-     */
     public void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+        // Subclasses can optionally add to the builders any additional fields they need to successfully initialize
     }
 
-    /**
-     * Subclasses might need to handle an error response and modify the request
-     */
     public void handleErrorResponse(HttpUriRequest request, Response response) {
+        // Subclasses can optionally handle an error response and modify the request
     }
 
     public final RequestBuilder createRequestBuilder(HttpMethod method) throws IntegrationException {
