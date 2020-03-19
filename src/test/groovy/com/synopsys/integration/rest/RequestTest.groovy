@@ -23,7 +23,7 @@ class RequestTest {
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.uri
-        assert null == request.additionalHeaders
+        assert request.additionalHeaders.isEmpty()
         assert request.getPopulatedQueryParameters().isEmpty()
 
         request = new Request(new Request.Builder(uri))
@@ -31,15 +31,15 @@ class RequestTest {
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert uri == request.uri
-        assert null == request.additionalHeaders
+        assert request.additionalHeaders.isEmpty()
         assert request.getPopulatedQueryParameters().isEmpty()
 
-        request = new Request(null, null, null, null, null, null, null)
+        request = new Request(null, null, null, null, [:], [:], null)
         assert null == request.method
         assert null == request.bodyEncoding
         assert null == request.mimeType
         assert null == request.uri
-        assert null == request.additionalHeaders
+        assert request.additionalHeaders.isEmpty()
         assert request.getPopulatedQueryParameters().isEmpty()
     }
 }
