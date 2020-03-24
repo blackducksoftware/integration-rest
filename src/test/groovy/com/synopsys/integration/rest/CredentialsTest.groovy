@@ -1,7 +1,9 @@
 package com.synopsys.integration.rest
 
 import com.synopsys.integration.rest.credentials.Credentials
+import com.synopsys.integration.util.MaskedStringFieldToStringBuilder
 import org.apache.commons.lang3.StringUtils
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class CredentialsTest {
@@ -53,4 +55,17 @@ class CredentialsTest {
 
         assert credentials1.toString() == credentials2.toString()
     }
+
+    @Test
+    void testToStringMasksPassword() {
+        def username = 'username'
+        def password = 'supersecretpassword'
+        def credentials = new Credentials(username, password)
+        Assertions.assertFalse(credentials.toString().contains(password))
+        Assertions.assertTrue(credentials.toString().contains(MaskedStringFieldToStringBuilder.MASKED_VALUE))
+
+        def credentialsWithoutPassword = new Credentials(username, null)
+        Assertions.assertFalse(credentialsWithoutPassword.toString().contains(MaskedStringFieldToStringBuilder.MASKED_VALUE))
+    }
+
 }

@@ -1,8 +1,8 @@
 /**
  * integration-rest
- *
+ * <p>
  * Copyright (c) 2020 Synopsys, Inc.
- *
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -10,9 +10,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,12 +22,14 @@
  */
 package com.synopsys.integration.rest.credentials;
 
-import java.util.Optional;
-
+import com.synopsys.integration.builder.Buildable;
+import com.synopsys.integration.util.MaskedStringFieldToStringBuilder;
+import com.synopsys.integration.util.Stringable;
 import org.apache.commons.lang3.StringUtils;
 
-import com.synopsys.integration.builder.Buildable;
-import com.synopsys.integration.util.Stringable;
+import java.util.Optional;
+
+import static com.synopsys.integration.util.MaskedStringFieldToStringBuilder.MASKED_VALUE;
 
 public class Credentials extends Stringable implements Buildable {
     public static final Credentials NO_CREDENTIALS = new Credentials(null, null);
@@ -35,8 +37,6 @@ public class Credentials extends Stringable implements Buildable {
     public static CredentialsBuilder newBuilder() {
         return new CredentialsBuilder();
     }
-
-    private static final String MASKED_PASSWORD = "************************";
 
     private final String username;
     private final String password;
@@ -55,11 +55,16 @@ public class Credentials extends Stringable implements Buildable {
     }
 
     public String getMaskedPassword() {
-        return MASKED_PASSWORD;
+        return MASKED_VALUE;
     }
 
     public boolean isBlank() {
         return StringUtils.isAllBlank(username, password);
+    }
+
+    @Override
+    public String toString() {
+        return new MaskedStringFieldToStringBuilder(this, "password").toString();
     }
 
 }
