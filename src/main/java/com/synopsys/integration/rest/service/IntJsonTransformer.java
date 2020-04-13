@@ -93,6 +93,9 @@ public class IntJsonTransformer {
 
     // Recursively add json as field of every inner object
     private void addJsonAsField(JsonElement jsonElement) {
+        if (null == jsonElement) {
+            return;
+        }
         if (jsonElement.isJsonObject()) {
             final JsonObject innerObject = jsonElement.getAsJsonObject();
             final String innerObjectJson = gson.toJson(innerObject);
