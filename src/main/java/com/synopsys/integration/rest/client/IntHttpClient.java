@@ -57,7 +57,6 @@ import org.apache.http.ssl.SSLContexts;
 import com.jayway.jsonpath.JsonPath;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
-import com.synopsys.integration.log.LogLevel;
 import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.exception.ApiException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
@@ -195,17 +194,6 @@ public class IntHttpClient {
         logHeaders(responseName, response.getAllHeaders());
     }
 
-    public final void logResponseContent(Response response) {
-        if (LogLevel.TRACE == logger.getLogLevel()) {
-            try {
-                String responseContent = response.getContentString();
-                logger.trace("Response content : " + responseContent);
-            } catch (IntegrationException e) {
-                logger.trace("Could not log the response content. ", e);
-            }
-        }
-    }
-
     private void addBuilderConnectionTimes() {
         defaultRequestConfigBuilder.setConnectTimeout(timeoutInSeconds * 1000);
         defaultRequestConfigBuilder.setSocketTimeout(timeoutInSeconds * 1000);
@@ -254,7 +242,6 @@ public class IntHttpClient {
             CloseableHttpResponse closeableHttpResponse = client.execute(request);
             Response response = new Response(request, client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
-            logResponseContent(response);
             if (response.isStatusCodeError()) {
                 handleErrorResponse(request, response);
             }
