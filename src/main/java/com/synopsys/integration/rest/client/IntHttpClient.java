@@ -62,8 +62,8 @@ import com.synopsys.integration.rest.exception.ApiException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Request;
-import com.synopsys.integration.rest.response.Response;
 import com.synopsys.integration.rest.response.ErrorResponse;
+import com.synopsys.integration.rest.response.Response;
 
 /**
  * A basic, extendable http client.
