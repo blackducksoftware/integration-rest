@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -78,6 +80,9 @@ public class IntJsonTransformer {
 
     public <C extends IntRestComponent> C getComponentAs(JsonObject jsonObject, Type responseType) throws IntegrationException {
         final String json = gson.toJson(jsonObject);
+        if (null == jsonObject || StringUtils.isBlank(json)) {
+            throw new IntegrationException(String.format("The server did not have a response body. Can not convert the response to '%s'", responseType.getTypeName()));
+        }
         try {
             addJsonAsField(jsonObject);
             C transformedResponse = gson.fromJson(jsonObject, responseType);
@@ -93,6 +98,9 @@ public class IntJsonTransformer {
 
     // Recursively add json as field of every inner object
     private void addJsonAsField(JsonElement jsonElement) {
+        if (null == jsonElement) {
+            return;
+        }
         if (jsonElement.isJsonObject()) {
             final JsonObject innerObject = jsonElement.getAsJsonObject();
             final String innerObjectJson = gson.toJson(innerObject);
