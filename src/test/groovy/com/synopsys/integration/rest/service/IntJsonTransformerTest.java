@@ -1,11 +1,9 @@
 package com.synopsys.integration.rest.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.gson.JsonObject;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.Gson;
@@ -14,6 +12,8 @@ import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.log.LogLevel;
 import com.synopsys.integration.log.PrintStreamIntLogger;
 import com.synopsys.integration.rest.component.IntRestComponent;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IntJsonTransformerTest {
     private static final String FIELD_STRING_VALUE = "test";
@@ -68,6 +68,35 @@ public class IntJsonTransformerTest {
             assertEquals(3, transformedSecondSubComponent.stringFields.size());
             assertEquals(3, transformedSecondSubComponent.intFields.size());
             assertEquals(3, transformedSecondSubComponent.booleanFields.size());
+        }
+    }
+
+    @Test
+    public void testNullJsonObject() {
+        IntLogger intLogger = new PrintStreamIntLogger(System.out, LogLevel.DEBUG);
+        IntJsonTransformer intJsonTransformer = new IntJsonTransformer(gson, intLogger);
+
+        try {
+            intJsonTransformer.getComponentAs((JsonObject)null, IntRestComponent.class);
+            fail("Should have thrown NPE");
+        } catch (NullPointerException e) {
+            // expected
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    public void testInvalidJsonObject() {
+        IntLogger intLogger = new PrintStreamIntLogger(System.out, LogLevel.DEBUG);
+        IntJsonTransformer intJsonTransformer = new IntJsonTransformer(gson, intLogger);
+
+        try {
+            IntRestComponent component = intJsonTransformer.getComponentAs(new JsonObject(), IntRestComponent.class);
+            assertNotNull(component);
+            assertNotNull(component.getJsonElement());
+        } catch (Exception e) {
+            fail(e);
         }
     }
 
