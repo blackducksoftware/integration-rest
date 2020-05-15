@@ -78,8 +78,8 @@ public class IntJsonTransformerTest {
 
         try {
             intJsonTransformer.getComponentAs((JsonObject)null, IntRestComponent.class);
-            fail("Should have thrown NPE");
-        } catch (NullPointerException e) {
+            fail("Should have thrown IntegrationException");
+        } catch (IntegrationException e) {
             // expected
         } catch (Exception e) {
             fail(e);

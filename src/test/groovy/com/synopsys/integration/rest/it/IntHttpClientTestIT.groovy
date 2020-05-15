@@ -18,6 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue
 
 @Tag("integration")
 class IntHttpClientTestIT {
+    /*
+    If there are failures here, they could relate to the proxy servers themselves. For details on debugging the servers:
+    https://sig-confluence.internal.synopsys.com/display/integration/Proxy+testing
+     */
     private final IntLogger logger = new PrintStreamIntLogger(System.out, RestConnectionTestHelper.DEFAULT_LOGGING_LEVEL)
 
     private static RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper()
@@ -30,7 +34,7 @@ class IntHttpClientTestIT {
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
-            assertTrue(it.statusCodeOkay)
+            assertTrue(it.statusCodeSuccess)
         }
     }
 
@@ -43,7 +47,7 @@ class IntHttpClientTestIT {
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
-            assertTrue(it.statusCodeOkay)
+            assertTrue(it.statusCodeSuccess)
         }
     }
 
@@ -61,7 +65,7 @@ class IntHttpClientTestIT {
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
-            assertTrue(it.statusCodeOkay)
+            assertTrue(it.statusCodeSuccess)
         }
     }
 
@@ -113,7 +117,7 @@ class IntHttpClientTestIT {
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
-            assertTrue(it.statusCodeOkay)
+            assertTrue(it.statusCodeSuccess)
         }
     }
 
@@ -147,7 +151,7 @@ class IntHttpClientTestIT {
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
         Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
         restConnection.execute(request).withCloseable {
-            assertTrue(it.statusCodeOkay)
+            assertTrue(it.statusCodeSuccess)
         }
     }
 
