@@ -14,7 +14,7 @@ description = 'A library wrapping http communication for integrations.'
 apply plugin: 'com.synopsys.integration.library'
 
 dependencies {
-    api 'com.synopsys.integration:integration-common:20.1.1'
+    api 'com.synopsys.integration:integration-common:22.1.0'
 
     testImplementation 'org.codehaus.groovy:groovy-all:2.4.12'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.9.0'
