@@ -1,8 +1,8 @@
 /**
  * integration-rest
- *
+ * <p>
  * Copyright (c) 2020 Synopsys, Inc.
- *
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -10,9 +10,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,14 +22,14 @@
  */
 package com.synopsys.integration.rest.request;
 
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.synopsys.integration.builder.Buildable;
+import com.synopsys.integration.builder.BuilderStatus;
+import com.synopsys.integration.builder.IntegrationBuilder;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.rest.HttpMethod;
+import com.synopsys.integration.rest.HttpUrl;
+import com.synopsys.integration.rest.body.BodyContent;
+import com.synopsys.integration.util.Stringable;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -39,20 +39,19 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 
-import com.synopsys.integration.builder.Buildable;
-import com.synopsys.integration.builder.BuilderStatus;
-import com.synopsys.integration.builder.IntegrationBuilder;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.rest.HttpMethod;
-import com.synopsys.integration.rest.body.BodyContent;
-import com.synopsys.integration.util.Stringable;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class Request extends Stringable implements Buildable {
     public static Request.Builder newBuilder() {
         return new Request.Builder();
     }
 
-    private final String uri;
+    private final HttpUrl url;
     private final HttpMethod method;
     private final String mimeType;
     private final Charset bodyEncoding;
@@ -60,8 +59,8 @@ public class Request extends Stringable implements Buildable {
     private final Map<String, String> additionalHeaders = new HashMap<>();
     private final BodyContent bodyContent;
 
-    public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, Set<String>> queryParameters, final Map<String, String> additionalHeaders, final BodyContent bodyContent) {
-        this.uri = uri;
+    public Request(HttpUrl url, HttpMethod method, String mimeType, Charset bodyEncoding, Map<String, Set<String>> queryParameters, Map<String, String> additionalHeaders, BodyContent bodyContent) {
+        this.url = url;
         this.method = method;
         this.mimeType = mimeType;
         this.bodyEncoding = bodyEncoding;
@@ -81,8 +80,8 @@ public class Request extends Stringable implements Buildable {
         return bodyContent.createEntity(this);
     }
 
-    public String getUri() {
-        return uri;
+    public HttpUrl getUrl() {
+        return url;
     }
 
     public Map<String, Set<String>> getPopulatedQueryParameters() {
@@ -113,55 +112,50 @@ public class Request extends Stringable implements Buildable {
         return bodyContent;
     }
 
-    public HttpUriRequest createHttpUriRequest(final Map<String, String> commonRequestHeaders) throws IntegrationException {
-        final Request request = this;
+    public HttpUriRequest createHttpUriRequest(Map<String, String> commonRequestHeaders) throws IntegrationException {
+        Request request = this;
 
         if (request.getMethod() == null) {
             throw new IntegrationException("Missing the HttpMethod");
         }
-        try {
-            final URIBuilder uriBuilder;
-            if (StringUtils.isNotBlank(request.getUri())) {
-                uriBuilder = new URIBuilder(request.getUri());
-            } else {
-                throw new IntegrationException("Missing the URI");
-            }
-            String mimeType = ContentType.APPLICATION_JSON.getMimeType();
-            Charset bodyEncoding = Charsets.UTF_8;
-            if (StringUtils.isNotBlank(request.getMimeType())) {
-                mimeType = request.getMimeType();
-            }
-            if (request.getBodyEncoding() != null) {
-                bodyEncoding = request.getBodyEncoding();
-            }
-            final RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
-            if (HttpMethod.GET == request.getMethod() && (request.getAdditionalHeaders() == null || request.getAdditionalHeaders().isEmpty() || !request.getAdditionalHeaders().containsKey(HttpHeaders.ACCEPT))) {
-                requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
-            }
-            requestBuilder.setCharset(bodyEncoding);
-            for (final Map.Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
-            }
-
-            for (final Map.Entry<String, String> header : commonRequestHeaders.entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
-            }
-
-            final Map<String, Set<String>> populatedQueryParameters = request.getPopulatedQueryParameters();
-            populatedQueryParameters.forEach((paramKey, paramValues) -> {
-                paramValues.forEach((paramValue) -> {
-                    uriBuilder.addParameter(paramKey, paramValue);
-                });
-            });
-            requestBuilder.setUri(uriBuilder.build());
-            final HttpEntity entity = request.createHttpEntity();
-            if (entity != null) {
-                requestBuilder.setEntity(entity);
-            }
-            return requestBuilder.build();
-        } catch (final URISyntaxException e) {
-            throw new IntegrationException(e.getMessage(), e);
+        if (request.getUrl() == null) {
+            throw new IntegrationException("Missing the HttpUrl");
         }
+
+        URIBuilder uriBuilder = new URIBuilder(request.getUrl().uri());
+        String mimeType = ContentType.APPLICATION_JSON.getMimeType();
+        Charset bodyEncoding = Charsets.UTF_8;
+        if (StringUtils.isNotBlank(request.getMimeType())) {
+            mimeType = request.getMimeType();
+        }
+        if (request.getBodyEncoding() != null) {
+            bodyEncoding = request.getBodyEncoding();
+        }
+        RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
+        if (HttpMethod.GET == request.getMethod() && (request.getAdditionalHeaders() == null || request.getAdditionalHeaders().isEmpty() || !request.getAdditionalHeaders().containsKey(HttpHeaders.ACCEPT))) {
+            requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
+        }
+        requestBuilder.setCharset(bodyEncoding);
+        for (Map.Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
+            requestBuilder.addHeader(header.getKey(), header.getValue());
+        }
+
+        for (Map.Entry<String, String> header : commonRequestHeaders.entrySet()) {
+            requestBuilder.addHeader(header.getKey(), header.getValue());
+        }
+
+        Map<String, Set<String>> populatedQueryParameters = request.getPopulatedQueryParameters();
+        populatedQueryParameters.forEach((paramKey, paramValues) -> {
+            paramValues.forEach((paramValue) -> {
+                uriBuilder.addParameter(paramKey, paramValue);
+            });
+        });
+        requestBuilder.setUri(uriBuilder.build());
+        HttpEntity entity = request.createHttpEntity();
+        if (entity != null) {
+            requestBuilder.setEntity(entity);
+        }
+        return requestBuilder.build();
     }
 
     public static class Builder extends IntegrationBuilder<Request> {
@@ -173,7 +167,7 @@ public class Request extends Stringable implements Buildable {
         private Map<String, String> additionalHeaders = new HashMap<>();
         private BodyContent bodyContent;
 
-        public Builder(final Request request) {
+        public Builder(Request request) {
             uri = request.uri;
             method = request.method;
             mimeType = request.mimeType;
@@ -183,7 +177,7 @@ public class Request extends Stringable implements Buildable {
             bodyContent = request.bodyContent;
         }
 
-        public Builder(final String uri) {
+        public Builder(String uri) {
             this.uri = uri;
             method = HttpMethod.GET;
             mimeType = ContentType.APPLICATION_JSON.getMimeType();
@@ -207,51 +201,51 @@ public class Request extends Stringable implements Buildable {
         }
 
         @Override
-        protected void validate(final BuilderStatus builderStatus) {
+        protected void validate(BuilderStatus builderStatus) {
             // currently, all Request instances are valid
         }
 
-        public Builder uri(final String uri) {
+        public Builder uri(String uri) {
             this.uri = uri;
             return this;
         }
 
-        public Builder method(final HttpMethod method) {
+        public Builder method(HttpMethod method) {
             this.method = method;
             return this;
         }
 
-        public Builder mimeType(final String mimeType) {
+        public Builder mimeType(String mimeType) {
             this.mimeType = mimeType;
             return this;
         }
 
-        public Builder bodyEncoding(final Charset bodyEncoding) {
+        public Builder bodyEncoding(Charset bodyEncoding) {
             this.bodyEncoding = bodyEncoding;
             return this;
         }
 
-        public Builder queryParameters(final Map<String, Set<String>> queryParameters) {
+        public Builder queryParameters(Map<String, Set<String>> queryParameters) {
             this.queryParameters = queryParameters;
             return this;
         }
 
-        public Builder addQueryParameter(final String key, final String value) {
+        public Builder addQueryParameter(String key, String value) {
             queryParameters.computeIfAbsent(key, k -> new HashSet<>()).add(value);
             return this;
         }
 
-        public Builder additionalHeaders(final Map<String, String> additionalHeaders) {
+        public Builder additionalHeaders(Map<String, String> additionalHeaders) {
             this.additionalHeaders = additionalHeaders;
             return this;
         }
 
-        public Builder addAdditionalHeader(final String key, final String value) {
+        public Builder addAdditionalHeader(String key, String value) {
             additionalHeaders.put(key, value);
             return this;
         }
 
-        public Builder bodyContent(final BodyContent bodyContent) {
+        public Builder bodyContent(BodyContent bodyContent) {
             this.bodyContent = bodyContent;
             return this;
         }
