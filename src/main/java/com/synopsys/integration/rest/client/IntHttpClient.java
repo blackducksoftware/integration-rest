@@ -117,7 +117,7 @@ public class IntHttpClient {
         addBuilderSSLContext();
     }
 
-    public void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+    protected void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
         // Subclasses can optionally add to the builders any additional fields they need to successfully initialize
     }
 

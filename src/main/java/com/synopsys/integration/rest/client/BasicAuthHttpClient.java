@@ -53,29 +53,34 @@ public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     }
 
     @Override
-    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) {
+    protected final void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
         httpClientBuilder.setDefaultCookieStore(new BasicCookieStore());
         defaultRequestConfigBuilder.setCookieSpec(CookieSpecs.DEFAULT);
+        populateBasicHttpClientBuilder(httpClientBuilder, defaultRequestConfigBuilder);
+    }
+
+    protected void populateBasicHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+        // Subclasses can optionally add to the builders any additional fields they need to successfully initialize
     }
 
     @Override
-    public void handleErrorResponse(final HttpUriRequest request, final Response response) {
+    public void handleErrorResponse(HttpUriRequest request, Response response) {
         super.handleErrorResponse(request, response);
 
         authenticationSupport.handleErrorResponse(this, request, response, RestConstants.X_CSRF_TOKEN);
     }
 
     @Override
-    public boolean isAlreadyAuthenticated(final HttpUriRequest request) {
+    public boolean isAlreadyAuthenticated(HttpUriRequest request) {
         return request.containsHeader(AuthenticationSupport.AUTHORIZATION_HEADER);
     }
 
     @Override
-    protected void completeAuthenticationRequest(final HttpUriRequest request, final Response responseIgnored) {
-        final Base64.Encoder encoder = Base64.getEncoder();
-        final String unencodedAuthPair = String.format("%s:%s", username, password);
-        final String encodedAuthPair = encoder.encodeToString(unencodedAuthPair.getBytes());
-        final String encodedHeaderValue = String.format("%s %s", AUTHORIZATION_TYPE, encodedAuthPair);
+    protected void completeAuthenticationRequest(HttpUriRequest request, Response responseIgnored) {
+        Base64.Encoder encoder = Base64.getEncoder();
+        String unencodedAuthPair = String.format("%s:%s", username, password);
+        String encodedAuthPair = encoder.encodeToString(unencodedAuthPair.getBytes());
+        String encodedHeaderValue = String.format("%s %s", AUTHORIZATION_TYPE, encodedAuthPair);
 
         authenticationSupport.addAuthenticationHeader(this, request, AuthenticationSupport.AUTHORIZATION_HEADER, encodedHeaderValue);
     }

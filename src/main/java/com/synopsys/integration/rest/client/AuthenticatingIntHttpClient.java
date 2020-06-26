@@ -29,6 +29,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
@@ -45,6 +46,14 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
         RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
         super(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders);
     }
+
+    @Override
+    protected final void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+        httpClientBuilder.setRedirectStrategy(new LaxRedirectStrategy());
+        populateAuthenticatingHttpClientBuilder(httpClientBuilder, defaultRequestConfigBuilder);
+    }
+
+    protected abstract void populateAuthenticatingHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder);
 
     public abstract boolean isAlreadyAuthenticated(HttpUriRequest request);
 
