@@ -74,8 +74,8 @@ class AuthenticatingIntHttpClientTest {
             }
         });
 
-        final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
-        final CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+        IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
         Mockito.doAnswer(invocation -> {
             if (isAuthenticated && !isAuthenticationExpired) {
                 return successfulResponse;
@@ -84,11 +84,15 @@ class AuthenticatingIntHttpClientTest {
             }
         }).when(httpClient).execute(any());
 
-        final HttpClientBuilder httpClientBuilder = Mockito.mock(HttpClientBuilder.class);
+        HttpClientBuilder httpClientBuilder = Mockito.mock(HttpClientBuilder.class);
         Mockito.when(httpClientBuilder.build()).thenReturn(httpClient);
         authenticatingIntHttpClient = new AuthenticatingIntHttpClient(logger, 10, true, ProxyInfo.NO_PROXY_INFO, new BasicCredentialsProvider(), httpClientBuilder, RequestConfig.custom(), new HashMap<>()) {
             @Override
-            public boolean isAlreadyAuthenticated(final HttpUriRequest request) {
+            protected void populateAuthenticatingHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+            }
+
+            @Override
+            public boolean isAlreadyAuthenticated(HttpUriRequest request) {
                 return isAuthenticated;
             }
 
@@ -98,7 +102,7 @@ class AuthenticatingIntHttpClientTest {
             }
 
             @Override
-            protected void completeAuthenticationRequest(final HttpUriRequest request, final Response response) {
+            protected void completeAuthenticationRequest(HttpUriRequest request, Response response) {
                 isAuthenticated = true;
                 isAuthenticationExpired = false;
             }
@@ -114,7 +118,7 @@ class AuthenticatingIntHttpClientTest {
             }
 
             @Override
-            public Response execute(final Request request) throws IntegrationException {
+            public Response execute(Request request) throws IntegrationException {
                 return super.execute(request);
             }
         };
@@ -122,9 +126,9 @@ class AuthenticatingIntHttpClientTest {
 
     @Test
     void testUnauthenticated() throws IntegrationException, URISyntaxException {
-        final HttpUriRequest request = Mockito.mock(HttpUriRequest.class);
+        HttpUriRequest request = Mockito.mock(HttpUriRequest.class);
         Mockito.when(request.getURI()).thenReturn(new URI("http://synopsys.com"));
-        final Response response = authenticatingIntHttpClient.execute(request);
+        Response response = authenticatingIntHttpClient.execute(request);
         Assertions.assertEquals(RestConstants.OK_200, response.getStatusCode(), "Expected the initial authentication to be successful.");
     }
 
@@ -132,10 +136,10 @@ class AuthenticatingIntHttpClientTest {
     void testExpiredAuthentication() throws IntegrationException, URISyntaxException {
         isAuthenticated = true;
         isAuthenticationExpired = true;
-        final HttpUriRequest request = Mockito.mock(HttpUriRequest.class);
+        HttpUriRequest request = Mockito.mock(HttpUriRequest.class);
         Mockito.when(request.getURI()).thenReturn(new URI("http://synopsys.com"));
 
-        final Response failedResponse = authenticatingIntHttpClient.execute(request);
+        Response failedResponse = authenticatingIntHttpClient.execute(request);
         Assertions.assertEquals(RestConstants.OK_200, failedResponse.getStatusCode(), "Expected an authenticated but expired request to be successful because the authentication should have been reattempted.");
     }
 }

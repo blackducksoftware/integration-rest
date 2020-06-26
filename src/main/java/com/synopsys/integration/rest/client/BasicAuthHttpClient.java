@@ -53,7 +53,7 @@ public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     }
 
     @Override
-    protected final void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+    protected final void populateAuthenticatingHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
         httpClientBuilder.setDefaultCookieStore(new BasicCookieStore());
         defaultRequestConfigBuilder.setCookieSpec(CookieSpecs.DEFAULT);
         populateBasicHttpClientBuilder(httpClientBuilder, defaultRequestConfigBuilder);
