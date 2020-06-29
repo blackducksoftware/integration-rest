@@ -2,6 +2,7 @@ package com.synopsys.integration.rest.it
 
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.PrintStreamIntLogger
+import com.synopsys.integration.rest.HttpUrl
 import com.synopsys.integration.rest.RestConstants
 import com.synopsys.integration.rest.client.IntHttpClient
 import com.synopsys.integration.rest.credentials.Credentials
@@ -32,7 +33,8 @@ class IntHttpClientTestIT {
         proxyBuilder.host = null
         ProxyInfo proxyInfo = proxyBuilder.build()
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        HttpUrl url = restConnectionTestHelper.getIntegrationServerUrl()
+        Request request = new Request.Builder(url).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeSuccess)
         }
@@ -45,7 +47,8 @@ class IntHttpClientTestIT {
         proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_PASSTHROUGH"))
         ProxyInfo proxyInfo = proxyBuilder.build()
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        HttpUrl url = restConnectionTestHelper.getIntegrationServerUrl()
+        Request request = new Request.Builder(url).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeSuccess)
         }
@@ -63,7 +66,8 @@ class IntHttpClientTestIT {
         proxyBuilder.credentials = credentialsBuilder.build()
         ProxyInfo proxyInfo = proxyBuilder.build()
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        HttpUrl url = restConnectionTestHelper.getIntegrationServerUrl()
+        Request request = new Request.Builder(url).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeSuccess)
         }
@@ -76,7 +80,8 @@ class IntHttpClientTestIT {
         proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
         ProxyInfo proxyInfo = proxyBuilder.build()
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        HttpUrl url = restConnectionTestHelper.getIntegrationServerUrl()
+        Request request = new Request.Builder(url).build()
         restConnection.execute(request).withCloseable {
             assertEquals(RestConstants.PROXY_AUTH_407, it.statusCode)
             assertTrue(it.statusMessage.contains("Proxy Authentication Required"))
@@ -92,7 +97,8 @@ class IntHttpClientTestIT {
         proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
         ProxyInfo proxyInfo = proxyBuilder.build()
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        HttpUrl url = restConnectionTestHelper.getIntegrationServerUrl()
+        Request request = new Request.Builder(url).build()
         restConnection.execute(request).withCloseable {
             assertEquals(RestConstants.PROXY_AUTH_407, it.statusCode)
             assertTrue(it.statusMessage.contains("Proxy Authentication Required"))
@@ -115,7 +121,8 @@ class IntHttpClientTestIT {
         proxyBuilder.credentials = proxyCredentials
         ProxyInfo proxyInfo = proxyBuilder.build()
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        HttpUrl url = restConnectionTestHelper.getIntegrationServerUrl()
+        Request request = new Request.Builder(url).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeSuccess)
         }
@@ -128,7 +135,8 @@ class IntHttpClientTestIT {
         proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
         ProxyInfo proxyInfo = proxyBuilder.build()
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        HttpUrl url = restConnectionTestHelper.getIntegrationServerUrl()
+        Request request = new Request.Builder(url).build()
         restConnection.execute(request).withCloseable {
             assertEquals(RestConstants.PROXY_AUTH_407, it.statusCode)
             assertTrue(it.statusMessage.contains("Proxy Authentication Required"))
@@ -149,7 +157,8 @@ class IntHttpClientTestIT {
         proxyBuilder.ntlmWorkstation = restConnectionTestHelper.getProperty("TEST_PROXY_WORKSTATION_NTLM")
         ProxyInfo proxyInfo = proxyBuilder.build()
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        HttpUrl url = restConnectionTestHelper.getIntegrationServerUrl()
+        Request request = new Request.Builder(url).build()
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeSuccess)
         }
@@ -162,7 +171,8 @@ class IntHttpClientTestIT {
         proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
         ProxyInfo proxyInfo = proxyBuilder.build()
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection(proxyInfo)
-        Request request = new Request.Builder().uri(restConnectionTestHelper.getIntegrationServerUrlString()).build()
+        HttpUrl url = restConnectionTestHelper.getIntegrationServerUrl()
+        Request request = new Request.Builder(url).build()
         restConnection.execute(request).withCloseable {
             assertEquals(RestConstants.PROXY_AUTH_407, it.statusCode)
             assertTrue(it.statusMessage.contains("Proxy Authentication Required"))
@@ -174,7 +184,7 @@ class IntHttpClientTestIT {
     void testUnauthorizedGet() throws Exception {
         String url = restConnectionTestHelper.getProperty("TEST_AUTHENTICATED_SERVER_URL")
         final IntHttpClient restConnection = new IntHttpClient(logger, 120, true, ProxyInfo.NO_PROXY_INFO)
-        final Request request = new Request.Builder(url.toString()).build()
+        final Request request = new Request.Builder(new HttpUrl(url)).build()
         System.out.println("Executing: " + request.toString())
         restConnection.execute(request).withCloseable {
             assertTrue(it.statusCodeError)

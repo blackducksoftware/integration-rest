@@ -22,13 +22,14 @@
  */
 package com.synopsys.integration.rest.support;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
-import java.util.Optional;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.rest.HttpMethod;
+import com.synopsys.integration.rest.HttpUrl;
+import com.synopsys.integration.rest.client.AuthenticatingIntHttpClient;
+import com.synopsys.integration.rest.response.Response;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -37,45 +38,37 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
-import com.synopsys.integration.rest.HttpMethod;
-import com.synopsys.integration.rest.client.AuthenticatingIntHttpClient;
-import com.synopsys.integration.rest.response.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Optional;
 
 public class AuthenticationSupport {
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
-    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, String baseUrl, String authenticationUrl, Map<String, String> requestHeaders) throws IntegrationException {
-        RequestBuilder requestBuilder = authenticatingIntHttpClient.createRequestBuilder(HttpMethod.POST, requestHeaders);
-        return attemptAuthentication(authenticatingIntHttpClient, baseUrl, authenticationUrl, requestBuilder);
+    private UrlSupport urlSupport;
+
+    public AuthenticationSupport(UrlSupport urlSupport) {
+        this.urlSupport = urlSupport;
     }
 
-    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, String baseUrl, String authenticationUrl, HttpEntity httpEntity) throws IntegrationException {
+    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl baseUrl, String authenticationSuffix, Map<String, String> requestHeaders) throws IntegrationException {
+        HttpUrl authenticationUrl = urlSupport.appendRelativeUrl(baseUrl, authenticationSuffix);
+        RequestBuilder requestBuilder = authenticatingIntHttpClient.createRequestBuilder(HttpMethod.POST, requestHeaders);
+        return attemptAuthentication(authenticatingIntHttpClient, authenticationUrl, requestBuilder);
+    }
+
+    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl baseUrl, String authenticationSuffix, HttpEntity httpEntity) throws IntegrationException {
+        HttpUrl authenticationUrl = urlSupport.appendRelativeUrl(baseUrl, authenticationSuffix);
         RequestBuilder requestBuilder = authenticatingIntHttpClient.createRequestBuilder(HttpMethod.POST);
         requestBuilder.setEntity(httpEntity);
-        return attemptAuthentication(authenticatingIntHttpClient, baseUrl, authenticationUrl, requestBuilder);
+        return attemptAuthentication(authenticatingIntHttpClient, authenticationUrl, requestBuilder);
     }
 
-    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, String baseUrl, String authenticationUrl, RequestBuilder requestBuilder) throws IntegrationException {
-        URL authenticationURL;
-        try {
-            if (!baseUrl.endsWith("/")) {
-                baseUrl = baseUrl + "/";
-            }
-            URL baseURL = new URL(baseUrl);
-            if (authenticationUrl.startsWith("/")) {
-                authenticationUrl = authenticationUrl.substring(1);
-            }
-            authenticationURL = new URL(baseURL, authenticationUrl);
-        } catch (MalformedURLException e) {
-            throw new IntegrationException("Error constructing the authentication URL: " + e.getMessage(), e);
-        }
-
-        requestBuilder.setCharset(Charsets.UTF_8);
-        requestBuilder.setUri(authenticationURL.toString());
+    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl authenticationUrl, RequestBuilder requestBuilder) throws IntegrationException {
+        requestBuilder.setCharset(StandardCharsets.UTF_8);
+        requestBuilder.setUri(authenticationUrl.string());
         HttpUriRequest request = requestBuilder.build();
         authenticatingIntHttpClient.logRequestHeaders(request);
 

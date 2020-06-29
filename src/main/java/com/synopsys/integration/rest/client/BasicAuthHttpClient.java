@@ -22,20 +22,19 @@
  */
 package com.synopsys.integration.rest.client;
 
-import java.util.Base64;
-
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.HttpClientBuilder;
-
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.response.Response;
 import com.synopsys.integration.rest.support.AuthenticationSupport;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClientBuilder;
+
+import java.util.Base64;
 
 public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     private static final String AUTHORIZATION_TYPE = "Basic";
@@ -53,29 +52,30 @@ public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     }
 
     @Override
-    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) {
+    public void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+        super.populateHttpClientBuilder(httpClientBuilder, defaultRequestConfigBuilder);
         httpClientBuilder.setDefaultCookieStore(new BasicCookieStore());
         defaultRequestConfigBuilder.setCookieSpec(CookieSpecs.DEFAULT);
     }
 
     @Override
-    public void handleErrorResponse(final HttpUriRequest request, final Response response) {
+    public void handleErrorResponse(HttpUriRequest request, Response response) {
         super.handleErrorResponse(request, response);
 
         authenticationSupport.handleErrorResponse(this, request, response, RestConstants.X_CSRF_TOKEN);
     }
 
     @Override
-    public boolean isAlreadyAuthenticated(final HttpUriRequest request) {
+    public boolean isAlreadyAuthenticated(HttpUriRequest request) {
         return request.containsHeader(AuthenticationSupport.AUTHORIZATION_HEADER);
     }
 
     @Override
-    protected void completeAuthenticationRequest(final HttpUriRequest request, final Response responseIgnored) {
-        final Base64.Encoder encoder = Base64.getEncoder();
-        final String unencodedAuthPair = String.format("%s:%s", username, password);
-        final String encodedAuthPair = encoder.encodeToString(unencodedAuthPair.getBytes());
-        final String encodedHeaderValue = String.format("%s %s", AUTHORIZATION_TYPE, encodedAuthPair);
+    protected void completeAuthenticationRequest(HttpUriRequest request, Response responseIgnored) {
+        Base64.Encoder encoder = Base64.getEncoder();
+        String unencodedAuthPair = String.format("%s:%s", username, password);
+        String encodedAuthPair = encoder.encodeToString(unencodedAuthPair.getBytes());
+        String encodedHeaderValue = String.format("%s %s", AUTHORIZATION_TYPE, encodedAuthPair);
 
         authenticationSupport.addAuthenticationHeader(this, request, AuthenticationSupport.AUTHORIZATION_HEADER, encodedHeaderValue);
     }
