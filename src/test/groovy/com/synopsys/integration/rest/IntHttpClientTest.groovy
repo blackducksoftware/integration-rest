@@ -42,8 +42,8 @@ class IntHttpClientTest {
         server.shutdown()
     }
 
-    private String getValidUri() {
-        return server.url("www.synopsys.com").uri()
+    private HttpUrl getValidUrl() {
+        return new HttpUrl(server.url("www.synopsys.com").uri())
     }
 
     private IntHttpClient getRestConnection() {
@@ -67,8 +67,7 @@ class IntHttpClientTest {
         int timeoutSeconds = 213
 
         try {
-            IntHttpClient restConnection = new IntHttpClient(logger, timeoutSeconds, true, null)
-            restConnection.initialize()
+            new IntHttpClient(logger, timeoutSeconds, true, null)
             fail('Should have thrown exception')
         } catch (IllegalArgumentException e) {
             assert IntHttpClient.ERROR_MSG_PROXY_INFO_NULL == e.getMessage()
@@ -80,7 +79,7 @@ class IntHttpClientTest {
         IntHttpClient restConnection = getRestConnection()
         restConnection.commonRequestHeaders.put("Common", "Header")
         RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.DELETE)
-        requestBuilder.setUri(getValidUri())
+        requestBuilder.setUri(getValidUrl().uri())
         assert null != requestBuilder.getHeaders("Common")
 
         Response response = restConnection.execute(requestBuilder.build())
@@ -90,12 +89,10 @@ class IntHttpClientTest {
 
     @Test
     void testHandleExecuteClientCallFail() {
-        IntHttpClient restConnection = getRestConnection()
+        IntHttpClient restConnection = getRestConnection(new MockResponse().setResponseCode(404))
         RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.GET)
-        requestBuilder.setUri(getValidUri())
+        requestBuilder.setUri(getValidUrl().uri())
         HttpUriRequest request = requestBuilder.build()
-
-        restConnection = getRestConnection(new MockResponse().setResponseCode(404))
         try {
             final Response response = restConnection.execute(request)
             assert 404 == response.getStatusCode()
@@ -117,10 +114,10 @@ class IntHttpClientTest {
         IntHttpClient restConnection = new IntHttpClient(logger, 300, true, ProxyInfo.NO_PROXY_INFO)
         Request request = new Request.Builder().build()
         try {
-            request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
+            restConnection.createHttpUriRequest(request)
             fail('Should have thrown exception')
         } catch (IntegrationException e) {
-            assert "Missing the URI" == e.getMessage()
+            assert "Missing the HttpUrl" == e.getMessage()
         }
     }
 
@@ -128,66 +125,66 @@ class IntHttpClientTest {
     void testCreateHttpRequest() {
         IntHttpClient restConnection = getRestConnection()
 
-        final String uri = getValidUri()
+        final HttpUrl url = getValidUrl()
         Map<String, String> queryParametes = [test: "one", query: "two"]
         String q = 'q'
         String mimeType = 'mime'
         Charset bodyEncoding = Charsets.UTF_8
 
-        Request request = new Request.Builder(uri).build()
-        HttpUriRequest uriRequest = request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
+        Request request = new Request.Builder(url).build()
+        HttpUriRequest uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
         assert ContentType.APPLICATION_JSON.getMimeType() == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
         assert null != uriRequest.getURI()
-        assert uriRequest.getURI().toString().contains(uri)
+        assert uriRequest.getURI().toString().contains(url.string())
 
-        request = new Request.Builder(uri).build()
-        uriRequest = request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
+        request = new Request.Builder(url).build()
+        uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
         assert ContentType.APPLICATION_JSON.getMimeType() == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
         assert null != uriRequest.getURI()
-        assert uriRequest.getURI().toString().contains(uri)
+        assert uriRequest.getURI().toString().contains(url.string())
 
-        request = new Request.Builder(uri).queryParameters([offset: ['0'] as Set, limit: ['100'] as Set]).build()
-        uriRequest = request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
+        request = new Request.Builder(url).queryParameters([offset: ['0'] as Set, limit: ['100'] as Set]).build()
+        uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
         assert ContentType.APPLICATION_JSON.getMimeType() == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
         assert null != uriRequest.getURI()
-        assert uriRequest.getURI().toString().contains(uri)
+        assert uriRequest.getURI().toString().contains(url.string())
         assert uriRequest.getURI().toString().contains('offset=0')
         assert uriRequest.getURI().toString().contains('limit=100')
 
-        request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').additionalHeaders([header: 'one', thing: 'two']).
+        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').headers([header: 'one', thing: 'two']).
                 build()
-        uriRequest = request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
+        uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
         assert 'one' == uriRequest.getFirstHeader('header').getValue()
         assert 'two' == uriRequest.getFirstHeader('thing').getValue()
         assert null != uriRequest.getURI()
-        assert uriRequest.getURI().toString().contains(uri)
+        assert uriRequest.getURI().toString().contains(url.string())
         assert uriRequest.getURI().toString().contains('offset=0')
         assert uriRequest.getURI().toString().contains('limit=100')
 
         Map headersMap = [header: 'one', thing: 'two']
         headersMap.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
-        request = new Request.Builder(uri).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').bodyEncoding(bodyEncoding).
-                additionalHeaders(headersMap).build()
-        uriRequest = request.createHttpUriRequest(restConnection.getCommonRequestHeaders())
+        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').bodyEncoding(bodyEncoding).
+                headers(headersMap).build()
+        uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
         assert ContentType.APPLICATION_XML.getMimeType() == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
         assert null != uriRequest.getURI()
-        assert uriRequest.getURI().toString().contains(uri)
+        assert uriRequest.getURI().toString().contains(url.string())
         assert uriRequest.getURI().toString().contains('offset=0')
         assert uriRequest.getURI().toString().contains('limit=100')
 
-        Request deleteRequest = new Request.Builder(uri).method(HttpMethod.DELETE).mimeType('mime').bodyEncoding(bodyEncoding).additionalHeaders([header: 'one', thing: 'two']).build()
-        uriRequest = deleteRequest.createHttpUriRequest(restConnection.getCommonRequestHeaders())
+        Request deleteRequest = new Request.Builder(url).method(HttpMethod.DELETE).mimeType('mime').bodyEncoding(bodyEncoding).headers([header: 'one', thing: 'two']).build()
+        uriRequest = restConnection.createHttpUriRequest(deleteRequest)
         assert HttpMethod.DELETE.name() == uriRequest.method
         assert 'one' == uriRequest.getFirstHeader('header').getValue()
         assert 'two' == uriRequest.getFirstHeader('thing').getValue()
         assert 2 == uriRequest.getAllHeaders().size()
         assert null != uriRequest.getURI()
-        assert uriRequest.getURI().toString().contains(uri)
+        assert uriRequest.getURI().toString().contains(url.string())
     }
 
 }

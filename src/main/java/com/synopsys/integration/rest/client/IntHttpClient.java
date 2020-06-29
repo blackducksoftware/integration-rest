@@ -22,38 +22,6 @@
  */
 package com.synopsys.integration.rest.client;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustAllStrategy;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.SSLContexts;
-
 import com.jayway.jsonpath.JsonPath;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
@@ -64,6 +32,40 @@ import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Request;
 import com.synopsys.integration.rest.response.ErrorResponse;
 import com.synopsys.integration.rest.response.Response;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.*;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.NTCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustAllStrategy;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * A basic, extendable http client.
@@ -88,7 +90,7 @@ public class IntHttpClient {
     }
 
     public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
-        RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
+                         RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
         this.logger = logger;
         this.proxyInfo = proxyInfo;
         this.timeoutInSeconds = timeoutInSeconds;
@@ -146,8 +148,59 @@ public class IntHttpClient {
         return requestBuilder;
     }
 
+    public HttpUriRequest createHttpUriRequest(Request request) throws IntegrationException {
+        if (request.getMethod() == null) {
+            throw new IntegrationException("Missing the HttpMethod");
+        }
+        if (request.getUrl() == null) {
+            throw new IntegrationException("Missing the HttpUrl");
+        }
+
+        RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
+
+        URIBuilder uriBuilder = new URIBuilder(request.getUrl().uri());
+        Map<String, Set<String>> populatedQueryParameters = request.getPopulatedQueryParameters();
+        populatedQueryParameters.forEach((paramKey, paramValues) -> {
+            paramValues.forEach((paramValue) -> {
+                uriBuilder.addParameter(paramKey, paramValue);
+            });
+        });
+        try {
+            requestBuilder.setUri(uriBuilder.build());
+        } catch (URISyntaxException e) {
+            throw new IntegrationException("Invalid url with parameters: " + uriBuilder.toString());
+        }
+
+        String mimeType = ContentType.APPLICATION_JSON.getMimeType();
+        Charset bodyEncoding = StandardCharsets.UTF_8;
+        if (StringUtils.isNotBlank(request.getMimeType())) {
+            mimeType = request.getMimeType();
+        }
+
+        if (request.getBodyEncoding() != null) {
+            bodyEncoding = request.getBodyEncoding();
+        }
+
+        if (HttpMethod.GET == request.getMethod() && (request.getHeaders() == null || request.getHeaders().isEmpty() || !request.getHeaders().containsKey(HttpHeaders.ACCEPT))) {
+            requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
+        }
+        requestBuilder.setCharset(bodyEncoding);
+        for (Map.Entry<String, String> header : request.getHeaders().entrySet()) {
+            requestBuilder.addHeader(header.getKey(), header.getValue());
+        }
+        for (Map.Entry<String, String> header : commonRequestHeaders.entrySet()) {
+            requestBuilder.addHeader(header.getKey(), header.getValue());
+        }
+
+        HttpEntity entity = request.createHttpEntity();
+        if (entity != null) {
+            requestBuilder.setEntity(entity);
+        }
+        return requestBuilder.build();
+    }
+
     public Response execute(Request request) throws IntegrationException {
-        HttpUriRequest httpUriRequest = request.createHttpUriRequest(commonRequestHeaders);
+        HttpUriRequest httpUriRequest = createHttpUriRequest(request);
         return execute(httpUriRequest);
     }
 
@@ -166,7 +219,7 @@ public class IntHttpClient {
         Request headRequest = new Request.Builder(getRequest).method(HttpMethod.HEAD).build();
 
         long lastModifiedOnServer = 0L;
-        try (Response headResponse = execute(headRequest.createHttpUriRequest(commonRequestHeaders))) {
+        try (Response headResponse = execute(createHttpUriRequest(headRequest))) {
             lastModifiedOnServer = headResponse.getLastModified();
             logger.debug(String.format("Last modified on server: %d", lastModifiedOnServer));
         } catch (IntegrationException e) {
@@ -179,7 +232,7 @@ public class IntHttpClient {
             return Optional.empty();
         }
 
-        return Optional.of(execute(getRequest.createHttpUriRequest(commonRequestHeaders)));
+        return Optional.of(execute(createHttpUriRequest(getRequest)));
     }
 
     public final void logRequestHeaders(HttpUriRequest request) {
@@ -229,7 +282,7 @@ public class IntHttpClient {
             defaultRequestConfigBuilder.setProxy(new HttpHost(proxyInfo.getHost().orElse(null), proxyInfo.getPort()));
             if (proxyInfo.hasAuthenticatedProxySettings()) {
                 org.apache.http.auth.Credentials credentials = new NTCredentials(proxyInfo.getUsername().orElse(null), proxyInfo.getPassword().orElse(null), proxyInfo.getNtlmWorkstation().orElse(null),
-                    proxyInfo.getNtlmDomain().orElse(null));
+                        proxyInfo.getNtlmDomain().orElse(null));
                 credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost().orElse(null), proxyInfo.getPort()), credentials);
             }
         }

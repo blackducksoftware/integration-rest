@@ -3,6 +3,7 @@ package com.synopsys.integration.rest.it
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
+import com.synopsys.integration.rest.HttpUrl
 import com.synopsys.integration.rest.client.IntHttpClient
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import okhttp3.OkHttpClient
@@ -16,19 +17,19 @@ import static org.junit.jupiter.api.Assertions.fail
 public class RestConnectionTestHelper {
     public static final LogLevel DEFAULT_LOGGING_LEVEL = LogLevel.TRACE;
 
-    private final String serverUrl
+    private final HttpUrl serverUrl
     private final IntLogger logger = new PrintStreamIntLogger(System.out, DEFAULT_LOGGING_LEVEL)
 
     private Properties testProperties
 
     RestConnectionTestHelper() {
         initProperties()
-        this.serverUrl = getProperty(TestingPropertyKey.TEST_HTTPS_SERVER_URL)
+        this.serverUrl = new HttpUrl(getProperty(TestingPropertyKey.TEST_HTTPS_SERVER_URL))
     }
 
     RestConnectionTestHelper(final String serverUrlPropertyName) {
         initProperties()
-        this.serverUrl = testProperties.getProperty(serverUrlPropertyName)
+        this.serverUrl = new HttpUrl(testProperties.getProperty(serverUrlPropertyName))
     }
 
     private void initProperties() {
@@ -73,18 +74,8 @@ public class RestConnectionTestHelper {
         return testProperties.getProperty(key)
     }
 
-    String getIntegrationServerUrlString() {
+    HttpUrl getIntegrationServerUrl() {
         return serverUrl
-    }
-
-    URL getIntegrationServerUrl() {
-        URL url
-        try {
-            url = new URL(getIntegrationServerUrlString())
-        } catch (final MalformedURLException e) {
-            throw new RuntimeException(e)
-        }
-        return url
     }
 
     int getTimeout() {

@@ -53,13 +53,13 @@ public class AuthenticationSupport {
         this.urlSupport = urlSupport;
     }
 
-    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, String baseUrl, String authenticationSuffix, Map<String, String> requestHeaders) throws IntegrationException {
+    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl baseUrl, String authenticationSuffix, Map<String, String> requestHeaders) throws IntegrationException {
         HttpUrl authenticationUrl = urlSupport.appendRelativeUrl(baseUrl, authenticationSuffix);
         RequestBuilder requestBuilder = authenticatingIntHttpClient.createRequestBuilder(HttpMethod.POST, requestHeaders);
         return attemptAuthentication(authenticatingIntHttpClient, authenticationUrl, requestBuilder);
     }
 
-    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, String baseUrl, String authenticationSuffix, HttpEntity httpEntity) throws IntegrationException {
+    public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl baseUrl, String authenticationSuffix, HttpEntity httpEntity) throws IntegrationException {
         HttpUrl authenticationUrl = urlSupport.appendRelativeUrl(baseUrl, authenticationSuffix);
         RequestBuilder requestBuilder = authenticatingIntHttpClient.createRequestBuilder(HttpMethod.POST);
         requestBuilder.setEntity(httpEntity);
