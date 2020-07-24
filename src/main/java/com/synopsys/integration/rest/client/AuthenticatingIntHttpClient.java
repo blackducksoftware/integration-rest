@@ -56,29 +56,9 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
         }
     }
 
-    protected abstract void completeAuthenticationRequest(HttpUriRequest request, Response response) throws IntegrationException;
-
     @Override
     public Response execute(HttpUriRequest request) throws IntegrationException {
         return retryExecute(request, 0);
-    }
-
-    private Response retryExecute(HttpUriRequest request, int retryCount) throws IntegrationException {
-        if (!isAlreadyAuthenticated(request)) {
-            authenticateRequest(request);
-        }
-        Response response = super.execute(request);
-
-        boolean notOkay = isUnauthorizedOrForbidden(response);
-
-        if (notOkay && retryCount < 2) {
-            authenticateRequest(request);
-            return retryExecute(request, retryCount + 1);
-        } else if (notOkay) {
-            response.throwExceptionForError();
-        }
-
-        return response;
     }
 
     public final boolean isUnauthorizedOrForbidden(Response response) {
@@ -116,6 +96,26 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
 
         logger.info("A successful connection was made.");
         return ConnectionResult.SUCCESS(httpStatusCode);
+    }
+
+    protected abstract void completeAuthenticationRequest(HttpUriRequest request, Response response) throws IntegrationException;
+
+    private Response retryExecute(HttpUriRequest request, int retryCount) throws IntegrationException {
+        if (!isAlreadyAuthenticated(request)) {
+            authenticateRequest(request);
+        }
+        Response response = super.execute(request);
+
+        boolean notOkay = isUnauthorizedOrForbidden(response);
+
+        if (notOkay && retryCount < 2) {
+            authenticateRequest(request);
+            return retryExecute(request, retryCount + 1);
+        } else if (notOkay) {
+            response.throwExceptionForError();
+        }
+
+        return response;
     }
 
 }

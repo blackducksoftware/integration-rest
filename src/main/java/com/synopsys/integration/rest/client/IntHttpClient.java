@@ -113,17 +113,9 @@ public class IntHttpClient {
 
         addBuilderConnectionTimes();
         addBuilderProxyInformation();
-        populateHttpClientBuilder(clientBuilder, defaultRequestConfigBuilder);
+        addToHttpClientBuilder(clientBuilder, defaultRequestConfigBuilder);
         addBuilderCredentialsProvider();
         addBuilderSSLContext();
-    }
-
-    public void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
-        // Subclasses can optionally add to the builders any additional fields they need to successfully initialize
-    }
-
-    public void handleErrorResponse(HttpUriRequest request, Response response) {
-        // Subclasses can optionally handle an error response and modify the request
     }
 
     public final RequestBuilder createRequestBuilder(HttpMethod method) throws IntegrationException {
@@ -244,6 +236,14 @@ public class IntHttpClient {
         String responseName = response.getClass().getSimpleName();
         logger.trace(responseName + " : " + response.toString());
         logHeaders(responseName, response.getAllHeaders());
+    }
+
+    protected void addToHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+        // Subclasses can optionally add to the builders any additional fields they need to successfully initialize
+    }
+
+    protected void handleErrorResponse(HttpUriRequest request, Response response) {
+        // Subclasses can optionally handle an error response and modify the request
     }
 
     private void addBuilderConnectionTimes() {

@@ -52,22 +52,14 @@ public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     }
 
     @Override
-    public void populateHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
-        super.populateHttpClientBuilder(httpClientBuilder, defaultRequestConfigBuilder);
-        httpClientBuilder.setDefaultCookieStore(new BasicCookieStore());
-        defaultRequestConfigBuilder.setCookieSpec(CookieSpecs.DEFAULT);
-    }
-
-    @Override
-    public void handleErrorResponse(HttpUriRequest request, Response response) {
-        super.handleErrorResponse(request, response);
-
-        authenticationSupport.handleErrorResponse(this, request, response, RestConstants.X_CSRF_TOKEN);
-    }
-
-    @Override
     public boolean isAlreadyAuthenticated(HttpUriRequest request) {
         return request.containsHeader(AuthenticationSupport.AUTHORIZATION_HEADER);
+    }
+
+    @Override
+    public final Response attemptAuthentication() throws IntegrationException {
+        // Nothing to do for Basic Auth
+        return null;
     }
 
     @Override
@@ -81,9 +73,17 @@ public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     }
 
     @Override
-    public final Response attemptAuthentication() throws IntegrationException {
-        // Nothing to do for Basic Auth
-        return null;
+    protected void addToHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
+        super.addToHttpClientBuilder(httpClientBuilder, defaultRequestConfigBuilder);
+        httpClientBuilder.setDefaultCookieStore(new BasicCookieStore());
+        defaultRequestConfigBuilder.setCookieSpec(CookieSpecs.DEFAULT);
+    }
+
+    @Override
+    protected void handleErrorResponse(HttpUriRequest request, Response response) {
+        super.handleErrorResponse(request, response);
+
+        authenticationSupport.handleErrorResponse(this, request, response, RestConstants.X_CSRF_TOKEN);
     }
 
 }
