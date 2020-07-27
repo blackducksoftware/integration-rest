@@ -1,8 +1,8 @@
 /**
  * integration-rest
- *
+ * <p>
  * Copyright (c) 2020 Synopsys, Inc.
- *
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -10,9 +10,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -162,10 +162,10 @@ public class IntHttpClient {
             throw new IntegrationException("Invalid url with parameters: " + uriBuilder.toString());
         }
 
-        String mimeType = ContentType.APPLICATION_JSON.getMimeType();
+        String acceptMimeType = ContentType.APPLICATION_JSON.getMimeType();
         Charset bodyEncoding = StandardCharsets.UTF_8;
-        if (StringUtils.isNotBlank(request.getMimeType())) {
-            mimeType = request.getMimeType();
+        if (StringUtils.isNotBlank(request.getAcceptMimeType())) {
+            acceptMimeType = request.getAcceptMimeType();
         }
 
         if (request.getBodyEncoding() != null) {
@@ -173,7 +173,7 @@ public class IntHttpClient {
         }
 
         if (HttpMethod.GET == request.getMethod() && (request.getHeaders() == null || request.getHeaders().isEmpty() || !request.getHeaders().containsKey(HttpHeaders.ACCEPT))) {
-            requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
+            requestBuilder.addHeader(HttpHeaders.ACCEPT, acceptMimeType);
         }
         requestBuilder.setCharset(bodyEncoding);
         for (Map.Entry<String, String> header : request.getHeaders().entrySet()) {
