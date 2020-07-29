@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class Request extends Stringable implements Buildable {
+    public static final String DEFAULT_ACCEPT_MIME_TYPE = ContentType.APPLICATION_JSON.getMimeType();
+
     private final HttpUrl url;
     private final HttpMethod method;
     private final String acceptMimeType;
@@ -52,7 +54,7 @@ public class Request extends Stringable implements Buildable {
     public Request(HttpUrl url, HttpMethod method, String acceptMimeType, Charset bodyEncoding, Map<String, Set<String>> queryParameters, Map<String, String> headers, BodyContent bodyContent) {
         this.url = url;
         this.method = method;
-        this.acceptMimeType = StringUtils.isBlank(acceptMimeType) ? ContentType.APPLICATION_JSON.getMimeType() : acceptMimeType;
+        this.acceptMimeType = StringUtils.isBlank(acceptMimeType) ? DEFAULT_ACCEPT_MIME_TYPE : acceptMimeType;
         this.bodyEncoding = null == bodyEncoding ? StandardCharsets.UTF_8 : bodyEncoding;
         this.queryParameters.putAll(queryParameters);
         this.headers.putAll(headers);
@@ -137,7 +139,7 @@ public class Request extends Stringable implements Buildable {
             this.url = url;
             this.method = method;
             this.headers.putAll(headers);
-            acceptMimeType = ContentType.APPLICATION_JSON.getMimeType();
+            acceptMimeType = DEFAULT_ACCEPT_MIME_TYPE;
             bodyEncoding = StandardCharsets.UTF_8;
         }
 

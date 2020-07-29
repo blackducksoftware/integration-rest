@@ -45,7 +45,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustAllStrategy;
-import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -162,7 +161,7 @@ public class IntHttpClient {
             throw new IntegrationException("Invalid url with parameters: " + uriBuilder.toString());
         }
 
-        String acceptMimeType = ContentType.APPLICATION_JSON.getMimeType();
+        String acceptMimeType = Request.DEFAULT_ACCEPT_MIME_TYPE;
         Charset bodyEncoding = StandardCharsets.UTF_8;
         if (StringUtils.isNotBlank(request.getAcceptMimeType())) {
             acceptMimeType = request.getAcceptMimeType();
