@@ -134,27 +134,27 @@ class IntHttpClientTest {
         Request request = new Request.Builder(url).build()
         HttpUriRequest uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
-        assert ContentType.APPLICATION_JSON.getMimeType() == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert Request.DEFAULT_ACCEPT_MIME_TYPE == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
         assert null != uriRequest.getURI()
         assert uriRequest.getURI().toString().contains(url.string())
 
         request = new Request.Builder(url).build()
         uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
-        assert ContentType.APPLICATION_JSON.getMimeType() == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert Request.DEFAULT_ACCEPT_MIME_TYPE == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
         assert null != uriRequest.getURI()
         assert uriRequest.getURI().toString().contains(url.string())
 
         request = new Request.Builder(url).queryParameters([offset: ['0'] as Set, limit: ['100'] as Set]).build()
         uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
-        assert ContentType.APPLICATION_JSON.getMimeType() == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert Request.DEFAULT_ACCEPT_MIME_TYPE == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
         assert null != uriRequest.getURI()
         assert uriRequest.getURI().toString().contains(url.string())
         assert uriRequest.getURI().toString().contains('offset=0')
         assert uriRequest.getURI().toString().contains('limit=100')
 
-        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').headers([header: 'one', thing: 'two']).
+        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).acceptMimeType('mime').headers([header: 'one', thing: 'two']).
                 build()
         uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
@@ -167,7 +167,7 @@ class IntHttpClientTest {
 
         Map headersMap = [header: 'one', thing: 'two']
         headersMap.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
-        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).mimeType('mime').bodyEncoding(bodyEncoding).
+        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).acceptMimeType('mime').bodyEncoding(bodyEncoding).
                 headers(headersMap).build()
         uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
@@ -177,7 +177,7 @@ class IntHttpClientTest {
         assert uriRequest.getURI().toString().contains('offset=0')
         assert uriRequest.getURI().toString().contains('limit=100')
 
-        Request deleteRequest = new Request.Builder(url).method(HttpMethod.DELETE).mimeType('mime').bodyEncoding(bodyEncoding).headers([header: 'one', thing: 'two']).build()
+        Request deleteRequest = new Request.Builder(url).method(HttpMethod.DELETE).acceptMimeType('mime').bodyEncoding(bodyEncoding).headers([header: 'one', thing: 'two']).build()
         uriRequest = restConnection.createHttpUriRequest(deleteRequest)
         assert HttpMethod.DELETE.name() == uriRequest.method
         assert 'one' == uriRequest.getFirstHeader('header').getValue()

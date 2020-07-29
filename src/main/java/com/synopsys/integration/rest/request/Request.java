@@ -41,18 +41,20 @@ import java.util.Map;
 import java.util.Set;
 
 public class Request extends Stringable implements Buildable {
+    public static final String DEFAULT_ACCEPT_MIME_TYPE = ContentType.APPLICATION_JSON.getMimeType();
+
     private final HttpUrl url;
     private final HttpMethod method;
-    private final String mimeType;
+    private final String acceptMimeType;
     private final Charset bodyEncoding;
     private final Map<String, Set<String>> queryParameters = new HashMap<>();
     private final Map<String, String> headers = new HashMap<>();
     private final BodyContent bodyContent;
 
-    public Request(HttpUrl url, HttpMethod method, String mimeType, Charset bodyEncoding, Map<String, Set<String>> queryParameters, Map<String, String> headers, BodyContent bodyContent) {
+    public Request(HttpUrl url, HttpMethod method, String acceptMimeType, Charset bodyEncoding, Map<String, Set<String>> queryParameters, Map<String, String> headers, BodyContent bodyContent) {
         this.url = url;
         this.method = method;
-        this.mimeType = StringUtils.isBlank(mimeType) ? ContentType.APPLICATION_JSON.getMimeType() : mimeType;
+        this.acceptMimeType = StringUtils.isBlank(acceptMimeType) ? DEFAULT_ACCEPT_MIME_TYPE : acceptMimeType;
         this.bodyEncoding = null == bodyEncoding ? StandardCharsets.UTF_8 : bodyEncoding;
         this.queryParameters.putAll(queryParameters);
         this.headers.putAll(headers);
@@ -60,7 +62,7 @@ public class Request extends Stringable implements Buildable {
     }
 
     public Request(Builder builder) {
-        this(builder.url, builder.method, builder.mimeType, builder.bodyEncoding, builder.queryParameters, builder.headers, builder.bodyContent);
+        this(builder.url, builder.method, builder.acceptMimeType, builder.bodyEncoding, builder.queryParameters, builder.headers, builder.bodyContent);
     }
 
     public HttpEntity createHttpEntity() {
@@ -82,8 +84,8 @@ public class Request extends Stringable implements Buildable {
         return method;
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public String getAcceptMimeType() {
+        return acceptMimeType;
     }
 
     public Charset getBodyEncoding() {
@@ -105,7 +107,7 @@ public class Request extends Stringable implements Buildable {
     public static class Builder extends IntegrationBuilder<Request> {
         private HttpUrl url;
         private HttpMethod method;
-        private String mimeType;
+        private String acceptMimeType;
         private Charset bodyEncoding;
         private Map<String, Set<String>> queryParameters = new HashMap<>();
         private Map<String, String> headers = new HashMap<>();
@@ -114,7 +116,7 @@ public class Request extends Stringable implements Buildable {
         public Builder(Request request) {
             url = request.url;
             method = request.method;
-            mimeType = request.mimeType;
+            acceptMimeType = request.acceptMimeType;
             bodyEncoding = request.bodyEncoding;
             queryParameters.putAll(request.queryParameters);
             headers.putAll(request.headers);
@@ -137,7 +139,7 @@ public class Request extends Stringable implements Buildable {
             this.url = url;
             this.method = method;
             this.headers.putAll(headers);
-            mimeType = ContentType.APPLICATION_JSON.getMimeType();
+            acceptMimeType = DEFAULT_ACCEPT_MIME_TYPE;
             bodyEncoding = StandardCharsets.UTF_8;
         }
 
@@ -146,7 +148,7 @@ public class Request extends Stringable implements Buildable {
             return new Request(
                     getUrl(),
                     getMethod(),
-                    getMimeType(),
+                    getAcceptMimeType(),
                     getBodyEncoding(),
                     getQueryParameters(),
                     getHeaders(),
@@ -168,8 +170,8 @@ public class Request extends Stringable implements Buildable {
             return this;
         }
 
-        public Builder mimeType(String mimeType) {
-            this.mimeType = mimeType;
+        public Builder acceptMimeType(String acceptMimeType) {
+            this.acceptMimeType = acceptMimeType;
             return this;
         }
 
@@ -211,8 +213,8 @@ public class Request extends Stringable implements Buildable {
             return method;
         }
 
-        public String getMimeType() {
-            return mimeType;
+        public String getAcceptMimeType() {
+            return acceptMimeType;
         }
 
         public Charset getBodyEncoding() {

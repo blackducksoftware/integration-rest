@@ -22,24 +22,23 @@
  */
 package com.synopsys.integration.rest.body;
 
-import java.io.File;
-
+import com.synopsys.integration.rest.request.Request;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 
-import com.synopsys.integration.rest.request.Request;
+import java.io.File;
 
 public class FileBodyContent implements BodyContent {
     private final File bodyContentFile;
 
-    public FileBodyContent(final File bodyContentFile) {
+    public FileBodyContent(File bodyContentFile) {
         this.bodyContentFile = bodyContentFile;
     }
 
     @Override
-    public HttpEntity createEntity(final Request request) {
-        return new FileEntity(getBodyContentFile(), ContentType.create(request.getMimeType(), request.getBodyEncoding()));
+    public HttpEntity createEntity(Request request) {
+        return new FileEntity(getBodyContentFile(), ContentType.create(request.getAcceptMimeType(), request.getBodyEncoding()));
     }
 
     public File getBodyContentFile() {
