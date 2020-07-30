@@ -1,8 +1,8 @@
 /**
  * integration-rest
- *
+ * <p>
  * Copyright (c) 2020 Synopsys, Inc.
- *
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -10,9 +10,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,7 +30,6 @@ import java.util.TimeZone;
 
 public class RestConstants {
     public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
-    public static final String X_CSRF_TOKEN = "X-CSRF-TOKEN";
 
     /* 2XX: generally "OK" */
     public static final int OK_200 = HttpURLConnection.HTTP_OK;
@@ -75,14 +74,14 @@ public class RestConstants {
     public static final int GATEWAY_TIMEOUT_504 = HttpURLConnection.HTTP_GATEWAY_TIMEOUT;
     public static final int VERSION_505 = HttpURLConnection.HTTP_VERSION;
 
-    public static Date parseDateString(final String dateString) throws ParseException {
-        final SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
+    public static Date parseDateString(String dateString) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.parse(dateString);
     }
 
-    public static String formatDate(final Date date) {
-        final SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
+    public static String formatDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.format(date);
     }
