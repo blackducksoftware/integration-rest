@@ -210,6 +210,9 @@ public class IntHttpClient {
 
         long lastModifiedOnServer = 0L;
         try (Response headResponse = execute(createHttpUriRequest(headRequest))) {
+            if (headResponse.isStatusCodeError()) {
+                throw new IntegrationException(String.format("GET request to %s returned HTTP status code %d", getRequest.getUrl().string(), headResponse.getStatusCode()));
+            }
             lastModifiedOnServer = headResponse.getLastModified();
             logger.debug(String.format("Last modified on server: %d", lastModifiedOnServer));
         } catch (IntegrationException e) {
