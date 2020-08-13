@@ -1,15 +1,12 @@
-package com.synopsys.integration.rest.support;
+package com.synopsys.integration.rest;
 
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.rest.HttpUrl;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class UrlSupportTest {
-    private UrlSupport urlSupport = new UrlSupport();
-
+public class HttpUrlTest {
     @Test
     public void testAttemptAuthentication() {
         assertUrlPiecesCombineAsExpected("http://www.google.com/pathpiece", "login", "http://www.google.com/pathpiece/login");
@@ -22,7 +19,8 @@ public class UrlSupportTest {
 
     private void assertUrlPiecesCombineAsExpected(String baseUrl, String relativeUrl, String expected) {
         try {
-            HttpUrl httpUrl = urlSupport.appendRelativeUrl(baseUrl, relativeUrl);
+            HttpUrl base = new HttpUrl(baseUrl);
+            HttpUrl httpUrl = base.appendRelativeUrl(relativeUrl);
             assertEquals(expected, httpUrl.string());
         } catch (IntegrationException e) {
             fail(e);

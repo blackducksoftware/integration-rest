@@ -47,20 +47,14 @@ import java.util.Optional;
 public class AuthenticationSupport {
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
-    private UrlSupport urlSupport;
-
-    public AuthenticationSupport(UrlSupport urlSupport) {
-        this.urlSupport = urlSupport;
-    }
-
     public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl baseUrl, String authenticationSuffix, Map<String, String> requestHeaders) throws IntegrationException {
-        HttpUrl authenticationUrl = urlSupport.appendRelativeUrl(baseUrl, authenticationSuffix);
+        HttpUrl authenticationUrl = baseUrl.appendRelativeUrl(authenticationSuffix);
         RequestBuilder requestBuilder = authenticatingIntHttpClient.createRequestBuilder(HttpMethod.POST, requestHeaders);
         return attemptAuthentication(authenticatingIntHttpClient, authenticationUrl, requestBuilder);
     }
 
     public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl baseUrl, String authenticationSuffix, HttpEntity httpEntity) throws IntegrationException {
-        HttpUrl authenticationUrl = urlSupport.appendRelativeUrl(baseUrl, authenticationSuffix);
+        HttpUrl authenticationUrl = baseUrl.appendRelativeUrl(authenticationSuffix);
         RequestBuilder requestBuilder = authenticatingIntHttpClient.createRequestBuilder(HttpMethod.POST);
         requestBuilder.setEntity(httpEntity);
         return attemptAuthentication(authenticatingIntHttpClient, authenticationUrl, requestBuilder);
