@@ -1,8 +1,8 @@
 /**
  * integration-rest
- * <p>
+ *
  * Copyright (c) 2020 Synopsys, Inc.
- * <p>
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -10,9 +10,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -210,7 +210,9 @@ public class IntHttpClient {
 
         long lastModifiedOnServer = 0L;
         try (Response headResponse = execute(createHttpUriRequest(headRequest))) {
-            headResponse.throwExceptionForError();
+            if (headResponse.isStatusCodeError()) {
+                throw new IntegrationException(String.format("GET request to %s returned HTTP status code %d", getRequest.getUrl().string(), headResponse.getStatusCode()));
+            }
             lastModifiedOnServer = headResponse.getLastModified();
             logger.debug(String.format("Last modified on server: %d", lastModifiedOnServer));
         } catch (IntegrationException e) {
