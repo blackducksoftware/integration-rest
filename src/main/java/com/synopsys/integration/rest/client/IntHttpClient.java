@@ -22,18 +22,28 @@
  */
 package com.synopsys.integration.rest.client;
 
-import com.jayway.jsonpath.JsonPath;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
-import com.synopsys.integration.rest.HttpMethod;
-import com.synopsys.integration.rest.exception.ApiException;
-import com.synopsys.integration.rest.exception.IntegrationRestException;
-import com.synopsys.integration.rest.proxy.ProxyInfo;
-import com.synopsys.integration.rest.request.Request;
-import com.synopsys.integration.rest.response.ErrorResponse;
-import com.synopsys.integration.rest.response.Response;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -51,20 +61,16 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
+import com.jayway.jsonpath.JsonPath;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.rest.HttpMethod;
+import com.synopsys.integration.rest.exception.ApiException;
+import com.synopsys.integration.rest.exception.IntegrationRestException;
+import com.synopsys.integration.rest.proxy.ProxyInfo;
+import com.synopsys.integration.rest.request.Request;
+import com.synopsys.integration.rest.response.ErrorResponse;
+import com.synopsys.integration.rest.response.Response;
 
 /**
  * A basic, extendable http client.
@@ -88,7 +94,8 @@ public class IntHttpClient {
         this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>());
     }
 
-    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder, RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
+    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+        RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
         this.logger = logger;
         this.proxyInfo = proxyInfo;
         this.timeoutInSeconds = timeoutInSeconds;
@@ -210,9 +217,9 @@ public class IntHttpClient {
 
         long lastModifiedOnServer = 0L;
         try (Response headResponse = execute(createHttpUriRequest(headRequest))) {
-            if (headResponse.isStatusCodeError()) {
-                throw new IntegrationException(String.format("GET request to %s returned HTTP status code %d", getRequest.getUrl().string(), headResponse.getStatusCode()));
-            }
+            //ejk 2020-09-01 - If a successful HEAD request can't be made, we can't make any reasonable decision about what the lastModified time is, so an Exception is warranted.
+            headResponse.throwExceptionForError();
+
             lastModifiedOnServer = headResponse.getLastModified();
             logger.debug(String.format("Last modified on server: %d", lastModifiedOnServer));
         } catch (IntegrationException e) {
@@ -283,7 +290,7 @@ public class IntHttpClient {
             defaultRequestConfigBuilder.setProxy(new HttpHost(proxyInfo.getHost().orElse(null), proxyInfo.getPort()));
             if (proxyInfo.hasAuthenticatedProxySettings()) {
                 org.apache.http.auth.Credentials credentials = new NTCredentials(proxyInfo.getUsername().orElse(null), proxyInfo.getPassword().orElse(null), proxyInfo.getNtlmWorkstation().orElse(null),
-                        proxyInfo.getNtlmDomain().orElse(null));
+                    proxyInfo.getNtlmDomain().orElse(null));
                 credentialsProvider.setCredentials(new AuthScope(proxyInfo.getHost().orElse(null), proxyInfo.getPort()), credentials);
             }
         }
