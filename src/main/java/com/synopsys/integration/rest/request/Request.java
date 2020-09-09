@@ -22,6 +22,17 @@
  */
 package com.synopsys.integration.rest.request;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+
 import com.synopsys.integration.builder.Buildable;
 import com.synopsys.integration.builder.BuilderStatus;
 import com.synopsys.integration.builder.IntegrationBuilder;
@@ -29,16 +40,6 @@ import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.HttpUrl;
 import com.synopsys.integration.rest.body.BodyContent;
 import com.synopsys.integration.util.Stringable;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
-
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class Request extends Stringable implements Buildable {
     public static final String DEFAULT_ACCEPT_MIME_TYPE = ContentType.APPLICATION_JSON.getMimeType();
@@ -63,6 +64,10 @@ public class Request extends Stringable implements Buildable {
 
     public Request(Builder builder) {
         this(builder.url, builder.method, builder.acceptMimeType, builder.bodyEncoding, builder.queryParameters, builder.headers, builder.bodyContent);
+    }
+
+    public Request.Builder createBuilder() {
+        return new Builder(this);
     }
 
     public HttpEntity createHttpEntity() {
@@ -146,13 +151,13 @@ public class Request extends Stringable implements Buildable {
         @Override
         protected Request buildWithoutValidation() {
             return new Request(
-                    getUrl(),
-                    getMethod(),
-                    getAcceptMimeType(),
-                    getBodyEncoding(),
-                    getQueryParameters(),
-                    getHeaders(),
-                    getBodyContent());
+                getUrl(),
+                getMethod(),
+                getAcceptMimeType(),
+                getBodyEncoding(),
+                getQueryParameters(),
+                getHeaders(),
+                getBodyContent());
         }
 
         @Override
