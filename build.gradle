@@ -8,13 +8,13 @@ plugins { id 'groovy' }
 project.ext.moduleName = 'com.synopsys.integration.integration-rest'
 project.ext.junitShowStandardStreams = 'true'
 
-version = '5.1.2-SNAPSHOT'
+version = '6.0.0-SNAPSHOT'
 description = 'A library wrapping http communication for integrations.'
 
 apply plugin: 'com.synopsys.integration.library'
 
 dependencies {
-    api 'com.synopsys.integration:integration-common:23.0.0'
+    api 'com.synopsys.integration:integration-common:24.0.0'
 
     testImplementation 'org.codehaus.groovy:groovy-all:2.4.12'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.9.0'
