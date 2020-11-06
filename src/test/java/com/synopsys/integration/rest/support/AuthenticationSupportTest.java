@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.HttpUrl;
 import com.synopsys.integration.rest.client.AuthenticatingIntHttpClient;
 
@@ -28,48 +29,40 @@ public class AuthenticationSupportTest {
         AuthenticatingIntHttpClient mockClient = Mockito.mock(AuthenticatingIntHttpClient.class);
         Mockito.when(mockClient.getClientBuilder()).thenReturn(mockHttpClientBuilder);
 
-        SetupMocks setupMocks = new SetupMocks();
-        setupMocks.authenticationSupport.attemptAuthentication(setupMocks.mockClient, new HttpUrl("https://www.synopsys.com"), setupMocks.requestBuilder);
+        AuthenticationSupport authenticationSupport = new AuthenticationSupport();
 
-        Mockito.verify(setupMocks.mockHttpClient).execute(setupMocks.requestCaptor.capture());
+        ArgumentCaptor<HttpUriRequest> requestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+        RequestBuilder requestBuilder = RequestBuilder.create(HttpMethod.POST.name());
 
-        Assertions.assertTrue(setupMocks.requestCaptor.getValue().containsHeader(HttpHeaders.CONTENT_LENGTH));
-        Assertions.assertEquals("0", setupMocks.requestCaptor.getValue().getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue());
+        authenticationSupport.attemptAuthentication(mockClient, new HttpUrl("https://www.synopsys.com"), requestBuilder);
+
+        Mockito.verify(mockHttpClient).execute(requestCaptor.capture());
+
+        Assertions.assertTrue(requestCaptor.getValue().containsHeader(HttpHeaders.CONTENT_LENGTH));
+        Assertions.assertEquals("0", requestCaptor.getValue().getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue());
     }
 
     @Test
     public void testContentLengthWithEntity() throws IntegrationException, IOException {
-        SetupMocks setupMocks = new SetupMocks();
-        setupMocks.requestBuilder.setEntity(new StringEntity("lots of data", StandardCharsets.UTF_8));
-        setupMocks.authenticationSupport.attemptAuthentication(setupMocks.mockClient, new HttpUrl("https://www.synopsys.com"), setupMocks.requestBuilder);
+        CloseableHttpClient mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+        HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
+        Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
 
-        Mockito.verify(setupMocks.mockHttpClient).execute(setupMocks.requestCaptor.capture());
+        AuthenticatingIntHttpClient mockClient = Mockito.mock(AuthenticatingIntHttpClient.class);
+        Mockito.when(mockClient.getClientBuilder()).thenReturn(mockHttpClientBuilder);
 
-        Assertions.assertTrue(setupMocks.requestCaptor.getValue().containsHeader(HttpHeaders.CONTENT_LENGTH));
-        Assertions.assertTrue(Integer.parseInt(setupMocks.requestCaptor.getValue().getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue()) > 0);
-    }
+        AuthenticationSupport authenticationSupport = new AuthenticationSupport();
 
-    private class SetupMocks {
-        public CloseableHttpClient mockHttpClient;
-        public AuthenticatingIntHttpClient mockClient;
-        public AuthenticationSupport authenticationSupport;
-        public ArgumentCaptor<HttpUriRequest> requestCaptor;
-        public RequestBuilder requestBuilder;
+        ArgumentCaptor<HttpUriRequest> requestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+        RequestBuilder requestBuilder = RequestBuilder.create(HttpMethod.POST.name());
 
-        public SetupMocks() {
-            //            mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+        requestBuilder.setEntity(new StringEntity("lots of data", StandardCharsets.UTF_8));
+        authenticationSupport.attemptAuthentication(mockClient, new HttpUrl("https://www.synopsys.com"), requestBuilder);
 
-            //  HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
-            //Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
-            //
-            //            mockClient = Mockito.mock(AuthenticatingIntHttpClient.class);
-            //            Mockito.when(mockClient.getClientBuilder()).thenReturn(mockHttpClientBuilder);
-            //
-            //            authenticationSupport = new AuthenticationSupport();
-            //
-            //            requestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
-            //            requestBuilder = RequestBuilder.create(HttpMethod.POST.name());
-        }
+        Mockito.verify(mockHttpClient).execute(requestCaptor.capture());
+
+        Assertions.assertTrue(requestCaptor.getValue().containsHeader(HttpHeaders.CONTENT_LENGTH));
+        Assertions.assertTrue(Integer.parseInt(requestCaptor.getValue().getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue()) > 0);
     }
 
 }
