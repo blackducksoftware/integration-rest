@@ -8,6 +8,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -20,6 +21,13 @@ import com.synopsys.integration.rest.client.AuthenticatingIntHttpClient;
 public class AuthenticationSupportTest {
     @Test
     public void testContentLengthSetWithoutEntity() throws IntegrationException, IOException {
+        CloseableHttpClient mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+        HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
+        Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
+
+        AuthenticatingIntHttpClient mockClient = Mockito.mock(AuthenticatingIntHttpClient.class);
+        Mockito.when(mockClient.getClientBuilder()).thenReturn(mockHttpClientBuilder);
+
         SetupMocks setupMocks = new SetupMocks();
         setupMocks.authenticationSupport.attemptAuthentication(setupMocks.mockClient, new HttpUrl("https://www.synopsys.com"), setupMocks.requestBuilder);
 
@@ -49,7 +57,7 @@ public class AuthenticationSupportTest {
         public RequestBuilder requestBuilder;
 
         public SetupMocks() {
-            mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+            //            mockHttpClient = Mockito.mock(CloseableHttpClient.class);
 
             //  HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
             //Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
