@@ -8,14 +8,12 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.HttpUrl;
 import com.synopsys.integration.rest.client.AuthenticatingIntHttpClient;
 
@@ -51,18 +49,18 @@ public class AuthenticationSupportTest {
         public RequestBuilder requestBuilder;
 
         public SetupMocks() {
-            mockHttpClient = Mockito.mock(CloseableHttpClient.class);
-
-            HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
-            Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
-
-            mockClient = Mockito.mock(AuthenticatingIntHttpClient.class);
-            Mockito.when(mockClient.getClientBuilder()).thenReturn(mockHttpClientBuilder);
-
-            authenticationSupport = new AuthenticationSupport();
-
-            requestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
-            requestBuilder = RequestBuilder.create(HttpMethod.POST.name());
+            //            mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+            //
+            //            HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
+            //            Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
+            //
+            //            mockClient = Mockito.mock(AuthenticatingIntHttpClient.class);
+            //            Mockito.when(mockClient.getClientBuilder()).thenReturn(mockHttpClientBuilder);
+            //
+            //            authenticationSupport = new AuthenticationSupport();
+            //
+            //            requestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+            //            requestBuilder = RequestBuilder.create(HttpMethod.POST.name());
         }
     }
 
