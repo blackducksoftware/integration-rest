@@ -68,7 +68,7 @@ public class AuthenticationSupport {
     public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl authenticationUrl, RequestBuilder requestBuilder) throws IntegrationException {
         requestBuilder.setCharset(StandardCharsets.UTF_8);
         requestBuilder.setUri(authenticationUrl.string());
-        if (NEED_TO_MANAGE_CONTENT_LENGTH.contains(requestBuilder.getMethod().toUpperCase())) {
+        if (NEED_TO_MANAGE_CONTENT_LENGTH.contains(requestBuilder.getMethod().toUpperCase()) && null == requestBuilder.getEntity()) {
             //https://github.com/blackducksoftware/blackduck-common/issues/268
             //https://stackoverflow.com/questions/15619562/getting-411-length-required-after-a-put-request-from-http-client
             //https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/411
@@ -76,11 +76,7 @@ public class AuthenticationSupport {
             ekerwin - when using RequestBuilder, a default content length is not assigned
             and without a content length, certain proxies will deny the POST/PUT with a 411
              */
-            if (null == requestBuilder.getEntity()) {
-                requestBuilder.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
-            } else {
-                requestBuilder.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(requestBuilder.getEntity().getContentLength()));
-            }
+            requestBuilder.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
         }
         HttpUriRequest request = requestBuilder.build();
         authenticatingIntHttpClient.logRequestHeaders(request);
