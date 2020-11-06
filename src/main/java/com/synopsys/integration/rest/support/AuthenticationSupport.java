@@ -22,6 +22,23 @@
  */
 package com.synopsys.integration.rest.support;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.apache.commons.codec.Charsets;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.synopsys.integration.exception.IntegrationException;
@@ -30,21 +47,9 @@ import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.HttpUrl;
 import com.synopsys.integration.rest.client.AuthenticatingIntHttpClient;
 import com.synopsys.integration.rest.response.Response;
-import org.apache.commons.codec.Charsets;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Optional;
 
 public class AuthenticationSupport {
+    public static final List<String> NEED_TO_MANAGE_CONTENT_LENGTH = Arrays.asList(HttpMethod.POST.name(), HttpMethod.PUT.name());
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
     public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl baseUrl, String authenticationSuffix, Map<String, String> requestHeaders) throws IntegrationException {
@@ -63,6 +68,20 @@ public class AuthenticationSupport {
     public Response attemptAuthentication(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUrl authenticationUrl, RequestBuilder requestBuilder) throws IntegrationException {
         requestBuilder.setCharset(StandardCharsets.UTF_8);
         requestBuilder.setUri(authenticationUrl.string());
+        if (NEED_TO_MANAGE_CONTENT_LENGTH.contains(requestBuilder.getMethod().toUpperCase())) {
+            //https://github.com/blackducksoftware/blackduck-common/issues/268
+            //https://stackoverflow.com/questions/15619562/getting-411-length-required-after-a-put-request-from-http-client
+            //https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/411
+            /*
+            ekerwin - when using RequestBuilder, a default content length is not assigned
+            and without a content length, certain proxies will deny the POST/PUT with a 411
+             */
+            if (null == requestBuilder.getEntity()) {
+                requestBuilder.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
+            } else {
+                requestBuilder.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(requestBuilder.getEntity().getContentLength()));
+            }
+        }
         HttpUriRequest request = requestBuilder.build();
         authenticatingIntHttpClient.logRequestHeaders(request);
 
