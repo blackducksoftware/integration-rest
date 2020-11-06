@@ -53,7 +53,7 @@ public class AuthenticationSupportTest {
             mockHttpClient = Mockito.mock(CloseableHttpClient.class);
 
             HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
-            Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
+            //Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
             //
             //            mockClient = Mockito.mock(AuthenticatingIntHttpClient.class);
             //            Mockito.when(mockClient.getClientBuilder()).thenReturn(mockHttpClientBuilder);
