@@ -8,7 +8,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -52,7 +51,7 @@ public class AuthenticationSupportTest {
         public SetupMocks() {
             mockHttpClient = Mockito.mock(CloseableHttpClient.class);
 
-            HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
+            //HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
             //Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
             //
             //            mockClient = Mockito.mock(AuthenticatingIntHttpClient.class);
