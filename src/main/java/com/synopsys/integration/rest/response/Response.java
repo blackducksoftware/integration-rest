@@ -55,6 +55,8 @@ public class Response implements Closeable {
     private final CloseableHttpClient client;
     private final CloseableHttpResponse response;
 
+    private String stringResponse;
+
     public Response(HttpUriRequest request, CloseableHttpClient client, CloseableHttpResponse response) {
         this.request = request;
         this.client = client;
@@ -98,9 +100,13 @@ public class Response implements Closeable {
     }
 
     public String getContentString(Charset encoding) throws IntegrationException {
+        if (StringUtils.isNotBlank(stringResponse)) {
+            return stringResponse;
+        }
         if (response.getEntity() != null) {
             try (InputStream inputStream = response.getEntity().getContent()) {
-                return IOUtils.toString(inputStream, encoding);
+                stringResponse = IOUtils.toString(inputStream, encoding);
+                return stringResponse;
             } catch (UnsupportedOperationException | IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }
