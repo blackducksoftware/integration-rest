@@ -24,6 +24,7 @@ package com.synopsys.integration.rest.request;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -192,6 +193,11 @@ public class Request extends Stringable implements Buildable {
 
         public Builder addQueryParameter(String key, String value) {
             queryParameters.computeIfAbsent(key, k -> new HashSet<>()).add(value);
+            return this;
+        }
+
+        public Builder setQueryParameter(String key, String value) {
+            queryParameters.put(key, new HashSet<>(Arrays.asList(value)));
             return this;
         }
 
