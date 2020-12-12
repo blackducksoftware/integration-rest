@@ -26,187 +26,50 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
-import org.apache.commons.codec.Charsets;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.EnglishReasonPhraseCatalog;
-import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
-public class Response implements Closeable {
-    public static final String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
-    public static final String LAST_MODIFIED_HEADER_KEY = "Last-Modified";
+public interface Response extends Closeable {
+    String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    String LAST_MODIFIED_HEADER_KEY = "Last-Modified";
 
-    private final HttpUriRequest request;
-    private final CloseableHttpClient client;
-    private final CloseableHttpResponse response;
+    HttpUriRequest getRequest();
 
-    private String stringResponse;
+    int getStatusCode();
 
-    public Response(HttpUriRequest request, CloseableHttpClient client, CloseableHttpResponse response) {
-        this.request = request;
-        this.client = client;
-        this.response = response;
-    }
+    boolean isStatusCodeSuccess();
 
-    public HttpUriRequest getRequest() {
-        return request;
-    }
+    boolean isStatusCodeError();
 
-    public int getStatusCode() {
-        return response.getStatusLine().getStatusCode();
-    }
+    String getStatusMessage();
 
-    public boolean isStatusCodeSuccess() {
-        return getStatusCode() >= RestConstants.OK_200 && getStatusCode() < RestConstants.MULT_CHOICE_300;
-    }
+    InputStream getContent() throws IntegrationException;
 
-    public boolean isStatusCodeError() {
-        return getStatusCode() >= RestConstants.BAD_REQUEST_400;
-    }
+    String getContentString() throws IntegrationException;
 
-    public String getStatusMessage() {
-        return response.getStatusLine().getReasonPhrase();
-    }
+    String getContentString(Charset encoding) throws IntegrationException;
 
-    public InputStream getContent() throws IntegrationException {
-        if (response.getEntity() != null) {
-            try {
-                return response.getEntity().getContent();
-            } catch (UnsupportedOperationException | IOException e) {
-                throw new IntegrationException(e.getMessage(), e);
-            }
-        } else {
-            return null;
-        }
-    }
+    Long getContentLength();
 
-    public String getContentString() throws IntegrationException {
-        return getContentString(Charsets.UTF_8);
-    }
+    String getContentEncoding();
 
-    public String getContentString(Charset encoding) throws IntegrationException {
-        if (StringUtils.isNotBlank(stringResponse)) {
-            return stringResponse;
-        }
-        if (response.getEntity() != null) {
-            try (InputStream inputStream = response.getEntity().getContent()) {
-                stringResponse = IOUtils.toString(inputStream, encoding);
-                return stringResponse;
-            } catch (UnsupportedOperationException | IOException e) {
-                throw new IntegrationException(e.getMessage(), e);
-            }
-        } else {
-            return null;
-        }
-    }
+    String getContentType();
 
-    public Long getContentLength() {
-        if (response.getEntity() != null) {
-            return response.getEntity().getContentLength();
-        } else {
-            return null;
-        }
-    }
+    Map<String, String> getHeaders();
 
-    public String getContentEncoding() {
-        if (response.getEntity() != null && response.getEntity().getContentEncoding() != null) {
-            return response.getEntity().getContentEncoding().getValue();
-        } else {
-            return null;
-        }
-    }
+    String getHeaderValue(String name);
 
-    public String getContentType() {
-        if (response.getEntity() != null && response.getEntity().getContentType() != null) {
-            return response.getEntity().getContentType().getValue();
-        } else {
-            return null;
-        }
-    }
-
-    public Map<String, String> getHeaders() {
-        Map<String, String> headers = new HashMap<>();
-        if (response.getAllHeaders() != null && response.getAllHeaders().length > 0) {
-            for (Header header : response.getAllHeaders()) {
-                headers.put(header.getName(), header.getValue());
-            }
-        }
-        return headers;
-    }
-
-    public String getHeaderValue(String name) {
-        if (response.containsHeader(name)) {
-            return response.getFirstHeader(name).getValue();
-        }
-        return null;
-    }
-
-    public CloseableHttpResponse getActualResponse() {
-        return response;
-    }
+    CloseableHttpResponse getActualResponse();
 
     @Override
-    public void close() throws IOException {
-        response.close();
-        client.close();
-    }
+    void close() throws IOException;
 
-    public long getLastModified() throws IntegrationException {
-        String lastModified = getHeaderValue(Response.LAST_MODIFIED_HEADER_KEY);
-        long lastModifiedLong = 0L;
+    long getLastModified() throws IntegrationException;
 
-        if (StringUtils.isNotBlank(lastModified)) {
-            // Should parse the Date just like URLConnection did
-            try {
-                SimpleDateFormat format = new SimpleDateFormat(Response.LAST_MODIFIED_FORMAT, Locale.US);
-                format.setTimeZone(TimeZone.getTimeZone("UTC"));
-                Date parsed = format.parse(lastModified);
-                lastModifiedLong = parsed.getTime();
-            } catch (ParseException e) {
-                throw new IntegrationException("Could not parse the last modified date : " + e.getMessage());
-            }
-        }
-
-        return lastModifiedLong;
-    }
-
-    public void throwExceptionForError() throws IntegrationRestException {
-        if (isStatusCodeError()) {
-            int statusCode = getStatusCode();
-            String statusMessage = getStatusMessage();
-            String httpResponseContent;
-            try {
-                httpResponseContent = getContentString();
-            } catch (IntegrationException e) {
-                httpResponseContent = e.getMessage();
-            }
-
-            String statusCodeDescription = EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode, Locale.ENGLISH);
-
-            String reasonPhraseDescription = "";
-            if (StringUtils.isNotBlank(statusMessage)) {
-                reasonPhraseDescription = String.format(", reason phrase was %s", statusMessage);
-            }
-
-            String messageFormat = "There was a problem trying to %s %s, response was %s %s%s.";
-            String message = String.format(messageFormat, request.getMethod(), request.getURI().toString(), statusCode, statusCodeDescription, reasonPhraseDescription);
-            throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent, message);
-        }
-    }
-
+    void throwExceptionForError() throws IntegrationRestException;
 }

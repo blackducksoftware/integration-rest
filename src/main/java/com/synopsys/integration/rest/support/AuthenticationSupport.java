@@ -46,6 +46,7 @@ import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.HttpUrl;
 import com.synopsys.integration.rest.client.AuthenticatingIntHttpClient;
+import com.synopsys.integration.rest.response.DefaultResponse;
 import com.synopsys.integration.rest.response.Response;
 
 public class AuthenticationSupport {
@@ -89,7 +90,7 @@ public class AuthenticationSupport {
             throw new IntegrationException("Could not perform the authorization request: " + e.getMessage(), e);
         }
         authenticatingIntHttpClient.logResponseHeaders(closeableHttpResponse);
-        return new Response(request, closeableHttpClient, closeableHttpResponse);
+        return new DefaultResponse(request, closeableHttpClient, closeableHttpResponse);
     }
 
     public void handleErrorResponse(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUriRequest request, Response response, String authorizationHeader) {

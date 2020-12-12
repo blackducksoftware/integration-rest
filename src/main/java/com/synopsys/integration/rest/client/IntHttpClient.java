@@ -69,6 +69,7 @@ import com.synopsys.integration.rest.exception.ApiException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Request;
+import com.synopsys.integration.rest.response.DefaultResponse;
 import com.synopsys.integration.rest.response.ErrorResponse;
 import com.synopsys.integration.rest.response.Response;
 
@@ -301,7 +302,7 @@ public class IntHttpClient {
             CloseableHttpClient client = clientBuilder.build();
             logRequestHeaders(request);
             CloseableHttpResponse closeableHttpResponse = client.execute(request);
-            Response response = new Response(request, client, closeableHttpResponse);
+            Response response = new DefaultResponse(request, client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
             if (response.isStatusCodeError()) {
                 handleErrorResponse(request, response);
