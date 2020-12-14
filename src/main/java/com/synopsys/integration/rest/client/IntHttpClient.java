@@ -272,7 +272,7 @@ public class IntHttpClient {
             SSLContext sslContext;
             HostnameVerifier hostnameVerifier;
             if (alwaysTrustServerCertificate) {
-                logger.warn("Automatically trusting server certificates - not recommended for production use.");
+                logger.error("Automatically trusting server certificates - not recommended for production use.");
                 sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
                 hostnameVerifier = new NoopHostnameVerifier();
             } else {
