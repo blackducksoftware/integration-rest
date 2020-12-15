@@ -27,6 +27,7 @@ import com.synopsys.integration.log.Slf4jIntLogger;
 import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Request;
+import com.synopsys.integration.rest.response.DefaultResponse;
 import com.synopsys.integration.rest.response.Response;
 
 class AuthenticatingIntHttpClientTest {
@@ -94,7 +95,7 @@ class AuthenticatingIntHttpClientTest {
 
             @Override
             public Response attemptAuthentication() {
-                return new Response(null, httpClient, successfulResponse);
+                return new DefaultResponse(null, httpClient, successfulResponse);
             }
 
             @Override
