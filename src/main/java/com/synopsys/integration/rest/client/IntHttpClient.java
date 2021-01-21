@@ -1,7 +1,7 @@
 /**
  * integration-rest
  *
- * Copyright (c) 2020 Synopsys, Inc.
+ * Copyright (c) 2021 Synopsys, Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -58,6 +58,7 @@ import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 
@@ -199,14 +200,23 @@ public class IntHttpClient {
 
     public Response execute(Request request) throws IntegrationException {
         HttpUriRequest httpUriRequest = createHttpUriRequest(request);
-        return execute(httpUriRequest);
+        return execute(httpUriRequest, null);
+    }
+
+    public Response execute(Request request, HttpContext httpContext) throws IntegrationException {
+        HttpUriRequest httpUriRequest = createHttpUriRequest(request);
+        return execute(httpUriRequest, httpContext);
     }
 
     public Response execute(HttpUriRequest request) throws IntegrationException {
+        return execute(request, null);
+    }
+
+    public Response execute(HttpUriRequest request, HttpContext httpContext) throws IntegrationException {
         long start = System.currentTimeMillis();
         logger.trace("starting request: " + request.getURI().toString());
         try {
-            return handleClientExecution(request);
+            return handleClientExecution(request, httpContext);
         } finally {
             long end = System.currentTimeMillis();
             logger.trace(String.format("completed request: %s (%d ms)", request.getURI().toString(), end - start));
@@ -297,11 +307,17 @@ public class IntHttpClient {
         }
     }
 
-    private Response handleClientExecution(HttpUriRequest request) throws IntegrationException {
+    private Response handleClientExecution(HttpUriRequest request, HttpContext httpContext) throws IntegrationException {
         try {
             CloseableHttpClient client = clientBuilder.build();
             logRequestHeaders(request);
-            CloseableHttpResponse closeableHttpResponse = client.execute(request);
+
+            CloseableHttpResponse closeableHttpResponse;
+            if (null != httpContext) {
+                closeableHttpResponse = client.execute(request, httpContext);
+            } else {
+                closeableHttpResponse = client.execute(request);
+            }
             Response response = new DefaultResponse(request, client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
             if (response.isStatusCodeError()) {
