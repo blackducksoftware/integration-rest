@@ -58,6 +58,7 @@ import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
@@ -199,8 +200,7 @@ public class IntHttpClient {
     }
 
     public Response execute(Request request) throws IntegrationException {
-        HttpUriRequest httpUriRequest = createHttpUriRequest(request);
-        return execute(httpUriRequest, null);
+        return execute(request, new BasicHttpContext());
     }
 
     public Response execute(Request request, HttpContext httpContext) throws IntegrationException {
@@ -209,7 +209,7 @@ public class IntHttpClient {
     }
 
     public Response execute(HttpUriRequest request) throws IntegrationException {
-        return execute(request, null);
+        return execute(request, new BasicHttpContext());
     }
 
     public Response execute(HttpUriRequest request, HttpContext httpContext) throws IntegrationException {
@@ -313,10 +313,10 @@ public class IntHttpClient {
             logRequestHeaders(request);
 
             CloseableHttpResponse closeableHttpResponse;
-            if (null != httpContext) {
-                closeableHttpResponse = client.execute(request, httpContext);
-            } else {
+            if (null == httpContext) {
                 closeableHttpResponse = client.execute(request);
+            } else {
+                closeableHttpResponse = client.execute(request, httpContext);
             }
             Response response = new DefaultResponse(request, client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
