@@ -22,25 +22,29 @@
  */
 package com.synopsys.integration.rest.client;
 
+import java.io.IOException;
+import java.util.Map;
+
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.response.Response;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.HttpClientBuilder;
-
-import java.io.IOException;
-import java.util.Map;
 
 public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
     public AuthenticatingIntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
         super(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo);
     }
 
-    public AuthenticatingIntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder, RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
+    public AuthenticatingIntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+        RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
         super(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders);
     }
 
@@ -58,7 +62,12 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
 
     @Override
     public Response execute(HttpUriRequest request) throws IntegrationException {
-        return retryExecute(request, 0);
+        return execute(request, new BasicHttpContext());
+    }
+
+    @Override
+    public Response execute(HttpUriRequest request, HttpContext httpContext) throws IntegrationException {
+        return retryExecute(request, httpContext, 0);
     }
 
     public final boolean isUnauthorizedOrForbidden(Response response) {
@@ -100,17 +109,17 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
 
     protected abstract void completeAuthenticationRequest(HttpUriRequest request, Response response) throws IntegrationException;
 
-    private Response retryExecute(HttpUriRequest request, int retryCount) throws IntegrationException {
+    private Response retryExecute(HttpUriRequest request, HttpContext httpContext, int retryCount) throws IntegrationException {
         if (!isAlreadyAuthenticated(request)) {
             authenticateRequest(request);
         }
-        Response response = super.execute(request);
+        Response response = super.execute(request, httpContext);
 
         boolean notOkay = isUnauthorizedOrForbidden(response);
 
         if (notOkay && retryCount < 2) {
             authenticateRequest(request);
-            return retryExecute(request, retryCount + 1);
+            return retryExecute(request, httpContext, retryCount + 1);
         } else if (notOkay) {
             response.throwExceptionForError();
         }
