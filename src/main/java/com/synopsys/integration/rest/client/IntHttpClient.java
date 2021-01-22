@@ -312,12 +312,7 @@ public class IntHttpClient {
             CloseableHttpClient client = clientBuilder.build();
             logRequestHeaders(request);
 
-            CloseableHttpResponse closeableHttpResponse;
-            if (null == httpContext) {
-                closeableHttpResponse = client.execute(request);
-            } else {
-                closeableHttpResponse = client.execute(request, httpContext);
-            }
+            CloseableHttpResponse closeableHttpResponse = client.execute(request, httpContext);
             Response response = new DefaultResponse(request, client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
             if (response.isStatusCodeError()) {
