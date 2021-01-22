@@ -15,6 +15,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,6 @@ import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.log.Slf4jIntLogger;
 import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
-import com.synopsys.integration.rest.request.Request;
 import com.synopsys.integration.rest.response.DefaultResponse;
 import com.synopsys.integration.rest.response.Response;
 
@@ -83,7 +83,7 @@ class AuthenticatingIntHttpClientTest {
             } else {
                 return failureResponse;
             }
-        }).when(httpClient).execute(any());
+        }).when(httpClient).execute(any(), any(HttpContext.class));
 
         final HttpClientBuilder httpClientBuilder = Mockito.mock(HttpClientBuilder.class);
         Mockito.when(httpClientBuilder.build()).thenReturn(httpClient);
@@ -112,11 +112,6 @@ class AuthenticatingIntHttpClientTest {
             @Override
             public ConnectionResult attemptConnection() {
                 return ConnectionResult.SUCCESS(RestConstants.OK_200);
-            }
-
-            @Override
-            public Response execute(final Request request) throws IntegrationException {
-                return super.execute(request);
             }
         };
     }
