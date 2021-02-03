@@ -1,4 +1,4 @@
-/**
+/*
  * integration-rest
  *
  * Copyright (c) 2021 Synopsys, Inc.
@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -79,6 +80,7 @@ import com.synopsys.integration.rest.response.Response;
  * A basic, extendable http client.
  */
 public class IntHttpClient {
+    public static final Supplier<SSLContext> SSL_CONTEXT_SUPPLIER = SSLContexts::createDefault;
     public static final String ERROR_MSG_PROXY_INFO_NULL = "A IntHttpClient's proxy information cannot be null.";
     public static final int DEFAULT_TIMEOUT = 120;
 
@@ -93,12 +95,23 @@ public class IntHttpClient {
     private final RequestConfig.Builder defaultRequestConfigBuilder;
     private final Map<String, String> commonRequestHeaders;
 
+    private SSLContext sslContext;
+
     public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
-        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>());
+        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, SSL_CONTEXT_SUPPLIER.get());
+    }
+
+    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, SSLContext sslContext) {
+        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>(), sslContext);
     }
 
     public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
         RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
+        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders, SSL_CONTEXT_SUPPLIER.get());
+    }
+
+    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+        RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders, SSLContext sslContext) {
         this.logger = logger;
         this.proxyInfo = proxyInfo;
         this.timeoutInSeconds = timeoutInSeconds;
@@ -107,6 +120,7 @@ public class IntHttpClient {
         this.clientBuilder = clientBuilder;
         this.defaultRequestConfigBuilder = defaultRequestConfigBuilder;
         this.commonRequestHeaders = commonRequestHeaders;
+        this.sslContext = sslContext;
 
         if (0 >= timeoutInSeconds) {
             throw new IllegalArgumentException("The timeout must be greater than 0.");
@@ -279,14 +293,12 @@ public class IntHttpClient {
 
     private void addBuilderSSLContext() {
         try {
-            SSLContext sslContext;
             HostnameVerifier hostnameVerifier;
             if (alwaysTrustServerCertificate) {
                 logger.error("Automatically trusting server certificates - not recommended for production use.");
                 sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
                 hostnameVerifier = new NoopHostnameVerifier();
             } else {
-                sslContext = SSLContexts.createDefault();
                 hostnameVerifier = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
             }
             SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
@@ -412,6 +424,10 @@ public class IntHttpClient {
 
     public IntLogger getLogger() {
         return logger;
+    }
+
+    public SSLContext getSSLContext() {
+        return sslContext;
     }
 
 }
