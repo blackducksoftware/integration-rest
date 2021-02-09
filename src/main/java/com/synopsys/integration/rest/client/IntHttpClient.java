@@ -101,7 +101,11 @@ public class IntHttpClient {
         this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, SSL_CONTEXT_SUPPLIER.get());
     }
 
-    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, SSLContext sslContext) {
+    public IntHttpClient(IntLogger logger, int timeoutInSeconds, ProxyInfo proxyInfo, SSLContext sslContext) {
+        this(logger, timeoutInSeconds, false, proxyInfo, sslContext);
+    }
+
+    private IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, SSLContext sslContext) {
         this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>(), sslContext);
     }
 
@@ -110,7 +114,12 @@ public class IntHttpClient {
         this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders, SSL_CONTEXT_SUPPLIER.get());
     }
 
-    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+    public IntHttpClient(IntLogger logger, int timeoutInSeconds, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+        RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders, SSLContext sslContext) {
+        this(logger, timeoutInSeconds, false, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders, sslContext);
+    }
+
+    private IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
         RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders, SSLContext sslContext) {
         this.logger = logger;
         this.proxyInfo = proxyInfo;
@@ -238,6 +247,10 @@ public class IntHttpClient {
     }
 
     public Optional<Response> executeGetRequestIfModifiedSince(Request getRequest, long timeToCheck) throws IntegrationException, IOException {
+        return executeGetRequestIfModifiedSince(getRequest, timeToCheck, new BasicHttpContext());
+    }
+
+    public Optional<Response> executeGetRequestIfModifiedSince(Request getRequest, long timeToCheck, HttpContext httpContext) throws IntegrationException, IOException {
         Request headRequest = new Request.Builder(getRequest).method(HttpMethod.HEAD).build();
 
         long lastModifiedOnServer = 0L;
@@ -257,7 +270,7 @@ public class IntHttpClient {
             return Optional.empty();
         }
 
-        return Optional.of(execute(createHttpUriRequest(getRequest)));
+        return Optional.of(execute(createHttpUriRequest(getRequest), httpContext));
     }
 
     public final void logRequestHeaders(HttpUriRequest request) {
