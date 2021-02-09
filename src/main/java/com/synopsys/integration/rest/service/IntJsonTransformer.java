@@ -1,4 +1,4 @@
-/**
+/*
  * integration-rest
  *
  * Copyright (c) 2021 Synopsys, Inc.
