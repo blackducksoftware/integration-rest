@@ -105,10 +105,6 @@ public class IntHttpClient {
         this(logger, timeoutInSeconds, false, proxyInfo, sslContext);
     }
 
-    private IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, SSLContext sslContext) {
-        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>(), sslContext);
-    }
-
     public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
         RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
         this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders, SSL_CONTEXT_SUPPLIER.get());
@@ -117,6 +113,10 @@ public class IntHttpClient {
     public IntHttpClient(IntLogger logger, int timeoutInSeconds, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
         RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders, SSLContext sslContext) {
         this(logger, timeoutInSeconds, false, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders, sslContext);
+    }
+
+    private IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, SSLContext sslContext) {
+        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>(), sslContext);
     }
 
     private IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
@@ -437,10 +437,6 @@ public class IntHttpClient {
 
     public IntLogger getLogger() {
         return logger;
-    }
-
-    public SSLContext getSSLContext() {
-        return sslContext;
     }
 
 }
