@@ -22,6 +22,8 @@
  */
 package com.synopsys.integration.rest;
 
+import org.apache.commons.lang3.StringUtils;
+
 public enum HttpMethod {
     GET,
     PUT,
@@ -31,5 +33,9 @@ public enum HttpMethod {
     HEAD,
     OPTIONS,
     TRACE;
+
+    public static HttpMethod fromMethod(String method) {
+        return HttpMethod.valueOf(StringUtils.upperCase(method));
+    }
 
 }

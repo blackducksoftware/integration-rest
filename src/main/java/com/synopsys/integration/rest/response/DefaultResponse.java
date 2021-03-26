@@ -43,6 +43,8 @@ import org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.rest.HttpMethod;
+import com.synopsys.integration.rest.HttpUrl;
 import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
@@ -210,8 +212,17 @@ public class DefaultResponse implements Response {
             }
 
             String messageFormat = "There was a problem trying to %s %s, response was %s %s%s.";
-            String message = String.format(messageFormat, request.getMethod(), request.getURI().toString(), statusCode, statusCodeDescription, reasonPhraseDescription);
-            throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent, message);
+            HttpMethod httpMethod = HttpMethod.fromMethod(request.getMethod());
+            //ejk - seems unlikey that we'd get here without a valid url...
+            HttpUrl httpUrl = null;
+            try {
+                httpUrl = new HttpUrl(request.getURI());
+            } catch (IntegrationException ignored) {
+                //ignored
+            }
+
+            String message = String.format(messageFormat, httpMethod, httpUrl.string(), statusCode, statusCodeDescription, reasonPhraseDescription);
+            throw new IntegrationRestException(httpMethod, httpUrl, statusCode, statusMessage, httpResponseContent, message);
         }
     }
 
