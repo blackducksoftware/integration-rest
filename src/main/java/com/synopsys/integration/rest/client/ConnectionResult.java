@@ -22,7 +22,7 @@ public class ConnectionResult {
         return new ConnectionResult(httpStatusCode, failureMessage, exception);
     }
 
-    private ConnectionResult(int httpStatusCode, String failureMessage, Exception exception) {
+    public ConnectionResult(int httpStatusCode, String failureMessage, Exception exception) {
         this.httpStatusCode = httpStatusCode;
         this.failureMessage = failureMessage;
         this.exception = exception;
