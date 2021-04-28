@@ -114,6 +114,16 @@ public class Request extends Stringable implements Buildable {
             bodyContent = request.bodyContent;
         }
 
+        public Builder(Builder builder) {
+            url = builder.url;
+            method = builder.method;
+            acceptMimeType = builder.acceptMimeType;
+            bodyEncoding = builder.bodyEncoding;
+            queryParameters.putAll(builder.queryParameters);
+            headers.putAll(builder.headers);
+            bodyContent = builder.bodyContent;
+        }
+
         public Builder() {
             this(null, HttpMethod.GET);
         }
