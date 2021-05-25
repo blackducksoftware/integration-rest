@@ -153,7 +153,7 @@ class IntHttpClientTest {
         assert uriRequest.getURI().toString().contains('offset=0')
         assert uriRequest.getURI().toString().contains('limit=100')
 
-        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).acceptMimeType('mime').headers([header: 'one', thing: 'two']).
+        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).headers([header: 'one', thing: 'two']).
                 build()
         uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
@@ -166,7 +166,7 @@ class IntHttpClientTest {
 
         Map headersMap = [header: 'one', thing: 'two']
         headersMap.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
-        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).acceptMimeType('mime').bodyEncoding(bodyEncoding).
+        request = new Request.Builder(url).queryParameters([q: ['q'] as Set, test: ['one'] as Set, query: ['two'] as Set, offset: ['0'] as Set, limit: ['100'] as Set]).bodyEncoding(bodyEncoding).
                 headers(headersMap).build()
         uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
@@ -176,7 +176,7 @@ class IntHttpClientTest {
         assert uriRequest.getURI().toString().contains('offset=0')
         assert uriRequest.getURI().toString().contains('limit=100')
 
-        Request deleteRequest = new Request.Builder(url).method(HttpMethod.DELETE).acceptMimeType('mime').bodyEncoding(bodyEncoding).headers([header: 'one', thing: 'two']).build()
+        Request deleteRequest = new Request.Builder(url).method(HttpMethod.DELETE).bodyEncoding(bodyEncoding).headers([header: 'one', thing: 'two']).build()
         uriRequest = restConnection.createHttpUriRequest(deleteRequest)
         assert HttpMethod.DELETE.name() == uriRequest.method
         assert 'one' == uriRequest.getFirstHeader('header').getValue()

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -28,31 +27,25 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.Gson;
 
 public class BodyContentConverter {
+    public static final ContentType DEFAULT = ContentType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8);
     public static final ContentType OCTET_STREAM_UTF_8 = ContentType.APPLICATION_OCTET_STREAM.withCharset(StandardCharsets.UTF_8);
     public static final ContentType TEXT_PLAIN_UTF_8 = ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
 
     private final Gson gson;
-    private final String mimeType;
-    private final Charset bodyEncoding;
 
-    public BodyContentConverter(Gson gson, String mimeType, Charset bodyEncoding) {
+    public BodyContentConverter(Gson gson) {
         this.gson = gson;
-
-        //ContentType requires a non-null mime type
-        this.mimeType = StringUtils.isNotBlank(mimeType) ? mimeType : ContentType.APPLICATION_JSON.getMimeType();
-
-        this.bodyEncoding = bodyEncoding;
     }
 
     public HttpEntity fromHttpEntity(HttpEntity httpEntity) {
         return httpEntity;
     }
 
-    public HttpEntity fromFile(File bodyContentFile) {
-        return new FileEntity(bodyContentFile, ContentType.create(mimeType, bodyEncoding));
+    public HttpEntity fromFile(File bodyContentFile, ContentType contentType) {
+        return new FileEntity(bodyContentFile, contentType);
     }
 
-    public HttpEntity fromMap(Map<String, String> bodyContentStringMap) {
+    public HttpEntity fromMap(Map<String, String> bodyContentStringMap, Charset bodyEncoding) {
         List<NameValuePair> parameters = new ArrayList<>();
         for (Map.Entry<String, String> entry : bodyContentStringMap.entrySet()) {
             NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
@@ -74,13 +67,13 @@ public class BodyContentConverter {
         return builder.build();
     }
 
-    public HttpEntity fromString(String bodyContentString) {
-        return new StringEntity(bodyContentString, ContentType.create(mimeType, bodyEncoding));
+    public HttpEntity fromString(String bodyContentString, ContentType contentType) {
+        return new StringEntity(bodyContentString, contentType);
     }
 
-    public HttpEntity fromObject(Object bodyContentObject) {
+    public HttpEntity fromObject(Object bodyContentObject, ContentType contentType) {
         String bodyContentString = gson.toJson(bodyContentObject);
-        return fromString(bodyContentString);
+        return fromString(bodyContentString, contentType);
     }
 
 }

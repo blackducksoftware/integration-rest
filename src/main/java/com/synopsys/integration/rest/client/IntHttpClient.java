@@ -198,7 +198,7 @@ public class IntHttpClient {
 
         BodyContent bodyContent = integrationRequest.getBodyContent();
         if (null != bodyContent) {
-            BodyContentConverter bodyContentConverter = new BodyContentConverter(gson, integrationRequest.getAcceptMimeType(), integrationRequest.getBodyEncoding());
+            BodyContentConverter bodyContentConverter = new BodyContentConverter(gson);
             HttpEntity httpEntity = bodyContent.createEntity(bodyContentConverter);
             requestBuilder.setEntity(httpEntity);
         }

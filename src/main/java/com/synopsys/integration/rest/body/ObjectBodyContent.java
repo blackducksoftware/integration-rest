@@ -8,17 +8,20 @@
 package com.synopsys.integration.rest.body;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
 
 public class ObjectBodyContent implements BodyContent {
     private final Object bodyContentObject;
+    private final ContentType contentType;
 
-    public ObjectBodyContent(Object bodyContentObject) {
+    public ObjectBodyContent(Object bodyContentObject, ContentType contentType) {
         this.bodyContentObject = bodyContentObject;
+        this.contentType = contentType;
     }
 
     @Override
     public HttpEntity createEntity(BodyContentConverter bodyContentConverter) {
-        return bodyContentConverter.fromObject(bodyContentObject);
+        return bodyContentConverter.fromObject(bodyContentObject, contentType);
     }
 
 }
