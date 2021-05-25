@@ -26,16 +26,14 @@ import com.synopsys.integration.util.Stringable;
 public class Request extends Stringable implements Buildable {
     private final HttpUrl url;
     private final HttpMethod method;
-    private final String acceptMimeType;
     private final Charset bodyEncoding;
     private final Map<String, Set<String>> queryParameters = new HashMap<>();
     private final Map<String, String> headers = new HashMap<>();
     private final BodyContent bodyContent;
 
-    public Request(HttpUrl url, HttpMethod method, String acceptMimeType, Charset bodyEncoding, Map<String, Set<String>> queryParameters, Map<String, String> headers, BodyContent bodyContent) {
+    public Request(HttpUrl url, HttpMethod method, Charset bodyEncoding, Map<String, Set<String>> queryParameters, Map<String, String> headers, BodyContent bodyContent) {
         this.url = url;
         this.method = method;
-        this.acceptMimeType = acceptMimeType;
         this.bodyEncoding = null == bodyEncoding ? StandardCharsets.UTF_8 : bodyEncoding;
         this.queryParameters.putAll(queryParameters);
         this.headers.putAll(headers);
@@ -43,7 +41,7 @@ public class Request extends Stringable implements Buildable {
     }
 
     public Request(Builder builder) {
-        this(builder.url, builder.method, builder.acceptMimeType, builder.bodyEncoding, builder.queryParameters, builder.headers, builder.bodyContent);
+        this(builder.url, builder.method, builder.bodyEncoding, builder.queryParameters, builder.headers, builder.bodyContent);
     }
 
     public Request.Builder createBuilder() {
@@ -60,10 +58,6 @@ public class Request extends Stringable implements Buildable {
 
     public HttpMethod getMethod() {
         return method;
-    }
-
-    public String getAcceptMimeType() {
-        return acceptMimeType;
     }
 
     public Charset getBodyEncoding() {
@@ -85,7 +79,6 @@ public class Request extends Stringable implements Buildable {
     public static class Builder extends IntegrationBuilder<Request> {
         private HttpUrl url;
         private HttpMethod method;
-        private String acceptMimeType;
         private Charset bodyEncoding;
         private Map<String, Set<String>> queryParameters = new HashMap<>();
         private Map<String, String> headers = new HashMap<>();
@@ -94,7 +87,6 @@ public class Request extends Stringable implements Buildable {
         public Builder(Request request) {
             url = request.url;
             method = request.method;
-            acceptMimeType = request.acceptMimeType;
             bodyEncoding = request.bodyEncoding;
             queryParameters.putAll(request.queryParameters);
             headers.putAll(request.headers);
@@ -104,7 +96,6 @@ public class Request extends Stringable implements Buildable {
         public Builder(Builder builder) {
             url = builder.url;
             method = builder.method;
-            acceptMimeType = builder.acceptMimeType;
             bodyEncoding = builder.bodyEncoding;
             queryParameters.putAll(builder.queryParameters);
             headers.putAll(builder.headers);
@@ -135,7 +126,6 @@ public class Request extends Stringable implements Buildable {
             return new Request(
                 getUrl(),
                 getMethod(),
-                getAcceptMimeType(),
                 getBodyEncoding(),
                 getQueryParameters(),
                 getHeaders(),
@@ -154,11 +144,6 @@ public class Request extends Stringable implements Buildable {
 
         public Builder method(HttpMethod method) {
             this.method = method;
-            return this;
-        }
-
-        public Builder acceptMimeType(String acceptMimeType) {
-            this.acceptMimeType = acceptMimeType;
             return this;
         }
 
@@ -203,10 +188,6 @@ public class Request extends Stringable implements Buildable {
 
         public HttpMethod getMethod() {
             return method;
-        }
-
-        public String getAcceptMimeType() {
-            return acceptMimeType;
         }
 
         public Charset getBodyEncoding() {
