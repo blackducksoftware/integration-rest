@@ -7,18 +7,20 @@
  */
 package com.synopsys.integration.rest.client;
 
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
-import com.synopsys.integration.rest.proxy.ProxyInfo;
-import com.synopsys.integration.rest.response.Response;
-import com.synopsys.integration.rest.support.AuthenticationSupport;
+import java.util.Base64;
+
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-import java.util.Base64;
+import com.google.gson.Gson;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.rest.proxy.ProxyInfo;
+import com.synopsys.integration.rest.response.Response;
+import com.synopsys.integration.rest.support.AuthenticationSupport;
 
 public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     private static final String AUTHORIZATION_TYPE = "Basic";
@@ -27,8 +29,8 @@ public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     private final String username;
     private final String password;
 
-    public BasicAuthHttpClient(IntLogger logger, int timeout, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, AuthenticationSupport authenticationSupport, String username, String password) {
-        super(logger, timeout, alwaysTrustServerCertificate, proxyInfo);
+    public BasicAuthHttpClient(IntLogger logger, Gson gson, int timeout, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, AuthenticationSupport authenticationSupport, String username, String password) {
+        super(logger, gson, timeout, alwaysTrustServerCertificate, proxyInfo);
         this.authenticationSupport = authenticationSupport;
 
         this.username = username;

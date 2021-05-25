@@ -1,5 +1,6 @@
 package com.synopsys.integration.rest.client;
 
+import com.google.gson.Gson;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.BufferedIntLogger;
 import com.synopsys.integration.log.IntLogger;
@@ -18,6 +19,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class IntHttpClientTest {
+    private final Gson gson = new Gson();
+
     @Test
     public void testExecuteGetRequestIfModifiedSinceGets404() throws IOException, IntegrationException {
         IntLogger logger = new BufferedIntLogger();
@@ -29,7 +32,7 @@ public class IntHttpClientTest {
         RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
         Map<String, String> commonRequestHeaders = new HashMap<>(0);
 
-        IntHttpClient client = new IntHttpClient(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo,
+        IntHttpClient client = new IntHttpClient(logger, gson, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo,
                 credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders);
 
         HttpUrl url = new HttpUrl("http://www.blackducksoftware.com/download/thisdoesntexist.zip");

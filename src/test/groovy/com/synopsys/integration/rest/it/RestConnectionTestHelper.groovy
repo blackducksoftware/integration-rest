@@ -1,5 +1,6 @@
 package com.synopsys.integration.rest.it
 
+import com.google.gson.Gson
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
@@ -14,11 +15,12 @@ import java.util.logging.Logger
 
 import static org.junit.jupiter.api.Assertions.fail
 
-public class RestConnectionTestHelper {
+class RestConnectionTestHelper {
     public static final LogLevel DEFAULT_LOGGING_LEVEL = LogLevel.TRACE;
 
     private final HttpUrl serverUrl
     private final IntLogger logger = new PrintStreamIntLogger(System.out, DEFAULT_LOGGING_LEVEL)
+    private final Gson gson = new Gson();
 
     private Properties testProperties
 
@@ -99,7 +101,7 @@ public class RestConnectionTestHelper {
     }
 
     IntHttpClient getRestConnection(ProxyInfo proxyInfo) {
-        return new IntHttpClient(logger, getTimeout(), true, proxyInfo)
+        return new IntHttpClient(logger, gson, getTimeout(), true, proxyInfo)
     }
 
 }

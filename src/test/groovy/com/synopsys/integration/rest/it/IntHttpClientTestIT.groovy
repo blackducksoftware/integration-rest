@@ -183,7 +183,7 @@ class IntHttpClientTestIT {
     @Test
     void testUnauthorizedGet() throws Exception {
         String url = restConnectionTestHelper.getProperty("TEST_AUTHENTICATED_SERVER_URL")
-        final IntHttpClient restConnection = new IntHttpClient(logger, 120, true, ProxyInfo.NO_PROXY_INFO)
+        final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection()
         final Request request = new Request.Builder(new HttpUrl(url)).build()
         System.out.println("Executing: " + request.toString())
         restConnection.execute(request).withCloseable {

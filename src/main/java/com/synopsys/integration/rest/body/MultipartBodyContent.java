@@ -20,11 +20,8 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import com.synopsys.integration.rest.request.Request;
 
 public class MultipartBodyContent implements BodyContent {
-    public static final ContentType OCTET_STREAM_UTF_8 = ContentType.APPLICATION_OCTET_STREAM.withCharset(StandardCharsets.UTF_8);
-    public static final ContentType TEXT_PLAIN_UTF_8 = ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
-
-    private final Map<String, String> bodyContentStringMap;
     private final Map<String, File> bodyContentFileMap;
+    private final Map<String, String> bodyContentStringMap;
 
     public MultipartBodyContent(Map<String, File> bodyContentFileMap, Map<String, String> bodyContentStringMap) {
         this.bodyContentStringMap = bodyContentStringMap;
@@ -32,25 +29,8 @@ public class MultipartBodyContent implements BodyContent {
     }
 
     @Override
-    public HttpEntity createEntity(Request request) {
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        for (Entry<String, File> entry : getBodyContentFileMap().entrySet()) {
-            builder.addBinaryBody(entry.getKey(), entry.getValue(), OCTET_STREAM_UTF_8, entry.getValue().getName());
-        }
-        for (Entry<String, String> entry : getBodyContentStringMap().entrySet()) {
-            builder.addTextBody(entry.getKey(), entry.getValue(), TEXT_PLAIN_UTF_8);
-        }
-        builder.setCharset(StandardCharsets.UTF_8);
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        return builder.build();
-    }
-
-    public Map<String, String> getBodyContentStringMap() {
-        return bodyContentStringMap;
-    }
-
-    public Map<String, File> getBodyContentFileMap() {
-        return bodyContentFileMap;
+    public HttpEntity createEntity(BodyContentConverter bodyContentConverter) {
+        return bodyContentConverter.fromMultipart(bodyContentFileMap, bodyContentStringMap);
     }
 
 }

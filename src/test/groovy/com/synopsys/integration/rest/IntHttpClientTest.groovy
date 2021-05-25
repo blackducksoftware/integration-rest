@@ -1,5 +1,6 @@
 package com.synopsys.integration.rest
 
+import com.google.gson.Gson
 import com.synopsys.integration.exception.IntegrationException
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
@@ -13,7 +14,6 @@ import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import org.apache.commons.codec.Charsets
 import org.apache.http.HttpHeaders
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.client.methods.RequestBuilder
@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 import static org.junit.jupiter.api.Assertions.fail
 
@@ -31,6 +32,7 @@ class IntHttpClientTest {
 
     private final MockWebServer server = new MockWebServer()
     private final IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.DEBUG)
+    private final Gson gson = new Gson();
 
     @BeforeEach
     void setUp() throws Exception {
@@ -59,7 +61,7 @@ class IntHttpClientTest {
         }
         server.setDispatcher(dispatcher)
 
-        return new IntHttpClient(logger, CONNECTION_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
+        return new IntHttpClient(logger, gson, CONNECTION_TIMEOUT, false, ProxyInfo.NO_PROXY_INFO)
     }
 
     @Test
@@ -67,7 +69,7 @@ class IntHttpClientTest {
         int timeoutSeconds = 213
 
         try {
-            new IntHttpClient(logger, timeoutSeconds, true, null)
+            new IntHttpClient(logger, gson, timeoutSeconds, true, null)
             fail('Should have thrown exception')
         } catch (IllegalArgumentException e) {
             assert IntHttpClient.ERROR_MSG_PROXY_INFO_NULL == e.getMessage()
@@ -111,7 +113,7 @@ class IntHttpClientTest {
 
     @Test
     void testCreateHttpRequestNoURI() {
-        IntHttpClient restConnection = new IntHttpClient(logger, 300, true, ProxyInfo.NO_PROXY_INFO)
+        IntHttpClient restConnection = new IntHttpClient(logger, gson, 300, true, ProxyInfo.NO_PROXY_INFO)
         Request request = new Request.Builder().build()
         try {
             restConnection.createHttpUriRequest(request)
@@ -126,29 +128,26 @@ class IntHttpClientTest {
         IntHttpClient restConnection = getRestConnection()
 
         final HttpUrl url = getValidUrl()
-        Map<String, String> queryParametes = [test: "one", query: "two"]
-        String q = 'q'
-        String mimeType = 'mime'
-        Charset bodyEncoding = Charsets.UTF_8
+        Charset bodyEncoding = StandardCharsets.UTF_8
 
         Request request = new Request.Builder(url).build()
         HttpUriRequest uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
-        assert Request.DEFAULT_ACCEPT_MIME_TYPE == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null == uriRequest.getFirstHeader(HttpHeaders.ACCEPT)
         assert null != uriRequest.getURI()
         assert uriRequest.getURI().toString().contains(url.string())
 
         request = new Request.Builder(url).build()
         uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
-        assert Request.DEFAULT_ACCEPT_MIME_TYPE == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null == uriRequest.getFirstHeader(HttpHeaders.ACCEPT)
         assert null != uriRequest.getURI()
         assert uriRequest.getURI().toString().contains(url.string())
 
         request = new Request.Builder(url).queryParameters([offset: ['0'] as Set, limit: ['100'] as Set]).build()
         uriRequest = restConnection.createHttpUriRequest(request)
         assert HttpMethod.GET.name() == uriRequest.method
-        assert Request.DEFAULT_ACCEPT_MIME_TYPE == uriRequest.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null == uriRequest.getFirstHeader(HttpHeaders.ACCEPT)
         assert null != uriRequest.getURI()
         assert uriRequest.getURI().toString().contains(url.string())
         assert uriRequest.getURI().toString().contains('offset=0')

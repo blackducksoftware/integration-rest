@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.log.Slf4jIntLogger;
@@ -36,6 +37,8 @@ class AuthenticatingIntHttpClientTest {
 
     private final CloseableHttpResponse successfulResponse = Mockito.mock(CloseableHttpResponse.class);
     private final CloseableHttpResponse failureResponse = Mockito.mock(CloseableHttpResponse.class);
+    private final Gson gson = new Gson();
+
     private AuthenticatingIntHttpClient authenticatingIntHttpClient;
 
     @BeforeEach
@@ -87,7 +90,7 @@ class AuthenticatingIntHttpClientTest {
 
         final HttpClientBuilder httpClientBuilder = Mockito.mock(HttpClientBuilder.class);
         Mockito.when(httpClientBuilder.build()).thenReturn(httpClient);
-        authenticatingIntHttpClient = new AuthenticatingIntHttpClient(logger, 10, true, ProxyInfo.NO_PROXY_INFO, new BasicCredentialsProvider(), httpClientBuilder, RequestConfig.custom(), new HashMap<>()) {
+        authenticatingIntHttpClient = new AuthenticatingIntHttpClient(logger, gson, 10, true, ProxyInfo.NO_PROXY_INFO, new BasicCredentialsProvider(), httpClientBuilder, RequestConfig.custom(), new HashMap<>()) {
             @Override
             public boolean isAlreadyAuthenticated(final HttpUriRequest request) {
                 return isAuthenticated;

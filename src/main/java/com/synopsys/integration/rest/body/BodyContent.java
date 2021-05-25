@@ -12,5 +12,6 @@ import org.apache.http.HttpEntity;
 import com.synopsys.integration.rest.request.Request;
 
 public interface BodyContent {
-    HttpEntity createEntity(final Request request);
+    HttpEntity createEntity(BodyContentConverter bodyContentConverter);
+
 }

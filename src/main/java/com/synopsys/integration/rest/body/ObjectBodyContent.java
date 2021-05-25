@@ -9,16 +9,16 @@ package com.synopsys.integration.rest.body;
 
 import org.apache.http.HttpEntity;
 
-public class StringBodyContent implements BodyContent {
-    private final String bodyContentString;
+public class ObjectBodyContent implements BodyContent {
+    private final Object bodyContentObject;
 
-    public StringBodyContent(String bodyContentString) {
-        this.bodyContentString = bodyContentString;
+    public ObjectBodyContent(Object bodyContentObject) {
+        this.bodyContentObject = bodyContentObject;
     }
 
     @Override
     public HttpEntity createEntity(BodyContentConverter bodyContentConverter) {
-        return bodyContentConverter.fromString(bodyContentString);
+        return bodyContentConverter.fromObject(bodyContentObject);
     }
 
 }

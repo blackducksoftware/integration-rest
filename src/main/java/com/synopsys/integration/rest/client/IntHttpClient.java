@@ -27,7 +27,6 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -49,10 +48,13 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 
+import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.rest.HttpMethod;
+import com.synopsys.integration.rest.body.BodyContent;
+import com.synopsys.integration.rest.body.BodyContentConverter;
 import com.synopsys.integration.rest.exception.ApiException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
@@ -70,6 +72,7 @@ public class IntHttpClient {
     public static final int DEFAULT_TIMEOUT = 120;
 
     protected final IntLogger logger;
+    private final Gson gson;
     private final ProxyInfo proxyInfo;
 
     private final int timeoutInSeconds;
@@ -82,31 +85,32 @@ public class IntHttpClient {
 
     private SSLContext sslContext;
 
-    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
-        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, SSL_CONTEXT_SUPPLIER.get());
+    public IntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
+        this(logger, gson, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, SSL_CONTEXT_SUPPLIER.get());
     }
 
-    public IntHttpClient(IntLogger logger, int timeoutInSeconds, ProxyInfo proxyInfo, SSLContext sslContext) {
-        this(logger, timeoutInSeconds, false, proxyInfo, sslContext);
+    public IntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, ProxyInfo proxyInfo, SSLContext sslContext) {
+        this(logger, gson, timeoutInSeconds, false, proxyInfo, sslContext);
     }
 
-    public IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+    public IntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
         RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders) {
-        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders, SSL_CONTEXT_SUPPLIER.get());
+        this(logger, gson, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders, SSL_CONTEXT_SUPPLIER.get());
     }
 
-    public IntHttpClient(IntLogger logger, int timeoutInSeconds, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+    public IntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
         RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders, SSLContext sslContext) {
-        this(logger, timeoutInSeconds, false, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders, sslContext);
+        this(logger, gson, timeoutInSeconds, false, proxyInfo, credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders, sslContext);
     }
 
-    private IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, SSLContext sslContext) {
-        this(logger, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>(), sslContext);
+    private IntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, SSLContext sslContext) {
+        this(logger, gson, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>(), sslContext);
     }
 
-    private IntHttpClient(IntLogger logger, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
+    private IntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
         RequestConfig.Builder defaultRequestConfigBuilder, Map<String, String> commonRequestHeaders, SSLContext sslContext) {
         this.logger = logger;
+        this.gson = gson;
         this.proxyInfo = proxyInfo;
         this.timeoutInSeconds = timeoutInSeconds;
         this.alwaysTrustServerCertificate = alwaysTrustServerCertificate;
@@ -156,18 +160,18 @@ public class IntHttpClient {
         return requestBuilder;
     }
 
-    public HttpUriRequest createHttpUriRequest(Request request) throws IntegrationException {
-        if (request.getMethod() == null) {
+    public HttpUriRequest createHttpUriRequest(Request integrationRequest) throws IntegrationException {
+        if (integrationRequest.getMethod() == null) {
             throw new IntegrationException("Missing the HttpMethod");
         }
-        if (request.getUrl() == null) {
+        if (integrationRequest.getUrl() == null) {
             throw new IntegrationException("Missing the HttpUrl");
         }
 
-        RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
+        RequestBuilder requestBuilder = RequestBuilder.create(integrationRequest.getMethod().name());
 
-        URIBuilder uriBuilder = new URIBuilder(request.getUrl().uri());
-        Map<String, Set<String>> populatedQueryParameters = request.getPopulatedQueryParameters();
+        URIBuilder uriBuilder = new URIBuilder(integrationRequest.getUrl().uri());
+        Map<String, Set<String>> populatedQueryParameters = integrationRequest.getPopulatedQueryParameters();
         populatedQueryParameters.forEach((paramKey, paramValues) -> {
             paramValues.forEach((paramValue) -> {
                 uriBuilder.addParameter(paramKey, paramValue);
@@ -179,31 +183,26 @@ public class IntHttpClient {
             throw new IntegrationException("Invalid url with parameters: " + uriBuilder.toString());
         }
 
-        String acceptMimeType = Request.DEFAULT_ACCEPT_MIME_TYPE;
         Charset bodyEncoding = StandardCharsets.UTF_8;
-        if (StringUtils.isNotBlank(request.getAcceptMimeType())) {
-            acceptMimeType = request.getAcceptMimeType();
-        }
-
-        if (request.getBodyEncoding() != null) {
-            bodyEncoding = request.getBodyEncoding();
-        }
-
-        if (HttpMethod.GET == request.getMethod() && (request.getHeaders() == null || request.getHeaders().isEmpty() || !request.getHeaders().containsKey(HttpHeaders.ACCEPT))) {
-            requestBuilder.addHeader(HttpHeaders.ACCEPT, acceptMimeType);
+        if (integrationRequest.getBodyEncoding() != null) {
+            bodyEncoding = integrationRequest.getBodyEncoding();
         }
         requestBuilder.setCharset(bodyEncoding);
-        for (Map.Entry<String, String> header : request.getHeaders().entrySet()) {
+
+        for (Map.Entry<String, String> header : integrationRequest.getHeaders().entrySet()) {
             requestBuilder.addHeader(header.getKey(), header.getValue());
         }
         for (Map.Entry<String, String> header : commonRequestHeaders.entrySet()) {
             requestBuilder.addHeader(header.getKey(), header.getValue());
         }
 
-        HttpEntity entity = request.createHttpEntity();
-        if (entity != null) {
-            requestBuilder.setEntity(entity);
+        BodyContent bodyContent = integrationRequest.getBodyContent();
+        if (null != bodyContent) {
+            BodyContentConverter bodyContentConverter = new BodyContentConverter(gson, integrationRequest.getAcceptMimeType(), integrationRequest.getBodyEncoding());
+            HttpEntity httpEntity = bodyContent.createEntity(bodyContentConverter);
+            requestBuilder.setEntity(httpEntity);
         }
+
         return requestBuilder.build();
     }
 

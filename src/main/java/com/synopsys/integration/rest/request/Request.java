@@ -15,10 +15,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
-
 import com.synopsys.integration.builder.Buildable;
 import com.synopsys.integration.builder.BuilderStatus;
 import com.synopsys.integration.builder.IntegrationBuilder;
@@ -28,8 +24,6 @@ import com.synopsys.integration.rest.body.BodyContent;
 import com.synopsys.integration.util.Stringable;
 
 public class Request extends Stringable implements Buildable {
-    public static final String DEFAULT_ACCEPT_MIME_TYPE = ContentType.APPLICATION_JSON.getMimeType();
-
     private final HttpUrl url;
     private final HttpMethod method;
     private final String acceptMimeType;
@@ -41,7 +35,7 @@ public class Request extends Stringable implements Buildable {
     public Request(HttpUrl url, HttpMethod method, String acceptMimeType, Charset bodyEncoding, Map<String, Set<String>> queryParameters, Map<String, String> headers, BodyContent bodyContent) {
         this.url = url;
         this.method = method;
-        this.acceptMimeType = StringUtils.isBlank(acceptMimeType) ? DEFAULT_ACCEPT_MIME_TYPE : acceptMimeType;
+        this.acceptMimeType = acceptMimeType;
         this.bodyEncoding = null == bodyEncoding ? StandardCharsets.UTF_8 : bodyEncoding;
         this.queryParameters.putAll(queryParameters);
         this.headers.putAll(headers);
@@ -54,13 +48,6 @@ public class Request extends Stringable implements Buildable {
 
     public Request.Builder createBuilder() {
         return new Builder(this);
-    }
-
-    public HttpEntity createHttpEntity() {
-        if (bodyContent == null) {
-            return null;
-        }
-        return bodyContent.createEntity(this);
     }
 
     public HttpUrl getUrl() {
@@ -140,7 +127,6 @@ public class Request extends Stringable implements Buildable {
             this.url = url;
             this.method = method;
             this.headers.putAll(headers);
-            acceptMimeType = DEFAULT_ACCEPT_MIME_TYPE;
             bodyEncoding = StandardCharsets.UTF_8;
         }
 

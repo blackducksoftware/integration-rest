@@ -14,13 +14,13 @@ import com.synopsys.integration.rest.request.Request;
 public class EntityBodyContent implements BodyContent {
     private final HttpEntity httpEntity;
 
-    public EntityBodyContent(final HttpEntity httpEntity) {
+    public EntityBodyContent(HttpEntity httpEntity) {
         this.httpEntity = httpEntity;
     }
 
     @Override
-    public HttpEntity createEntity(final Request request) {
-        return httpEntity;
+    public HttpEntity createEntity(BodyContentConverter bodyContentConverter) {
+        return bodyContentConverter.fromHttpEntity(httpEntity);
     }
 
 }
