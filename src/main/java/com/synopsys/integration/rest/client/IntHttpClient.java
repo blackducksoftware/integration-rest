@@ -27,6 +27,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -52,6 +53,7 @@ import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.log.LogLevel;
 import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.body.BodyContent;
 import com.synopsys.integration.rest.body.BodyContentConverter;
@@ -62,6 +64,7 @@ import com.synopsys.integration.rest.request.Request;
 import com.synopsys.integration.rest.response.DefaultResponse;
 import com.synopsys.integration.rest.response.ErrorResponse;
 import com.synopsys.integration.rest.response.Response;
+import com.synopsys.integration.util.MaskedStringFieldToStringBuilder;
 
 /**
  * A basic, extendable http client.
@@ -258,15 +261,22 @@ public class IntHttpClient {
     }
 
     public final void logRequestHeaders(HttpUriRequest request) {
-        String requestName = request.getClass().getSimpleName();
-        logger.trace(requestName + " : " + request.toString());
-        logHeaders(requestName, request.getAllHeaders());
+        if (LogLevel.TRACE.isLoggable(logger.getLogLevel())) {
+            // only trace logging is done from here on
+            String requestName = request.getClass().getSimpleName();
+            logger.trace(requestName + " : " + request.toString());
+            logger.debug("just a check");
+            logHeaders(requestName, request.getAllHeaders());
+        }
     }
 
     public final void logResponseHeaders(HttpResponse response) {
-        String responseName = response.getClass().getSimpleName();
-        logger.trace(responseName + " : " + response.toString());
-        logHeaders(responseName, response.getAllHeaders());
+        if (LogLevel.TRACE.isLoggable(logger.getLogLevel())) {
+            // only trace logging is done from here on
+            String responseName = response.getClass().getSimpleName();
+            logger.trace(responseName + " : " + response.toString());
+            logHeaders(responseName, response.getAllHeaders());
+        }
     }
 
     protected void addToHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
@@ -334,14 +344,25 @@ public class IntHttpClient {
     }
 
     private void logHeaders(String requestOrResponseName, Header[] headers) {
+        // only trace logging is done from here on
         if (headers != null && headers.length > 0) {
             logger.trace(requestOrResponseName + " headers : ");
             for (Header header : headers) {
-                logger.trace(String.format("Header %s : %s", header.getName(), header.getValue()));
+                String name = header.getName();
+                String value = getLoggableValue(header);
+                logger.trace(String.format("Header %s : %s", name, value));
             }
         } else {
             logger.trace(requestOrResponseName + " does not have any headers.");
         }
+    }
+
+    private String getLoggableValue(Header header) {
+        if (HttpHeaders.AUTHORIZATION.equals(header.getName())) {
+            return MaskedStringFieldToStringBuilder.MASKED_VALUE;
+        }
+
+        return header.getValue();
     }
 
     public void throwExceptionForError(Response response) throws IntegrationException {
