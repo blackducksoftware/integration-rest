@@ -261,22 +261,15 @@ public class IntHttpClient {
     }
 
     public final void logRequestHeaders(HttpUriRequest request) {
-        if (LogLevel.TRACE.isLoggable(logger.getLogLevel())) {
-            // only trace logging is done from here on
-            String requestName = request.getClass().getSimpleName();
-            logger.trace(requestName + " : " + request.toString());
-            logger.debug("just a check");
-            logHeaders(requestName, request.getAllHeaders());
-        }
+        String requestName = request.getClass().getSimpleName();
+        logger.trace(requestName + " : " + request.toString());
+        logHeaders(requestName, request.getAllHeaders());
     }
 
     public final void logResponseHeaders(HttpResponse response) {
-        if (LogLevel.TRACE.isLoggable(logger.getLogLevel())) {
-            // only trace logging is done from here on
-            String responseName = response.getClass().getSimpleName();
-            logger.trace(responseName + " : " + response.toString());
-            logHeaders(responseName, response.getAllHeaders());
-        }
+        String responseName = response.getClass().getSimpleName();
+        logger.trace(responseName + " : " + response.toString());
+        logHeaders(responseName, response.getAllHeaders());
     }
 
     protected void addToHttpClientBuilder(HttpClientBuilder httpClientBuilder, RequestConfig.Builder defaultRequestConfigBuilder) {
@@ -344,7 +337,6 @@ public class IntHttpClient {
     }
 
     private void logHeaders(String requestOrResponseName, Header[] headers) {
-        // only trace logging is done from here on
         if (headers != null && headers.length > 0) {
             logger.trace(requestOrResponseName + " headers : ");
             for (Header header : headers) {
