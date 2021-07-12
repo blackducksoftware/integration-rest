@@ -27,8 +27,16 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.Gson;
 
 public class BodyContentConverter {
+    @Deprecated
+    /**
+     * @deprecated Please use StringBodyContent.json(String content).
+     */
     public static final ContentType DEFAULT = ContentType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8);
+
+    @Deprecated
     public static final ContentType OCTET_STREAM_UTF_8 = ContentType.APPLICATION_OCTET_STREAM.withCharset(StandardCharsets.UTF_8);
+
+    @Deprecated
     public static final ContentType TEXT_PLAIN_UTF_8 = ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
 
     private final Gson gson;
@@ -57,10 +65,10 @@ public class BodyContentConverter {
     public HttpEntity fromMultipart(Map<String, File> bodyContentFileMap, Map<String, String> bodyContentStringMap) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         for (Map.Entry<String, File> entry : bodyContentFileMap.entrySet()) {
-            builder.addBinaryBody(entry.getKey(), entry.getValue(), OCTET_STREAM_UTF_8, entry.getValue().getName());
+            builder.addBinaryBody(entry.getKey(), entry.getValue(), BodyContent.OCTET_STREAM_UTF_8, entry.getValue().getName());
         }
         for (Map.Entry<String, String> entry : bodyContentStringMap.entrySet()) {
-            builder.addTextBody(entry.getKey(), entry.getValue(), TEXT_PLAIN_UTF_8);
+            builder.addTextBody(entry.getKey(), entry.getValue(), BodyContent.TEXT_PLAIN_UTF_8);
         }
         builder.setCharset(StandardCharsets.UTF_8);
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);

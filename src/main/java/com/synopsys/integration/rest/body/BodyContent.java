@@ -7,11 +7,17 @@
  */
 package com.synopsys.integration.rest.body;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
 
 import com.synopsys.integration.rest.request.Request;
 
 public interface BodyContent {
+    ContentType OCTET_STREAM_UTF_8 = ContentType.APPLICATION_OCTET_STREAM.withCharset(StandardCharsets.UTF_8);
+    ContentType TEXT_PLAIN_UTF_8 = ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
+
     HttpEntity createEntity(BodyContentConverter bodyContentConverter);
 
 }
