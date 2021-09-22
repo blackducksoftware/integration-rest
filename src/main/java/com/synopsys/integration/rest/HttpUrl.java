@@ -15,11 +15,20 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Optional;
 
 public class HttpUrl extends Stringable {
     private String urlString;
     private URI uri;
     private URL url;
+
+    public static Optional<HttpUrl> createSafely(String url) {
+        try {
+            return Optional.of(new HttpUrl(url));
+        } catch (IntegrationException ignored) {
+            return Optional.empty();
+        }
+    }
 
     public HttpUrl(String url) throws IntegrationException {
         populateUrl(url);

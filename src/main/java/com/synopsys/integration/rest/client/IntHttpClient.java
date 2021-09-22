@@ -33,6 +33,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -107,7 +108,7 @@ public class IntHttpClient {
     }
 
     private IntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, SSLContext sslContext) {
-        this(logger, gson, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom(), new HashMap<>(), sslContext);
+        this(logger, gson, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo, new BasicCredentialsProvider(), HttpClientBuilder.create(), RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD), new HashMap<>(), sslContext);
     }
 
     private IntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,

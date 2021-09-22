@@ -79,6 +79,10 @@ public class BodyContentConverter {
         return new StringEntity(bodyContentString, contentType);
     }
 
+    public HttpEntity fromObject(Object bodyContentObject) {
+        return fromObject(bodyContentObject, BodyContent.JSON_UTF_8);
+    }
+
     public HttpEntity fromObject(Object bodyContentObject, ContentType contentType) {
         String bodyContentString = gson.toJson(bodyContentObject);
         return fromString(bodyContentString, contentType);

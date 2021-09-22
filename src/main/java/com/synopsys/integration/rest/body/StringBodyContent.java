@@ -17,7 +17,7 @@ public class StringBodyContent implements BodyContent {
     private final ContentType contentType;
 
     public static final StringBodyContent json(String bodyContentString) {
-        return new StringBodyContent(bodyContentString, ContentType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8));
+        return new StringBodyContent(bodyContentString, BodyContent.JSON_UTF_8);
     }
 
     public StringBodyContent(String bodyContentString, ContentType contentType) {

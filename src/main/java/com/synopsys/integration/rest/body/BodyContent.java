@@ -15,6 +15,7 @@ import org.apache.http.entity.ContentType;
 import com.synopsys.integration.rest.request.Request;
 
 public interface BodyContent {
+    ContentType JSON_UTF_8 = ContentType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8);
     ContentType OCTET_STREAM_UTF_8 = ContentType.APPLICATION_OCTET_STREAM.withCharset(StandardCharsets.UTF_8);
     ContentType TEXT_PLAIN_UTF_8 = ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
 
