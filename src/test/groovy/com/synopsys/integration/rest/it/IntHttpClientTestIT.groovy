@@ -11,6 +11,7 @@ import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.rest.proxy.ProxyInfoBuilder
 import com.synopsys.integration.rest.request.Request
 import org.apache.commons.lang3.math.NumberUtils
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 
@@ -41,6 +42,7 @@ class IntHttpClientTestIT {
     }
 
     @Test
+    @Disabled
     void testPassThroughProxyWithHttp() {
         ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
         proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_PASSTHROUGH")
@@ -55,6 +57,7 @@ class IntHttpClientTestIT {
     }
 
     @Test
+    @Disabled
     void testBasicProxyWithHttp() {
         CredentialsBuilder credentialsBuilder = new CredentialsBuilder()
         credentialsBuilder.setUsername(restConnectionTestHelper.getProperty("TEST_PROXY_USER_BASIC"))
@@ -74,6 +77,7 @@ class IntHttpClientTestIT {
     }
 
     @Test
+    @Disabled
     void testBasicProxyFailsWithoutCredentialsWithHttp() {
         ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
         proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_BASIC")
@@ -90,6 +94,7 @@ class IntHttpClientTestIT {
     }
 
     @Test
+    @Disabled
     void testBasicProxyFailsWithoutCredentialsWithHttps() {
         RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper(TestingPropertyKey.TEST_HTTPS_SERVER_URL.name())
         ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
@@ -107,6 +112,7 @@ class IntHttpClientTestIT {
     }
 
     @Test
+    @Disabled
     void testDigestProxyWithHttp() {
         String proxyUsername = restConnectionTestHelper.getProperty("TEST_PROXY_USER_DIGEST")
         String proxyPassword = restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_DIGEST")
@@ -129,6 +135,7 @@ class IntHttpClientTestIT {
     }
 
     @Test
+    @Disabled
     void testDigestProxyFailsWithoutCredentialsWithHttp() {
         ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
         proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_DIGEST")
@@ -145,6 +152,7 @@ class IntHttpClientTestIT {
     }
 
     @Test
+    @Disabled
     void testNtlmProxyWithHttp() {
         CredentialsBuilder credentialsBuilder = new CredentialsBuilder()
         credentialsBuilder.setUsername(restConnectionTestHelper.getProperty("TEST_PROXY_USER_NTLM"))
@@ -165,6 +173,7 @@ class IntHttpClientTestIT {
     }
 
     @Test
+    @Disabled
     void testNtlmProxyFailsWithoutCredentialsWithHttp() {
         ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder()
         proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
@@ -181,6 +190,7 @@ class IntHttpClientTestIT {
     }
 
     @Test
+    @Disabled
     void testUnauthorizedGet() throws Exception {
         String url = restConnectionTestHelper.getProperty("TEST_AUTHENTICATED_SERVER_URL")
         final IntHttpClient restConnection = restConnectionTestHelper.getRestConnection()
