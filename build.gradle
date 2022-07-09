@@ -14,7 +14,7 @@ description = 'A library wrapping http communication for integrations.'
 apply plugin: 'com.synopsys.integration.library'
 
 dependencies {
-    api 'com.synopsys.integration:integration-common:25.3.3'
+    api 'com.synopsys.integration:integration-common:26.0.2'
 
     api 'org.apache.httpcomponents:httpclient:4.5.13'
     api 'org.apache.httpcomponents:httpmime:4.5.13'
