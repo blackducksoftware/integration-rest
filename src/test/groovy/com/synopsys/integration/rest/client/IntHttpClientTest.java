@@ -35,7 +35,7 @@ public class IntHttpClientTest {
         IntHttpClient client = new IntHttpClient(logger, gson, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo,
                 credentialsProvider, clientBuilder, defaultRequestConfigBuilder, commonRequestHeaders);
 
-        HttpUrl url = new HttpUrl("http://www.blackducksoftware.com/download/thisdoesntexist.zip");
+        HttpUrl url = new HttpUrl("http://www.google.com/download/thisdoesntexist.zip");
         Request getRequest = new Request.Builder()
                 .url(url)
                 .build();
