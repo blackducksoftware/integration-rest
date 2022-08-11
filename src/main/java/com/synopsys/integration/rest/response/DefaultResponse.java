@@ -44,7 +44,6 @@ public class DefaultResponse implements Response {
         this.request = request;
         this.client = client;
         this.response = response;
-        this.storedResponseString = "";
     }
 
     @Override

@@ -75,8 +75,6 @@ public class IntHttpClient {
     public static final Supplier<SSLContext> SSL_CONTEXT_SUPPLIER = SSLContexts::createDefault;
     public static final String ERROR_MSG_PROXY_INFO_NULL = "A IntHttpClient's proxy information cannot be null.";
     public static final int DEFAULT_TIMEOUT = 120;
-    
-    public static ArrayList<String> errMsgs = new ArrayList<String>();
 
     protected final IntLogger logger;
     private final Gson gson;
@@ -333,10 +331,10 @@ public class IntHttpClient {
             logResponseHeaders(closeableHttpResponse);
             if (response.isStatusCodeError()) {
                 // what's returned by getContentString appears to be a JSON 
-                // structure in string form.  We'll accumulate these (if there 
-                // are more than one in a static hashmap that can be accessed elsewhere.
+                // structure in string form.  We have to make this call here in
+                // order to have it available in the response object when it 
+                // handles the error message.
                 String responseContent = response.getContentString();
-                errMsgs.add(responseContent);
                 handleErrorResponse(request, response);
             }
             return response;
