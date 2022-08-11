@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,6 +75,8 @@ public class IntHttpClient {
     public static final Supplier<SSLContext> SSL_CONTEXT_SUPPLIER = SSLContexts::createDefault;
     public static final String ERROR_MSG_PROXY_INFO_NULL = "A IntHttpClient's proxy information cannot be null.";
     public static final int DEFAULT_TIMEOUT = 120;
+    
+    public static ArrayList<String> errMsgs = new ArrayList<String>();
 
     protected final IntLogger logger;
     private final Gson gson;
@@ -329,6 +332,11 @@ public class IntHttpClient {
             Response response = new DefaultResponse(request, client, closeableHttpResponse);
             logResponseHeaders(closeableHttpResponse);
             if (response.isStatusCodeError()) {
+                // what's returned by getContentString appears to be a JSON 
+                // structure in string form.  We'll accumulate these (if there 
+                // are more than one in a static hashmap that can be accessed elsewhere.
+                String responseContent = response.getContentString();
+                errMsgs.add(responseContent);
                 handleErrorResponse(request, response);
             }
             return response;

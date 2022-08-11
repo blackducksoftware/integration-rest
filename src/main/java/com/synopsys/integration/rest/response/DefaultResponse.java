@@ -37,11 +37,14 @@ public class DefaultResponse implements Response {
     private final HttpUriRequest request;
     private final CloseableHttpClient client;
     private final CloseableHttpResponse response;
+    
+    private String storedResponseString = "";
 
     public DefaultResponse(HttpUriRequest request, CloseableHttpClient client, CloseableHttpResponse response) {
         this.request = request;
         this.client = client;
         this.response = response;
+        this.storedResponseString = "";
     }
 
     @Override
@@ -91,7 +94,8 @@ public class DefaultResponse implements Response {
     public String getContentString(Charset encoding) throws IntegrationException {
         if (response.getEntity() != null) {
             try (InputStream inputStream = response.getEntity().getContent()) {
-                return IOUtils.toString(inputStream, encoding);
+                storedResponseString = IOUtils.toString(inputStream, encoding);
+                return storedResponseString;
             } catch (UnsupportedOperationException | IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }
@@ -206,6 +210,16 @@ public class DefaultResponse implements Response {
                 //ignored
             }
 
+            // we've gotten here (presumably) just after a request/response.
+            // IF httpResponseContent is not null or isn't "Stream closed" then fine,
+            // however it appears that when the request is exec'd and an error 
+            // occurs then while it's possible to get usable content in 
+            // IntHttpClient.handleClientExecution, it seems the stream is always
+            // closed by the time it tries to get it in here!  Thus, the getContentString
+            // will store the last succcessful string obtained, whatever it is.
+            if (httpResponseContent != null && httpResponseContent.equals("Stream closed") && this.storedResponseString.toLowerCase().contains("error")) {
+                httpResponseContent = this.storedResponseString;
+            }
             String message = String.format(messageFormat, httpMethod, httpUrl.string(), statusCode, statusCodeDescription, reasonPhraseDescription);
             throw new IntegrationRestException(httpMethod, httpUrl, statusCode, statusMessage, httpResponseContent, message);
         }
