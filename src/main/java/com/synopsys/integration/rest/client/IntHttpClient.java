@@ -70,7 +70,7 @@ import com.synopsys.integration.util.MaskedStringFieldToStringBuilder;
  * A basic, extendable http client.
  */
 public class IntHttpClient {
-    public static final Supplier<SSLContext> SSL_CONTEXT_SUPPLIER = SSLContexts::createSystemDefault;
+    public static final Supplier<SSLContext> SSL_CONTEXT_SUPPLIER = SSLContexts::createDefault;
     public static final String ERROR_MSG_PROXY_INFO_NULL = "A IntHttpClient's proxy information cannot be null.";
     public static final int DEFAULT_TIMEOUT = 120;
 
