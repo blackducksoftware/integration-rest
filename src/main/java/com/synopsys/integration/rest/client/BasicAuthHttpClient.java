@@ -22,6 +22,8 @@ import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.response.Response;
 import com.synopsys.integration.rest.support.AuthenticationSupport;
 
+import javax.net.ssl.SSLContext;
+
 public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     private static final String AUTHORIZATION_TYPE = "Basic";
 
@@ -31,8 +33,16 @@ public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
 
     public BasicAuthHttpClient(IntLogger logger, Gson gson, int timeout, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, AuthenticationSupport authenticationSupport, String username, String password) {
         super(logger, gson, timeout, alwaysTrustServerCertificate, proxyInfo);
-        this.authenticationSupport = authenticationSupport;
 
+        this.authenticationSupport = authenticationSupport;
+        this.username = username;
+        this.password = password;
+    }
+
+    public BasicAuthHttpClient(IntLogger logger, Gson gson, int timeout, ProxyInfo proxyInfo, SSLContext sslContext, AuthenticationSupport authenticationSupport, String username, String password) {
+        super(logger, gson, timeout, proxyInfo, sslContext);
+
+        this.authenticationSupport = authenticationSupport;
         this.username = username;
         this.password = password;
     }
