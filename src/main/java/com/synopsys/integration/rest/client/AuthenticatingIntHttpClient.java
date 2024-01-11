@@ -24,9 +24,15 @@ import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.response.Response;
 
+import javax.net.ssl.SSLContext;
+
 public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
     public AuthenticatingIntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {
         super(logger, gson, timeoutInSeconds, alwaysTrustServerCertificate, proxyInfo);
+    }
+
+    public AuthenticatingIntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, ProxyInfo proxyInfo, SSLContext sslContext) {
+        super(logger, gson, timeoutInSeconds, proxyInfo, sslContext);
     }
 
     public AuthenticatingIntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo, CredentialsProvider credentialsProvider, HttpClientBuilder clientBuilder,
