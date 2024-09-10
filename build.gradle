@@ -8,10 +8,10 @@ buildscript {
 
 plugins { id 'groovy' }
 
-project.ext.moduleName = 'com.synopsys.integration.integration-rest'
+project.ext.moduleName = 'com.blackduck.integration.integration-rest'
 project.ext.junitShowStandardStreams = 'true'
 
-version = '10.4.7-SNAPSHOT'
+version = '11.0.0-SNAPSHOT'
 description = 'A library wrapping http communication for integrations.'
 
 apply plugin: 'com.synopsys.integration.library'
