@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gson.JsonObject;
-import com.synopsys.integration.exception.IntegrationException;
 import com.blackduck.integration.rest.client.IntHttpClient;
 import com.blackduck.integration.rest.component.IntRestResponse;
 import com.blackduck.integration.rest.request.PageRequestHandler;
 import com.blackduck.integration.rest.request.Request;
 import com.blackduck.integration.rest.response.Response;
+import com.google.gson.JsonObject;
+import com.synopsys.integration.exception.IntegrationException;
 
 public class IntResponseTransformer {
     private final IntHttpClient intHttpClient;

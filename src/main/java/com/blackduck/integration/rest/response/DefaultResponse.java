@@ -27,11 +27,11 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import com.synopsys.integration.exception.IntegrationException;
 import com.blackduck.integration.rest.HttpMethod;
 import com.blackduck.integration.rest.HttpUrl;
 import com.blackduck.integration.rest.RestConstants;
 import com.blackduck.integration.rest.exception.IntegrationRestException;
+import com.synopsys.integration.exception.IntegrationException;
 
 public class DefaultResponse implements Response {
     private final HttpUriRequest request;

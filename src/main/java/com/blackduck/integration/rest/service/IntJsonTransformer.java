@@ -17,6 +17,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blackduck.integration.rest.component.IntRestComponent;
+import com.blackduck.integration.rest.component.IntRestResponse;
+import com.blackduck.integration.rest.response.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -29,9 +32,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
-import com.blackduck.integration.rest.component.IntRestComponent;
-import com.blackduck.integration.rest.component.IntRestResponse;
-import com.blackduck.integration.rest.response.Response;
 
 public class IntJsonTransformer {
     private final Gson gson;

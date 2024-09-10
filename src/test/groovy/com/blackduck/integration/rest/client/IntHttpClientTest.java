@@ -1,23 +1,23 @@
 package com.blackduck.integration.rest.client;
 
-import com.blackduck.integration.rest.client.IntHttpClient;
-import com.google.gson.Gson;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.BufferedIntLogger;
-import com.synopsys.integration.log.IntLogger;
-import com.blackduck.integration.rest.HttpUrl;
-import com.blackduck.integration.rest.proxy.ProxyInfo;
-import com.blackduck.integration.rest.request.Request;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.junit.jupiter.api.Test;
+
+import com.blackduck.integration.rest.HttpUrl;
+import com.blackduck.integration.rest.proxy.ProxyInfo;
+import com.blackduck.integration.rest.request.Request;
+import com.google.gson.Gson;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.BufferedIntLogger;
+import com.synopsys.integration.log.IntLogger;
 
 public class IntHttpClientTest {
     private final Gson gson = new Gson();

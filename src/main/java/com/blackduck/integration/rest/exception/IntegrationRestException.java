@@ -7,9 +7,9 @@
  */
 package com.blackduck.integration.rest.exception;
 
-import com.synopsys.integration.exception.IntegrationException;
 import com.blackduck.integration.rest.HttpMethod;
 import com.blackduck.integration.rest.HttpUrl;
+import com.synopsys.integration.exception.IntegrationException;
 
 public class IntegrationRestException extends IntegrationException {
     private static final long serialVersionUID = 1L;

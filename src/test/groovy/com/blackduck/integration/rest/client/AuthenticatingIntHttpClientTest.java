@@ -22,16 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
-import com.blackduck.integration.rest.client.AuthenticatingIntHttpClient;
-import com.blackduck.integration.rest.client.ConnectionResult;
-import com.google.gson.Gson;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
-import com.synopsys.integration.log.Slf4jIntLogger;
 import com.blackduck.integration.rest.RestConstants;
 import com.blackduck.integration.rest.proxy.ProxyInfo;
 import com.blackduck.integration.rest.response.DefaultResponse;
 import com.blackduck.integration.rest.response.Response;
+import com.google.gson.Gson;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.log.Slf4jIntLogger;
 
 class AuthenticatingIntHttpClientTest {
     private boolean isAuthenticated = false;

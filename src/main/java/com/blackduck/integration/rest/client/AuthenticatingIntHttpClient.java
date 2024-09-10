@@ -10,6 +10,8 @@ package com.blackduck.integration.rest.client;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -23,8 +25,6 @@ import com.blackduck.integration.rest.response.Response;
 import com.google.gson.Gson;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
-
-import javax.net.ssl.SSLContext;
 
 public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
     public AuthenticatingIntHttpClient(IntLogger logger, Gson gson, int timeoutInSeconds, boolean alwaysTrustServerCertificate, ProxyInfo proxyInfo) {

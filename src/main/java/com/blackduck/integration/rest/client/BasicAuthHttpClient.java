@@ -9,6 +9,8 @@ package com.blackduck.integration.rest.client;
 
 import java.util.Base64;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -21,8 +23,6 @@ import com.blackduck.integration.rest.support.AuthenticationSupport;
 import com.google.gson.Gson;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
-
-import javax.net.ssl.SSLContext;
 
 public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     private static final String AUTHORIZATION_TYPE = "Basic";

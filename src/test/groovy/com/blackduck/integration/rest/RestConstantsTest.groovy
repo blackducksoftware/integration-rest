@@ -1,6 +1,6 @@
 package com.blackduck.integration.rest
 
-import com.blackduck.integration.rest.RestConstants
+
 import org.junit.jupiter.api.Test
 
 class RestConstantsTest {

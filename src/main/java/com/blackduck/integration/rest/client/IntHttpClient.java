@@ -52,8 +52,11 @@ import org.apache.http.ssl.SSLContexts;
 
 import com.blackduck.integration.rest.HttpMethod;
 import com.blackduck.integration.rest.body.BodyContent;
+import com.blackduck.integration.rest.body.BodyContentConverter;
 import com.blackduck.integration.rest.exception.ApiException;
 import com.blackduck.integration.rest.exception.IntegrationRestException;
+import com.blackduck.integration.rest.proxy.ProxyInfo;
+import com.blackduck.integration.rest.request.Request;
 import com.blackduck.integration.rest.response.DefaultResponse;
 import com.blackduck.integration.rest.response.ErrorResponse;
 import com.blackduck.integration.rest.response.Response;
@@ -61,9 +64,6 @@ import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
-import com.blackduck.integration.rest.body.BodyContentConverter;
-import com.blackduck.integration.rest.proxy.ProxyInfo;
-import com.blackduck.integration.rest.request.Request;
 import com.synopsys.integration.util.MaskedStringFieldToStringBuilder;
 
 /**

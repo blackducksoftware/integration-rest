@@ -7,14 +7,15 @@
  */
 package com.blackduck.integration.rest.credentials;
 
-import com.synopsys.integration.builder.Buildable;
-import com.synopsys.integration.util.MaskedStringFieldToStringBuilder;
-import com.synopsys.integration.util.Stringable;
-import org.apache.commons.lang3.StringUtils;
+import static com.synopsys.integration.util.MaskedStringFieldToStringBuilder.MASKED_VALUE;
 
 import java.util.Optional;
 
-import static com.synopsys.integration.util.MaskedStringFieldToStringBuilder.MASKED_VALUE;
+import org.apache.commons.lang3.StringUtils;
+
+import com.synopsys.integration.builder.Buildable;
+import com.synopsys.integration.util.MaskedStringFieldToStringBuilder;
+import com.synopsys.integration.util.Stringable;
 
 public class Credentials extends Stringable implements Buildable {
     public static final Credentials NO_CREDENTIALS = new Credentials(null, null);

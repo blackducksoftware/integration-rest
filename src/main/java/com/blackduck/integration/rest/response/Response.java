@@ -16,8 +16,8 @@ import java.util.Map;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import com.synopsys.integration.exception.IntegrationException;
 import com.blackduck.integration.rest.exception.IntegrationRestException;
+import com.synopsys.integration.exception.IntegrationException;
 
 public interface Response extends Closeable {
     String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";

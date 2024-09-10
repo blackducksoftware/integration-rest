@@ -1,7 +1,5 @@
 package com.blackduck.integration.rest.it
 
-import com.synopsys.integration.log.IntLogger
-import com.synopsys.integration.log.PrintStreamIntLogger
 import com.blackduck.integration.rest.HttpUrl
 import com.blackduck.integration.rest.RestConstants
 import com.blackduck.integration.rest.client.IntHttpClient

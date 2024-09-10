@@ -1,20 +1,21 @@
 package com.blackduck.integration.rest.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Arrays;
 import java.util.List;
 
-import com.blackduck.integration.rest.service.IntJsonTransformer;
-import com.google.gson.JsonObject;
 import org.junit.jupiter.api.Test;
 
+import com.blackduck.integration.rest.component.IntRestComponent;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.log.LogLevel;
 import com.synopsys.integration.log.PrintStreamIntLogger;
-import com.blackduck.integration.rest.component.IntRestComponent;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class IntJsonTransformerTest {
     private static final String FIELD_STRING_VALUE = "test";

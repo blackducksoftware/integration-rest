@@ -24,15 +24,15 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
 import com.blackduck.integration.rest.HttpMethod;
 import com.blackduck.integration.rest.HttpUrl;
 import com.blackduck.integration.rest.client.AuthenticatingIntHttpClient;
 import com.blackduck.integration.rest.response.DefaultResponse;
 import com.blackduck.integration.rest.response.Response;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
 
 public class AuthenticationSupport {
     public static final List<String> NEED_TO_MANAGE_CONTENT_LENGTH = Arrays.asList(HttpMethod.POST.name(), HttpMethod.PUT.name());

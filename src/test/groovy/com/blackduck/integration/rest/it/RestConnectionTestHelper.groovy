@@ -1,12 +1,12 @@
 package com.blackduck.integration.rest.it
 
+import com.blackduck.integration.rest.HttpUrl
+import com.blackduck.integration.rest.client.IntHttpClient
+import com.blackduck.integration.rest.proxy.ProxyInfo
 import com.google.gson.Gson
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
-import com.blackduck.integration.rest.HttpUrl
-import com.blackduck.integration.rest.client.IntHttpClient
-import com.blackduck.integration.rest.proxy.ProxyInfo
 import okhttp3.OkHttpClient
 import org.apache.commons.lang3.math.NumberUtils
 

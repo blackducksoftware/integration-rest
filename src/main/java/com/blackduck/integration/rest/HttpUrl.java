@@ -7,15 +7,16 @@
  */
 package com.blackduck.integration.rest;
 
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.util.Stringable;
-import org.apache.commons.lang3.StringUtils;
-
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.util.Stringable;
 
 public class HttpUrl extends Stringable {
     private String urlString;
