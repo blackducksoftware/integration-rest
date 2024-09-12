@@ -1,16 +1,15 @@
 package com.blackduck.integration.rest
 
-
+import com.blackduck.integration.exception.IntegrationException
+import com.blackduck.integration.log.IntLogger
+import com.blackduck.integration.log.LogLevel
+import com.blackduck.integration.log.PrintStreamIntLogger
 import com.blackduck.integration.rest.client.IntHttpClient
 import com.blackduck.integration.rest.exception.IntegrationRestException
 import com.blackduck.integration.rest.proxy.ProxyInfo
 import com.blackduck.integration.rest.request.Request
 import com.blackduck.integration.rest.response.Response
 import com.google.gson.Gson
-import com.synopsys.integration.exception.IntegrationException
-import com.synopsys.integration.log.IntLogger
-import com.synopsys.integration.log.LogLevel
-import com.synopsys.integration.log.PrintStreamIntLogger
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer

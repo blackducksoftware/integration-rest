@@ -1,9 +1,9 @@
 /*
  * integration-rest
  *
- * Copyright (c) 2024 Synopsys, Inc.
+ * Copyright (c) 2024 Black Duck Software, Inc.
  *
- * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
+ * Use subject to the terms and conditions of the Black Duck Software End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
 package com.blackduck.integration.rest.client;
 
@@ -17,12 +17,12 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 
+import com.blackduck.integration.exception.IntegrationException;
+import com.blackduck.integration.log.IntLogger;
 import com.blackduck.integration.rest.proxy.ProxyInfo;
 import com.blackduck.integration.rest.response.Response;
 import com.blackduck.integration.rest.support.AuthenticationSupport;
 import com.google.gson.Gson;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
 
 public class BasicAuthHttpClient extends AuthenticatingIntHttpClient {
     private static final String AUTHORIZATION_TYPE = "Basic";

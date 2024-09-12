@@ -1,9 +1,9 @@
 /*
  * integration-rest
  *
- * Copyright (c) 2024 Synopsys, Inc.
+ * Copyright (c) 2024 Black Duck Software, Inc.
  *
- * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
+ * Use subject to the terms and conditions of the Black Duck Software End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
 package com.blackduck.integration.rest.service;
 
@@ -17,6 +17,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blackduck.integration.exception.IntegrationException;
+import com.blackduck.integration.log.IntLogger;
 import com.blackduck.integration.rest.component.IntRestComponent;
 import com.blackduck.integration.rest.component.IntRestResponse;
 import com.blackduck.integration.rest.response.Response;
@@ -30,8 +32,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
 
 public class IntJsonTransformer {
     private final Gson gson;

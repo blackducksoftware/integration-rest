@@ -1,17 +1,17 @@
 /*
  * integration-rest
  *
- * Copyright (c) 2024 Synopsys, Inc.
+ * Copyright (c) 2024 Black Duck Software, Inc.
  *
- * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
+ * Use subject to the terms and conditions of the Black Duck Software End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
 package com.blackduck.integration.rest.proxy;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blackduck.integration.builder.BuilderStatus;
+import com.blackduck.integration.builder.IntegrationBuilder;
 import com.blackduck.integration.rest.credentials.Credentials;
-import com.synopsys.integration.builder.BuilderStatus;
-import com.synopsys.integration.builder.IntegrationBuilder;
 
 public class ProxyInfoBuilder extends IntegrationBuilder<ProxyInfo> {
     private String host;

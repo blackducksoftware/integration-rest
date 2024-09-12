@@ -1,7 +1,7 @@
 package com.blackduck.integration.rest
 
 import com.blackduck.integration.rest.credentials.Credentials
-import com.synopsys.integration.util.MaskedStringFieldToStringBuilder
+import com.blackduck.integration.util.MaskedStringFieldToStringBuilder
 import org.apache.commons.lang3.StringUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

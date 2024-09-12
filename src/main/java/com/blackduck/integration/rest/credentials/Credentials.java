@@ -1,21 +1,21 @@
 /*
  * integration-rest
  *
- * Copyright (c) 2024 Synopsys, Inc.
+ * Copyright (c) 2024 Black Duck Software, Inc.
  *
- * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
+ * Use subject to the terms and conditions of the Black Duck Software End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
 package com.blackduck.integration.rest.credentials;
 
-import static com.synopsys.integration.util.MaskedStringFieldToStringBuilder.MASKED_VALUE;
+import static com.blackduck.integration.util.MaskedStringFieldToStringBuilder.MASKED_VALUE;
 
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.synopsys.integration.builder.Buildable;
-import com.synopsys.integration.util.MaskedStringFieldToStringBuilder;
-import com.synopsys.integration.util.Stringable;
+import com.blackduck.integration.builder.Buildable;
+import com.blackduck.integration.util.MaskedStringFieldToStringBuilder;
+import com.blackduck.integration.util.Stringable;
 
 public class Credentials extends Stringable implements Buildable {
     public static final Credentials NO_CREDENTIALS = new Credentials(null, null);

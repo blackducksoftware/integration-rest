@@ -1,9 +1,9 @@
 /*
  * integration-rest
  *
- * Copyright (c) 2024 Synopsys, Inc.
+ * Copyright (c) 2024 Black Duck Software, Inc.
  *
- * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
+ * Use subject to the terms and conditions of the Black Duck Software End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
 package com.blackduck.integration.rest.client;
 
@@ -50,6 +50,8 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 
+import com.blackduck.integration.exception.IntegrationException;
+import com.blackduck.integration.log.IntLogger;
 import com.blackduck.integration.rest.HttpMethod;
 import com.blackduck.integration.rest.body.BodyContent;
 import com.blackduck.integration.rest.body.BodyContentConverter;
@@ -60,11 +62,9 @@ import com.blackduck.integration.rest.request.Request;
 import com.blackduck.integration.rest.response.DefaultResponse;
 import com.blackduck.integration.rest.response.ErrorResponse;
 import com.blackduck.integration.rest.response.Response;
+import com.blackduck.integration.util.MaskedStringFieldToStringBuilder;
 import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
-import com.synopsys.integration.util.MaskedStringFieldToStringBuilder;
 
 /**
  * A basic, extendable http client.

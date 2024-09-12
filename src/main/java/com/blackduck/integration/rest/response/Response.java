@@ -1,9 +1,9 @@
 /*
  * integration-rest
  *
- * Copyright (c) 2024 Synopsys, Inc.
+ * Copyright (c) 2024 Black Duck Software, Inc.
  *
- * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
+ * Use subject to the terms and conditions of the Black Duck Software End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
 package com.blackduck.integration.rest.response;
 
@@ -16,8 +16,8 @@ import java.util.Map;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 
+import com.blackduck.integration.exception.IntegrationException;
 import com.blackduck.integration.rest.exception.IntegrationRestException;
-import com.synopsys.integration.exception.IntegrationException;
 
 public interface Response extends Closeable {
     String LAST_MODIFIED_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";

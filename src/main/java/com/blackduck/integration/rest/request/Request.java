@@ -1,9 +1,9 @@
 /*
  * integration-rest
  *
- * Copyright (c) 2024 Synopsys, Inc.
+ * Copyright (c) 2024 Black Duck Software, Inc.
  *
- * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
+ * Use subject to the terms and conditions of the Black Duck Software End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
 package com.blackduck.integration.rest.request;
 
@@ -15,13 +15,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.blackduck.integration.builder.Buildable;
+import com.blackduck.integration.builder.BuilderStatus;
+import com.blackduck.integration.builder.IntegrationBuilder;
 import com.blackduck.integration.rest.HttpMethod;
 import com.blackduck.integration.rest.HttpUrl;
 import com.blackduck.integration.rest.body.BodyContent;
-import com.synopsys.integration.builder.Buildable;
-import com.synopsys.integration.builder.BuilderStatus;
-import com.synopsys.integration.builder.IntegrationBuilder;
-import com.synopsys.integration.util.Stringable;
+import com.blackduck.integration.util.Stringable;
 
 public class Request extends Stringable implements Buildable {
     private final HttpUrl url;

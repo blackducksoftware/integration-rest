@@ -9,13 +9,13 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.blackduck.integration.exception.IntegrationException;
+import com.blackduck.integration.log.IntLogger;
+import com.blackduck.integration.log.LogLevel;
+import com.blackduck.integration.log.PrintStreamIntLogger;
 import com.blackduck.integration.rest.component.IntRestComponent;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
-import com.synopsys.integration.log.LogLevel;
-import com.synopsys.integration.log.PrintStreamIntLogger;
 
 public class IntJsonTransformerTest {
     private static final String FIELD_STRING_VALUE = "test";
