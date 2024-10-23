@@ -17,9 +17,9 @@ import com.blackduck.integration.rest.HttpMethod;
 import com.blackduck.integration.rest.HttpUrl;
 import com.blackduck.integration.rest.client.AuthenticatingIntHttpClient;
 
-public class AuthenticationSupportTest {
+class AuthenticationSupportTest {
     @Test
-    public void testContentLengthSetWithoutEntity() throws IntegrationException, IOException {
+    void testContentLengthSetWithoutEntity() throws IntegrationException, IOException {
         CloseableHttpClient mockHttpClient = Mockito.mock(CloseableHttpClient.class);
         HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
         Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
@@ -38,6 +38,28 @@ public class AuthenticationSupportTest {
 
         Assertions.assertTrue(requestCaptor.getValue().containsHeader(HttpHeaders.CONTENT_LENGTH));
         Assertions.assertEquals("0", requestCaptor.getValue().getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue());
+    }
+
+
+
+    @Test
+    void testReplaceAuthorizationHeader() {
+        CloseableHttpClient mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+        HttpClientBuilder mockHttpClientBuilder = Mockito.mock(HttpClientBuilder.class);
+        Mockito.when(mockHttpClientBuilder.build()).thenReturn(mockHttpClient);
+
+        AuthenticatingIntHttpClient mockClient = Mockito.mock(AuthenticatingIntHttpClient.class);
+        Mockito.when(mockClient.getClientBuilder()).thenReturn(mockHttpClientBuilder);
+
+        AuthenticationSupport authenticationSupport = new AuthenticationSupport();
+        RequestBuilder requestBuilder = RequestBuilder.create(HttpMethod.POST.name());
+        HttpUriRequest request = requestBuilder.build();
+
+        authenticationSupport.addAuthenticationHeader(mockClient, request, AuthenticationSupport.AUTHORIZATION_HEADER, "Original Authorization Value");
+        authenticationSupport.addAuthenticationHeader(mockClient, request, AuthenticationSupport.AUTHORIZATION_HEADER, "Updated Authorization Value");
+        Assertions.assertTrue(request.containsHeader(HttpHeaders.AUTHORIZATION));
+        Assertions.assertEquals(1, request.getHeaders(HttpHeaders.AUTHORIZATION).length);
+        Assertions.assertEquals("Updated Authorization Value", request.getFirstHeader(HttpHeaders.AUTHORIZATION).getValue());
     }
 
 }
