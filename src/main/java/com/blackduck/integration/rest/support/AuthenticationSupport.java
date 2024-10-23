@@ -128,7 +128,7 @@ public class AuthenticationSupport {
 
     public void addAuthenticationHeader(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUriRequest request, String headerName, String headerValue) {
         authenticatingIntHttpClient.addCommonRequestHeader(headerName, headerValue);
-        request.addHeader(headerName, headerValue);
+        request.setHeader(headerName, headerValue);
     }
 
 }
