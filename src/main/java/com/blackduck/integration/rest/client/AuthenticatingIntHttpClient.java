@@ -62,9 +62,9 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
         return retryExecute(request, httpContext, 0);
     }
 
-    public final boolean isUnauthorizedOrForbidden(Response response) {
+    public final boolean isUnauthorized(Response response) {
         Integer statusCode = response.getStatusCode();
-        return null == statusCode || statusCode == RestConstants.UNAUTHORIZED_401 || statusCode == RestConstants.FORBIDDEN_403;
+        return null == statusCode || statusCode == RestConstants.UNAUTHORIZED_401;
     }
 
     public boolean canConnect() {
@@ -107,7 +107,7 @@ public abstract class AuthenticatingIntHttpClient extends IntHttpClient {
         }
         Response response = super.execute(request, httpContext);
 
-        boolean notOkay = isUnauthorizedOrForbidden(response);
+        boolean notOkay = isUnauthorized(response);
 
         if (notOkay && retryCount < 2) {
             authenticateRequest(request);

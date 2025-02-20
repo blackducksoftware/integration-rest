@@ -79,7 +79,7 @@ public class AuthenticationSupport {
     }
 
     public void handleErrorResponse(AuthenticatingIntHttpClient authenticatingIntHttpClient, HttpUriRequest request, Response response, String authorizationHeader) {
-        if (authenticatingIntHttpClient.isUnauthorizedOrForbidden(response) && request.containsHeader(authorizationHeader)) {
+        if (authenticatingIntHttpClient.isUnauthorized(response) && request.containsHeader(authorizationHeader)) {
             request.removeHeaders(authorizationHeader);
             authenticatingIntHttpClient.removeCommonRequestHeader(authorizationHeader);
         }
