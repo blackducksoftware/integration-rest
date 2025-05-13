@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class RestConstants {
-    public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
+    public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     /* 2XX: generally "OK" */
     public static final int OK_200 = HttpURLConnection.HTTP_OK;
