@@ -22,7 +22,7 @@ description = 'A library wrapping http communication for integrations.'
 apply plugin: 'com.blackduck.integration.library'
 
 dependencies {
-    api 'com.blackduck.integration:integration-common:27.0.1'
+    api 'com.blackduck.integration:integration-common:27.0.2'
 
     api 'org.apache.httpcomponents:httpclient:4.5.14'
     api 'org.apache.httpcomponents:httpmime:4.5.14'
